@@ -18,6 +18,7 @@ install.
 | Agent | `gate-runner` (mechanical tier) | Runs lint/types/unit/e2e, reports failures only - keeps passing output out of the main context |
 | Agent | `standards-reviewer` (deep tier) | Read-only standards audit of a diff |
 | Agent | `docs-diagram-auditor` (surface tier) | Sweeps docs, and diagram labels when there are any, for stale claims |
+| Command | `/init-workflow` | Runs the `init-workflow` skill - the deterministic entry point for setting up or reconciling the config |
 | Command | `/plan-status` | The task table, open questions, last log entries, next actionable task |
 | Command | `/next-task` | Picks the next ⬜ row and runs the cycle on it |
 | Command | `/deviation` | Appends a departure from the plan to the session log |
@@ -45,8 +46,8 @@ lint config, not in prose. A prose invariant rots.
 /plugin install taskflow@taskflow-tools
 ```
 
-Then run the `init-workflow` skill in the target repo, and `/plan-status` to
-check it took.
+Then run `/init-workflow` in the target repo, and `/plan-status` to check it
+took.
 
 To install from git rather than a local path, push this folder to its own
 repository and add that URL instead.
