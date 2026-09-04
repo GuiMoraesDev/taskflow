@@ -1,0 +1,6 @@
+{
+  "name": "taskflow",
+  "description": "Plan-and-task workflow: PLAN/PROGRESS scaffolding, one-task-per-commit cycle, red-first bug fixes, docs-and-diagram sync, standards review.",
+  "version": "0.1.0",
+  "author": { "name": "Guilherme Moraes" }
+}

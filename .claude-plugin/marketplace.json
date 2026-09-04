@@ -1,0 +1,11 @@
+{
+  "name": "taskflow-tools",
+  "owner": { "name": "Guilherme Moraes" },
+  "plugins": [
+    {
+      "name": "taskflow",
+      "source": "./",
+      "description": "Plan-and-task workflow: PLAN/PROGRESS scaffolding, one-task-per-commit cycle, red-first bug fixes, docs-and-diagram sync, standards review."
+    }
+  ]
+}

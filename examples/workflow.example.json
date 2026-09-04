@@ -1,0 +1,37 @@
+{
+  "projectsDir": "docs/projects",
+  "planTemplates": "plugin",
+  "gates": {
+    "lint": "npm run lint:fix",
+    "types": "npm run check-types",
+    "unit": "npm run test:unit",
+    "e2e": "npm run test:e2e"
+  },
+  "e2eTriggerPaths": ["src/server/**", "src/ui/**"],
+  "docsChecklist": [
+    {
+      "path": "CLAUDE.md",
+      "owns": "the workflow, the test conventions, the code standards"
+    },
+    {
+      "path": "README.md",
+      "owns": "what the product does, and how a new dev gets it running"
+    },
+    {
+      "path": "docs/architecture/CODE-MAP.md",
+      "owns": "entry points, module boundaries, where state lives"
+    },
+    {
+      "path": "docs/architecture/README.md",
+      "owns": "the decisions, the open issues with stable IDs, the constants table"
+    }
+  ],
+  "diagrams": {
+    "maintain": true,
+    "glob": "docs/architecture/diagrams/*.excalidraw",
+    "format": "excalidraw",
+    "editedBy": "human"
+  },
+  "commitTypes": ["fix", "feat", "refactor", "chore", "docs", "test"],
+  "models": { "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }
+}
