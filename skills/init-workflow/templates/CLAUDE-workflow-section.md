@@ -10,12 +10,14 @@ Before touching code, create `SCOPE.md`, `TASKS.md`, `QUESTIONS.md` and
 `PROGRESS.md` in `<PROJECTS_DIR>/<project-name>/`. Run `/plan-start
 <project-name>` to scaffold them.
 
-**This cycle is authoritative for applying a task**, whatever else is installed.
-Other planning or implementation workflows may be available in this environment;
-a task lands through `task-run` - gates, review, one commit, session log - and a
-second pipeline running beside it would give two answers to what work exists and
-what is done. Borrow freely from other tools at design time; apply through this
-one.
+<!-- Keep the next paragraph only if this repo also uses another planning or
+     implementation workflow. Delete it otherwise: it answers a question a
+     single-workflow repo never has to ask. -->
+
+Applying a task goes through `task-run` - gates, review, one commit, session log.
+Where a second workflow could also apply work, say here which one binds: two
+pipelines tracking the same work give two answers about what is done, and the
+choice of which owns it is the repo owner's, not something either tool settles.
 
 One task per commit, applied and reviewed one at a time. Every task declares the
 model that must take it - switch to that model **before** starting the task.
