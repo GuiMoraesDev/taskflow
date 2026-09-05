@@ -34,11 +34,13 @@ from the plan go in the session log.
 Open questions live in `QUESTIONS.md`, each carrying a recommendation and sitting
 in `PROGRESS.md` directly above the task it blocks. They are put to the repo
 owner when the run reaches that task and not before, and an answer given ahead of
-time is recorded rather than re-asked. A 🟦 routine question left unanswered at
-its task defaults to the recommendation and says so; a ⚠️ critical one - hard,
-unreversible, or carrying a security consequence such as an unchecked object
-reference - stops the run instead, and so does any answer that leaves the next
-step genuinely unclear.
+time is recorded rather than re-asked. An unanswered question blocks its task,
+whatever its mark - the recommendation exists so the answer is cheap to give, not
+so the work can proceed without it. The mark sets how the question is put: 🟦
+routine goes over in a line, while ⚠️ critical - hard, unreversible, or carrying
+a security consequence such as an unchecked object reference - leads with what
+the wrong answer costs. An answer that leaves the next step genuinely unclear
+blocks too.
 
 ## Commands
 

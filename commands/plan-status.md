@@ -15,8 +15,9 @@ Report, and nothing else:
 1. The ledger as it stands, questions in their positions, with a count line:
    `n done · n in progress · n pending · n blocked`.
 2. Any **unanswered** open question: its ID, its mark, the task it blocks, and
-   its recommendation in one line. Flag the ⚠️ ones separately - those are the
-   ones that will stop the run rather than default through it.
+   its recommendation in one line. Every one of them is holding its task, so say
+   which tasks are unreachable until they are answered. Flag the ⚠️ ones
+   separately - those are the ones whose consequences the owner has to weigh.
 3. The last three session-log entries, one line each.
 4. The next actionable task - the first ⬜ that is not blocked - and the model it
    declares. Do not start it.

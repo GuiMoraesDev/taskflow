@@ -60,9 +60,9 @@ repository and add that URL instead.
 2. One task is one commit. Each declares a category, the tier that must take it,
    its files, and how it will be verified.
 3. Every open question carries a recommendation, and is asked at the task that
-   needs it - not up front. Routine ones default to the recommendation and say
-   so; hard or security-bearing ones stop the run until the owner answers, with
-   the consequence stated plainly.
+   needs it - not up front. An unanswered question blocks that task: the
+   recommendation makes the answer cheap, it never stands in for one. Hard or
+   security-bearing questions are put with their consequences stated plainly.
 4. Apply one task, present it, gate it, commit it, log it. Then stop.
 5. A bug fix ships a test watched failing against the old behaviour.
 6. The docs checklist is walked before a behaviour change is called done - with

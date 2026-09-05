@@ -56,8 +56,10 @@ Four sections, matching the four files the plan is written into.
   rate limit, anything logged. For those, spell out the consequence of the wrong
   answer in incident-report terms: "any authenticated user could read another
   user's invoices by guessing the ID", not "a security concern". When torn
-  between the marks, choose ⚠️ - over-marking costs one question, under-marking
-  ships the vulnerability as a default.
+  between the marks, choose ⚠️ - both block their task either way, so the only
+  cost of over-marking is a consequence spelled out that did not need to be,
+  while under-marking lets an owner wave a vulnerability through without ever
+  being told it was one.
 
 - **Findings** - anything you learned that contradicts the request.
 

@@ -15,12 +15,14 @@ Then run the question gate, which is step 0. Read the task's **Blocked by** line
 in `TASKS.md` and settle each question it names against `QUESTIONS.md`:
 
 - Answered already - proceed, and do not re-ask it.
-- 🟦 unanswered - apply the recommendation, record it as _applied by default_,
-  and say so.
-- ⚠️ unanswered - stop. Put it to the owner leading with the consequence, mark
-  the rows 🚧, and go no further.
+- Unanswered - **stop**, whatever its mark. Put it to the owner with its
+  recommendation, leading with the consequence when it is ⚠️, mark the question
+  row and the task row 🚧, and go no further on this task.
 - Answered but still ambiguous - stop. Say what is undetermined rather than
   inferring the rest.
+
+Never apply a recommendation yourself to keep the task moving. The recommendation
+is there to make the owner's answer cheap, not to stand in for it.
 
 Raise **only** the questions this task needs. Questions attached to later tasks
 stay unasked, however tempting it is to clear them in one go. If the owner has

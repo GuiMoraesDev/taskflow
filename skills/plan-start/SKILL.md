@@ -56,12 +56,12 @@ Copy `templates/QUESTIONS.md`. Number the questions **in the order the tasks nee
 
 **Every question carries a recommendation.** No exceptions. A question handed to the owner without a recommendation is unfinished work - you read the code, they did not.
 
-Then mark each one:
+Then mark each one. The mark sets how hard the question is pressed - every question blocks its task either way.
 
-- **🟦 routine** - a preference, a name, a default. Cheap to reverse, and living with the recommendation is fine.
+- **🟦 routine** - a preference, a name, a default. Cheap to reverse. Put to the owner in a line.
 - **⚠️ critical** - hard, expensive to reverse, narrowly specific to this business, high priority, **or carrying any security consequence**. These get a `Consequence:` line per option and a `Consequence of getting this wrong:` line for the question, written in the terms an incident report would use.
 
-Mark ⚠️ whenever the answer changes who can read or write data, crosses a trust boundary, or touches authorization - an unchecked object reference (IDOR), a permission default, a token lifetime, a field added to a public response, a rate limit, anything logged. When in doubt between the two marks, it is ⚠️. The cost of over-marking is one question asked; the cost of under-marking is a vulnerability applied by default.
+Mark ⚠️ whenever the answer changes who can read or write data, crosses a trust boundary, or touches authorization - an unchecked object reference (IDOR), a permission default, a token lifetime, a field added to a public response, a rate limit, anything logged. When in doubt between the two marks, it is ⚠️. The cost of over-marking is a consequence spelled out that did not need to be; the cost of under-marking is an owner waving through a vulnerability because nobody told them it was one.
 
 ## 6. Write PROGRESS.md
 
@@ -71,9 +71,10 @@ The asking rules are the point of the ordering:
 
 - **Ask late.** A question is put to the owner when the run reaches the task below it. Do not open the plan by asking all of them.
 - **Accept early.** If the owner answers one before it is asked, record it in `QUESTIONS.md` and flip the row immediately. Never re-ask what has been answered.
-- **🟦 unanswered at its task:** apply the recommendation, mark it _applied by default_, log it.
-- **⚠️ unanswered at its task:** stop. The task does not start.
+- **Unanswered at its task: stop.** The task does not start, whatever the mark. A recommendation lets the owner answer in one word; it is not permission to proceed without them.
 - **Unsure either way** - the answer was ambiguous, or it opened something the plan did not consider - the row stays 🚧 and progress stops. Do not resolve an owner's half-answer by inference.
+
+The mark decides how the question is put, not whether it blocks. 🟦 goes over in a line; ⚠️ leads with the consequence. Both stop the task until answered.
 
 ## 7. Hand back
 

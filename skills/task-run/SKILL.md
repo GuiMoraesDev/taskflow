@@ -28,21 +28,30 @@ Read the task's **Blocked by** line in `TASKS.md`. For each question it names, g
 to `QUESTIONS.md` and act on its state - this is the only moment these questions
 are raised, and the reason they were not raised earlier.
 
-| State                              | Do                                                                                                                          |
-| ---------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| Already answered                   | Proceed. Never re-ask - the owner may have answered it turns ago, unprompted                                                |
-| 🟦 unanswered                      | Apply the recommendation, write it into `QUESTIONS.md` as _applied by default_, flip the ledger row ✅, and say so in the log |
-| ⚠️ unanswered                      | **Stop.** Put it to the owner with its options and consequences, mark the question row and the task row 🚧, and wait         |
-| Answered, but you are still unsure | **Stop.** Mark 🚧 and say precisely what is still undetermined                                                                |
+| State                              | Do                                                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Already answered                   | Proceed. Never re-ask - the owner may have answered it turns ago, unprompted                                          |
+| Unanswered                         | **Stop.** Put it to the owner with its recommendation, mark the question row and the task row 🚧, and wait           |
+| Answered, but you are still unsure | **Stop.** Mark 🚧 and say precisely what is still undetermined                                                          |
 
-That last row is the one that matters. An answer that is ambiguous, that assumes
-something the plan did not, or that opens a case nobody considered is not an
-answer yet. Resolving it by inference is how a plan quietly becomes a different
-plan. Ask again - the cost is one message.
+**An unanswered question blocks its task. There is no default-through path.** The
+recommendation is there so the owner can answer in one word - it is not standing
+permission to proceed without them. Applying your own recommendation and
+continuing is the failure this gate exists to prevent: it converts a question
+into a decision nobody made, and the ledger will show it as settled.
+
+The last row matters as much as the middle one. An answer that is ambiguous, that
+assumes something the plan did not, or that opens a case nobody considered is not
+an answer yet. Resolving it by inference is how a plan quietly becomes a
+different plan. Ask again - the cost is one message.
 
 When you put a ⚠️ question to the owner, lead with the consequence, not the
 options. "Answering B means any authenticated user can fetch another user's
 invoice by ID" is the sentence they need; the enumeration comes after it.
+
+Blocking stops the task, not the session. If a later task does not depend on the
+question, it may be taken instead - but say that you are stepping past a blocked
+row, and never quietly reorder the ledger to avoid the question.
 
 ## Step 1 - the model
 
@@ -109,6 +118,5 @@ evidence of what was expected, the log is evidence of what was true.
 never mark ✅ on a partial.
 
 A question settled during the task gets its own line: the ID, the decision, and
-whether the owner made it or the recommendation was applied by default. A default
-that nobody ever explicitly agreed to is exactly the thing a reader will want to
-find later.
+the owner's reasoning in a phrase. Every decision in the log is one a person
+actually made - that is the property this workflow is protecting.

@@ -4,12 +4,19 @@ Decisions the plan cannot make on its own. Each is numbered, ordered by the task
 that needs it, owned by the repo owner, and answered **here** - not in a chat
 message that scrolls away.
 
+**An unanswered question blocks its task. Always.** There is no default-through
+path: a recommendation is advice for the owner to accept, never permission to
+proceed without them. The run stops at the task and waits.
+
 Risk: 🟦 routine · ⚠️ critical
 
-| Mark | Means                                                                                                                    | If still unanswered when its task comes up                                     |
-| ---- | ------------------------------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| 🟦   | A preference, a name, a default. The recommendation is safe to live with and cheap to reverse                            | Apply the recommendation, record it here as _applied by default_, and log it |
-| ⚠️   | Hard, expensive to reverse, narrowly specific to this business, high priority, **or carrying any security consequence** | **Stop.** The task does not start. Never apply the recommendation silently   |
+The mark says how hard the question is to answer and how much the answer costs -
+not whether it blocks. Both block.
+
+| Mark | Means                                                                                                                    | How it is put to the owner                                                                        |
+| ---- | ------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------- |
+| 🟦   | A preference, a name, a default. Cheap to reverse                                                                        | The question and the recommendation. Usually one line back                                        |
+| ⚠️   | Hard, expensive to reverse, narrowly specific to this business, high priority, **or carrying any security consequence** | Lead with the consequence, then the options. The owner has to see what the wrong answer costs |
 
 ⚠️ is not a mood. It applies whenever the answer changes who can read or write
 data, crosses a trust boundary, or touches authorization - an object reference
@@ -35,7 +42,7 @@ unfinished work handed to the owner.
 
 **Recommendation:** A, because ... . Reversible by ... .
 
-**Decision:** _unanswered_
+**Decision:** _unanswered — TASK-2 is blocked_
 
 ---
 

@@ -12,7 +12,7 @@ order things are needed.
 | ------ | ----------- | --------- | ----------------------------------- | --------------------- |
 | TASK-1 | 🔴 Bug      | 🧠 Opus   | Short description                   | ⬜ pending            |
 | Q1     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-2      | ⬜ unanswered         |
-| TASK-2 | 🟡 Refactor | ⚙️ Sonnet | Short description                   | ⬜ pending            |
+| TASK-2 | 🟡 Refactor | ⚙️ Sonnet | Short description                   | 🚧 blocked on Q1      |
 | Q2     | ❓ ⚠️        | 🙋 Owner  | Short question — blocks TASK-5      | 🚧 blocking TASK-5    |
 | TASK-5 | 🟡 Refactor | ⚙️ Sonnet | Short description                   | 🚧 blocked on Q2      |
 | Q3     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-7      | ✅ answered: **B**    |
@@ -28,14 +28,20 @@ The full text of each question - options, consequences, recommendation - lives i
 - **Accept early.** If the owner answers before it is asked, record the decision
   in `QUESTIONS.md` and flip the row to ✅ the moment it is said. Never re-ask a
   question that already has an answer.
-- **🟦 unanswered when its task comes up:** apply the recommendation, mark the row
-  ✅ _applied by default_, and say so in the session log.
-- **⚠️ unanswered when its task comes up:** the row goes 🚧 and so does the task.
-  Nothing below it starts. Put the question to the owner with its consequences
-  and wait.
+- **Unanswered when its task comes up:** the row goes 🚧 and so does the task.
+  The task does not start. Put the question to the owner - with its consequences
+  when it is ⚠️ - and wait for a real answer.
 - **An answer that does not settle it** - ambiguous, or it opens something the
   plan did not consider - leaves the row 🚧. Guessing at an owner's half-answer
   is worse than asking twice.
+
+Nothing here defaults through. A recommendation exists so the owner can answer in
+one word, not so the run can proceed without them - a plan that decides its own
+open questions was never blocked by them.
+
+A blocked task does not stop the whole run, only itself. If a later task is
+independent of the question, it may proceed; say that you are stepping past a
+blocked row rather than reordering the ledger silently.
 
 Record the model that turned out true - a task planned 🔧 and applied on ⚙️ is a
 deviation for the session log.
