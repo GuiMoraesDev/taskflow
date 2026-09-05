@@ -34,11 +34,13 @@ are raised, and the reason they were not raised earlier.
 | Unanswered                         | **Stop.** Put it to the owner with its recommendation, mark the question row and the task row 🚧, and wait           |
 | Answered, but you are still unsure | **Stop.** Mark 🚧 and say precisely what is still undetermined                                                          |
 
-**An unanswered question blocks its task. There is no default-through path.** The
-recommendation is there so the owner can answer in one word - it is not standing
-permission to proceed without them. Applying your own recommendation and
-continuing is the failure this gate exists to prevent: it converts a question
-into a decision nobody made, and the ledger will show it as settled.
+**An unanswered question blocks its task.** Wait for the owner. The
+recommendation exists so their answer costs one word - that is its whole job.
+
+Every decision this ledger records is one a person actually made, and protecting
+that property is what the gate is for. A question the agent closes on its own
+reads as settled to every later reader, so the record ends up claiming an
+agreement that never happened.
 
 The last row matters as much as the middle one. An answer that is ambiguous, that
 assumes something the plan did not, or that opens a case nobody considered is not
@@ -49,9 +51,33 @@ When you put a ⚠️ question to the owner, lead with the consequence, not the
 options. "Answering B means any authenticated user can fetch another user's
 invoice by ID" is the sentence they need; the enumeration comes after it.
 
-Blocking stops the task, not the session. If a later task does not depend on the
-question, it may be taken instead - but say that you are stepping past a blocked
-row, and never quietly reorder the ledger to avoid the question.
+Blocking stops the task, not the session. Every ⬜ task whose blockers are settled
+is on the **frontier** and may be taken instead - say which row you are taking and
+which blocked row you are stepping past, and leave the ledger's order as it is.
+Reordering hides the fact that something is stuck.
+
+### When the question is a knot
+
+Sometimes a blocked task is not waiting on one decision but on a tangle of them,
+where no single answer means anything on its own. Serialising a knot through the
+gate is the wrong shape: each answer arrives without the context of the others,
+and the owner ends up re-deciding the first one after hearing the third.
+
+Name it for what it is - a design problem rather than a decision - and recommend
+a design session before the plan continues. Then bring what it settles back as
+answered entries with their provenance, and re-plan the affected tasks if the
+shape changed.
+
+### When a decision should outlive the plan
+
+The plan folder is gitignored. A decision that meets all three of hard to
+reverse, surprising without context, and a genuine trade-off belongs in the
+repository, not in a file that dies with the project folder.
+
+`.claude/workflow.json` `decisions.adrDir` says where. Write it there as part of
+the task's commit, and note in the session log where it landed. When the repo has
+no such place, say so once when the decision is made so the owner can choose to
+keep it somewhere.
 
 ## Step 1 - the model
 

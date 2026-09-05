@@ -26,6 +26,10 @@
       "owns": "the decisions, the open issues with stable IDs, the constants table"
     }
   ],
+  "decisions": {
+    "adrDir": "docs/adr",
+    "glossary": "CONTEXT.md"
+  },
   "diagrams": {
     "maintain": true,
     "glob": "docs/architecture/diagrams/*.excalidraw",

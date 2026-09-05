@@ -39,9 +39,20 @@ Nothing here defaults through. A recommendation exists so the owner can answer i
 one word, not so the run can proceed without them - a plan that decides its own
 open questions was never blocked by them.
 
-A blocked task does not stop the whole run, only itself. If a later task is
-independent of the question, it may proceed; say that you are stepping past a
-blocked row rather than reordering the ledger silently.
+## The frontier
+
+The **frontier** is every ⬜ task whose blockers are all settled: the work that
+could be picked up right now. A blocked task holds itself, not the run - if
+another task is independent of the open question, it is on the frontier and may
+be taken.
+
+The ledger's order is the intended order, so the top of the frontier is the
+default choice. Taking a different one is a fine call to make out loud: say which
+row you are taking and which blocked row you are stepping past, and leave the
+ledger's order alone. Reordering hides the fact that something is stuck.
+
+When the frontier is empty and the plan is not finished, every remaining task is
+waiting on the owner. Say exactly that, and list what they owe.
 
 Record the model that turned out true - a task planned 🔧 and applied on ⚙️ is a
 deviation for the session log.
@@ -55,7 +66,9 @@ what actually changed, and record anything that turned out differently from the
 plan. Answered questions get an entry too - the decision is part of the history
 of the work.
 
-**YYYY-MM-DD** — Q1 answered: **A**. One line on the owner's reasoning.
+**YYYY-MM-DD** — Q1 answered: **A**, by the owner at the gate. One line on their
+reasoning. Note here when a decision was graduated to the repo's decision record,
+and where it landed.
 
 **YYYY-MM-DD** — TASK-1 applied (`abc1234`). What changed, in a sentence or two.
 For a bug: what the defect actually was, and confirmation that the regression

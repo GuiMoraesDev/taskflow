@@ -34,6 +34,7 @@ edited after the last run. Write the file only once the answers are in.
 | `gates`           | Read `package.json` scripts, or the `Makefile`, `justfile`, `Cargo.toml`, `pyproject.toml`. Map lint / types / unit / e2e to the **script names that exist**. Omit a gate the repo has no script for - never invent one |
 | `e2eTriggerPaths` | The paths whose changes need the slow suite. Ask if it is not obvious                                                                                                                                                   |
 | `docsChecklist`   | One row per doc that must stay true, each with what it owns. Read the repo's docs before writing rows                                                                                                                   |
+| `decisions`       | Where the repo keeps decision records and its glossary, if it keeps either. **Detect, do not create - see below**                                                                                                       |
 | `diagrams`        | **Not yours to decide. Ask - step 3.** Find the candidates first, excluding copies: see the command below                                                                                                               |
 | `commitTypes`     | Conventional-commit types the repo already uses - check `git log --format=%s -n 40`                                                                                                                                     |
 | `models`          | **Not detectable. Ask - step 2.**                                                                                                                                                                                       |
@@ -45,6 +46,21 @@ triple the count:
 ```bash
 git ls-files '*.excalidraw' '*.drawio' '*.mmd' '*.d2' '*.puml'
 ```
+
+### `decisions` - detect only
+
+`decisions.adrDir` is where a hard decision goes when it is worth keeping past
+the plan folder, and `decisions.glossary` is the doc whose vocabulary the plan
+should use. Both are pointers to places the repo **already has**:
+
+```bash
+git ls-files | grep -iE '(^|/)(adr|decisions)/|(^|/)(CONTEXT|GLOSSARY)\.md$'
+```
+
+Record what you find and omit what you do not. Creating an ADR folder for a repo
+that does not keep one is a practice decision, and it belongs to the owner - say
+in your report that the key is unset and what that costs: a hard decision made
+during a plan lives only in the gitignored plan folder and is lost with it.
 
 ## 2. Ask which model takes each tier
 

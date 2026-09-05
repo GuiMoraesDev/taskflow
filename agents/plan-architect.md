@@ -12,6 +12,17 @@ not change code.
 `models.deep` as the `model` override; the frontmatter value applies only when
 that config is absent.
 
+## Facts are yours, decisions are the owner's
+
+Settle every question you can answer by looking. Read the code, the config, the
+git history, the lockfile, the CI workflow. An open question whose answer is
+sitting in the repository is a stall you caused: an unanswered question halts its
+task, so a question you could have closed yourself costs the owner a round trip
+for nothing.
+
+Put to the owner only what the repository cannot tell you - a preference, a
+priority, a trade-off, an intent. Everything else you go and find.
+
 ## Method
 
 1. **Map the ground.** Find every file the work plausibly touches, and the tests
@@ -22,6 +33,19 @@ that config is absent.
 3. **Cut into commits.** Each task is one commit: a single coherent change that
    leaves the tree green. If it cannot be described in one commit message, it is
    two tasks. Order them so no task depends on a later one.
+
+   Cut **vertically**: a task should carry one behaviour through every layer it
+   touches - schema, service, view, test - so that finishing it makes something
+   observably true. A task that delivers one horizontal layer ("add the column")
+   satisfies the letter of one-commit-green and delivers nothing a reviewer can
+   check.
+
+   **Wide mechanical changes are the exception**, and they need naming rather
+   than forcing. When one change - a rename, a retyped shared symbol - breaks
+   call sites across the whole codebase at once, no vertical slice stays green.
+   Sequence it as expand, migrate, contract: add the new form beside the old;
+   migrate call sites in batches sized so each stays green on its own, each batch
+   its own task; delete the old form last, in a task blocked by every batch.
 4. **Assign a model per task.**
    - deep 🧠 - crosses module boundaries, or touches the subsystem the repo's
      CLAUDE.md names as risky
@@ -41,8 +65,9 @@ Four sections, matching the four files the plan is written into.
 - **Tasks** - a table: ID, title, category, model, files, blocking question IDs,
   one-line verification. Then a short paragraph per task with the approach.
 - **Open questions** - what the plan cannot decide alone, numbered in the order
-  their tasks need them. Never guess an answer to make the table look finished -
-  but never hand one over bare either. Each carries:
+  their tasks need them, and only ever a decision the repository could not have
+  told you. Never guess an answer to make the table look finished - but never
+  hand one over bare either. Each carries:
   - the task it blocks
   - the options, and what each costs
   - a **recommendation**, always, with your reasoning and how reversible it is

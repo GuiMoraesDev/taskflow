@@ -13,6 +13,21 @@ every row, and verify it against the change - not against your memory of it.
 Report per row: **still true** / **updated** / **outstanding**. No row is skipped
 silently.
 
+## 1a. The glossary, if there is one
+
+`.claude/workflow.json` `decisions.glossary` names the doc that owns the repo's
+vocabulary. When the key is set, check it in the same pass: a change that
+introduces a domain term, renames one, or splits one concept into two has changed
+the language, and the glossary owns that.
+
+Report a term the code now uses that the glossary does not define, and a
+definition the code has drifted away from. Where the two disagree, say which is
+which and let the owner settle it - the glossary is a decision record, not a
+description you may overwrite to match the code.
+
+When the key is absent, skip this. A repo without a glossary made that choice;
+do not propose one as a gap.
+
 ## 2. The diagrams, if there are any
 
 Read `.claude/workflow.json` `diagrams`.

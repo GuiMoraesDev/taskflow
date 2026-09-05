@@ -12,7 +12,7 @@ install.
 | Skill | `plan-start` | Scaffolds `SCOPE.md` + `TASKS.md` + `QUESTIONS.md` + `PROGRESS.md`: scope, one-commit tasks with a category and model each, and every open question carrying a recommendation |
 | Skill | `task-run` | The per-task cycle - model check, 🔄, change, review, gates, commit, ✅, session log - then stop |
 | Skill | `bug-red-test` | Makes a regression test red against the old behaviour before the fix ships |
-| Skill | `docs-sync` | The docs checklist, plus the diagram sweep when the repo keeps diagrams |
+| Skill | `docs-sync` | The docs checklist, plus the glossary and the diagram sweep when the repo keeps them |
 | Skill | `standards-review` | Audits a diff against the standards the repo's `CLAUDE.md` states |
 | Agent | `plan-architect` (deep tier) | Surveys the code and returns the task breakdown a plan needs |
 | Agent | `gate-runner` (mechanical tier) | Runs lint/types/unit/e2e, reports failures only - keeps passing output out of the main context |
@@ -28,8 +28,8 @@ install.
 
 Everything repo-specific lives in one file the target repo owns:
 `.claude/workflow.json` - gate commands, the plan folder, which paths need e2e,
-the docs checklist, whether diagrams are kept, and which model each difficulty
-tier runs on. `examples/workflow.example.json` is the shape; `init-workflow`
+the docs checklist, where decision records and the glossary live, whether
+diagrams are kept, and which model each difficulty tier runs on. `examples/workflow.example.json` is the shape; `init-workflow`
 fills it in by reading the repo and asking what it cannot read. The plugin
 carries the procedure, `CLAUDE.md` and `workflow.json` carry the repo's rules.
 
@@ -57,11 +57,14 @@ repository and add that URL instead.
 1. No code before the four plan docs exist. `SCOPE.md` names what may change and
    the tempting things that may not, `TASKS.md` holds the work, `QUESTIONS.md`
    holds what is undecided, `PROGRESS.md` is the ledger.
-2. One task is one commit. Each declares a category, the tier that must take it,
-   its files, and how it will be verified.
-3. Every open question carries a recommendation, and is asked at the task that
-   needs it - not up front. An unanswered question blocks that task: the
-   recommendation makes the answer cheap, it never stands in for one. Hard or
+2. One task is one commit, cut vertically so finishing it makes something
+   observably true. Each declares a category, the tier that must take it, its
+   files, and how it will be verified. A wide mechanical change is sequenced
+   expand, migrate, contract rather than forced into slices that cannot go green.
+3. Questions are for decisions only - anything the repo can answer, the agent
+   reads for itself. Each carries a recommendation and is asked at the task that
+   needs it, not up front. An unanswered question blocks that task; the
+   recommendation makes the answer cheap rather than standing in for one. Hard or
    security-bearing questions are put with their consequences stated plainly.
 4. Apply one task, present it, gate it, commit it, log it. Then stop.
 5. A bug fix ships a test watched failing against the old behaviour.

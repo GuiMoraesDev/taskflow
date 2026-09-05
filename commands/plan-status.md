@@ -19,8 +19,12 @@ Report, and nothing else:
    which tasks are unreachable until they are answered. Flag the ⚠️ ones
    separately - those are the ones whose consequences the owner has to weigh.
 3. The last three session-log entries, one line each.
-4. The next actionable task - the first ⬜ that is not blocked - and the model it
-   declares. Do not start it.
+4. The **frontier**: every ⬜ task whose blockers are settled, with the model each
+   declares. The ledger's order says which is preferred, so list that one first.
+   Do not start any of them.
+
+   When the frontier is empty and the plan is unfinished, say so plainly - every
+   remaining task is waiting on the owner - and list what they owe.
 
 This is a status report, not the question gate. Listing an open question here is
 not asking it: do not press the owner for an answer to a question whose task is

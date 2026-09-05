@@ -10,6 +10,13 @@ Before touching code, create `SCOPE.md`, `TASKS.md`, `QUESTIONS.md` and
 `PROGRESS.md` in `<PROJECTS_DIR>/<project-name>/`. Run `/plan-start
 <project-name>` to scaffold them.
 
+**This cycle is authoritative for applying a task**, whatever else is installed.
+Other planning or implementation workflows may be available in this environment;
+a task lands through `task-run` - gates, review, one commit, session log - and a
+second pipeline running beside it would give two answers to what work exists and
+what is done. Borrow freely from other tools at design time; apply through this
+one.
+
 One task per commit, applied and reviewed one at a time. Every task declares the
 model that must take it - switch to that model **before** starting the task.
 
@@ -34,7 +41,9 @@ from the plan go in the session log.
 Open questions live in `QUESTIONS.md`, each carrying a recommendation and sitting
 in `PROGRESS.md` directly above the task it blocks. They are put to the repo
 owner when the run reaches that task and not before, and an answer given ahead of
-time is recorded rather than re-asked. An unanswered question blocks its task,
+time is recorded with where it came from, rather than re-asked. Questions are for
+decisions only: anything this repository can answer, the agent reads for itself.
+An unanswered question blocks its task,
 whatever its mark - the recommendation exists so the answer is cheap to give, not
 so the work can proceed without it. The mark sets how the question is put: 🟦
 routine goes over in a line, while ⚠️ critical - hard, unreversible, or carrying
