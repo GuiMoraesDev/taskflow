@@ -1,20 +1,7 @@
-# Plan — <Short Title>
+# Task details — <Short Title>
 
-One line: what this plan addresses and why it is needed.
-
----
-
-## Scope
-
-**In scope:** the areas this plan may change.
-
-**Out of scope:** the areas it must not. Be specific about the tempting ones, and
-state the escape hatch: _if a task turns out to require one of these, stop and
-raise it rather than widening the plan._
-
----
-
-## Tasks
+Scope lives in `SCOPE.md`. Open questions live in `QUESTIONS.md`. Status lives in
+`PROGRESS.md`. This file is the detail of the work itself and nothing else.
 
 Each task is one commit, applied on its own and reviewed before the next, and
 declares a category and the model that must take it. Switch to that model before
@@ -23,9 +10,14 @@ starting the task.
 Category: 🔴 bug · 🟡 refactor · 🟢 chore · 🔍 investigation
 Model: 🧠 deep · ⚙️ single-surface · 🔧 mechanical · 🙋 human
 
+A task that names an open question in **Blocked by** does not start until that
+question is answered in `QUESTIONS.md`.
+
+---
+
 ### TASK-1 · <Task title>
 
-**Category:** 🔴 Bug · **Model:** 🧠 Opus
+**Category:** 🔴 Bug · **Model:** 🧠 Opus · **Blocked by:** —
 
 **Files:** `src/path/to/file.ts`
 
@@ -41,7 +33,7 @@ the behaviour it must fail against.
 
 ### TASK-2 · <Task title>
 
-**Category:** 🟡 Refactor · **Model:** ⚙️ Sonnet
+**Category:** 🟡 Refactor · **Model:** ⚙️ Sonnet · **Blocked by:** Q1
 
 **Files:** `src/path/to/another.ts`
 
@@ -54,18 +46,10 @@ test that has to move or be re-pointed.
 
 ### TASK-3 · <Task title>
 
-**Category:** 🟢 Chore · **Model:** 🙋 Human
+**Category:** 🟢 Chore · **Model:** 🙋 Human · **Blocked by:** —
 
 **Files:** `<what the owner has to touch>`
 
 A step no model can finish - a credential, a merge, a dashboard, a diagram the
 repo keeps in a canvas format. It gets a row so it is tracked rather than
 assumed, and stays ⬜ until the repo owner does it. Say what "done" looks like.
-
----
-
-## Open questions
-
-Anything the plan cannot decide on its own - naming, whether to keep a
-behaviour, how far a change should reach. Carry these into `PROGRESS.md` and
-answer them there before the tasks they block.

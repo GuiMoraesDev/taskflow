@@ -6,8 +6,9 @@ Paste into the target repo's `CLAUDE.md`, replacing the bracketed values.
 
 ## Workflow
 
-Before touching code, create `PLAN.md` and `PROGRESS.md` in `<PROJECTS_DIR>/<project-name>/`.
-Run `/plan-start <project-name>` to scaffold them.
+Before touching code, create `SCOPE.md`, `TASKS.md`, `QUESTIONS.md` and
+`PROGRESS.md` in `<PROJECTS_DIR>/<project-name>/`. Run `/plan-start
+<project-name>` to scaffold them.
 
 One task per commit, applied and reviewed one at a time. Every task declares the
 model that must take it - switch to that model **before** starting the task.
@@ -29,6 +30,15 @@ runs <HOOK_COMMANDS> and never a test, so running them is on you.
 
 A bug fix ships a test verified failing against the old behaviour. Deviations
 from the plan go in the session log.
+
+Open questions live in `QUESTIONS.md`, each carrying a recommendation and sitting
+in `PROGRESS.md` directly above the task it blocks. They are put to the repo
+owner when the run reaches that task and not before, and an answer given ahead of
+time is recorded rather than re-asked. A 🟦 routine question left unanswered at
+its task defaults to the recommendation and says so; a ⚠️ critical one - hard,
+unreversible, or carrying a security consequence such as an unchecked object
+reference - stops the run instead, and so does any answer that leaves the next
+step genuinely unclear.
 
 ## Commands
 

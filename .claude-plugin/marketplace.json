@@ -5,7 +5,7 @@
     {
       "name": "taskflow",
       "source": "./",
-      "description": "Plan-and-task workflow: PLAN/PROGRESS scaffolding, one-task-per-commit cycle, red-first bug fixes, docs-and-diagram sync, standards review."
+      "description": "Plan-and-task workflow: scope/tasks/questions/progress scaffolding, one-task-per-commit cycle, questions answered at the task that needs them, red-first bug fixes, docs-and-diagram sync, standards review."
     }
   ]
 }

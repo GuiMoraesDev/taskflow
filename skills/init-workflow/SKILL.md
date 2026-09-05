@@ -143,7 +143,9 @@ nothing.
 ```
 <projectsDir>/
 !<projectsDir>/examples/
-!<projectsDir>/examples/PLAN.md
+!<projectsDir>/examples/SCOPE.md
+!<projectsDir>/examples/TASKS.md
+!<projectsDir>/examples/QUESTIONS.md
 !<projectsDir>/examples/PROGRESS.md
 !<projectsDir>/<any other committed doc>
 ```
