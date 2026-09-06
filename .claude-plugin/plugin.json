@@ -1,6 +1,6 @@
 {
   "name": "taskflow",
   "description": "Plan-and-task workflow: scope/tasks/questions/progress scaffolding, one-task-per-commit cycle, questions answered at the task that needs them, red-first bug fixes, docs-and-diagram sync, standards review.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "author": { "name": "Guilherme Moraes" }
 }
