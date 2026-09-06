@@ -26,9 +26,9 @@ RULES = [
         "binary directly - the script carries the flags the gates depend on.",
     ),
     (
-        r"git\s+(checkout|switch)\s+-[bB]\b|git\s+branch\s+(?!-[avl])",
-        "Branch creation is the repo owner's call. Commit to the current branch, "
-        "or ask.",
+        r"git\s+branch\s+(-[dDM]\b|--delete\b|--move\b)",
+        "Deleting or renaming a branch is the repo owner's call. Creating one is "
+        "fine; discarding one is not.",
     ),
     (
         r"git\s+push\b[^|;&]*(--force(?!-with-lease)|(?<!\S)-f(?!\S))",

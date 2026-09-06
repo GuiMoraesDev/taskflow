@@ -44,7 +44,7 @@ def main():
         return 0
 
     for pattern, message in BLOCKED_FILES:
-        if pattern.search(path):
+        if pattern.search(path) and os.path.exists(path):
             print(message, file=sys.stderr)
             return 2
 
