@@ -38,7 +38,7 @@ RULES = [
 ]
 
 FORCE = re.compile(
-    r"\bgit\b[^|;&]*?(?<!\S)(--force(?!-with-lease|-if-includes)|-[a-zA-Z]*[fF][a-zA-Z]*)(?!\S)"
+    r"\bgit\b[^|;&]*?(?<!\S)(--force(?!-with-lease|-if-includes)|-[a-zA-Z]*f[a-zA-Z]*)(?!\S)"
 )
 
 FORCE_RISK = (
