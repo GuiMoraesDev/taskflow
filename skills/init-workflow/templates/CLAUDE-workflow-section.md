@@ -40,6 +40,11 @@ runs <HOOK_COMMANDS> and never a test, so running them is on you.
 A bug fix ships a test verified failing against the old behaviour. Deviations
 from the plan go in the session log.
 
+Git force flags are a last resort. Try the way without force first -
+`--force-with-lease`, a stash, a new branch. When force is the only way, the
+command's description says why it is necessary, not what it does; the guard
+hook refuses a force flag without one.
+
 Open questions live in `QUESTIONS.md`, each carrying a recommendation and sitting
 in `PROGRESS.md` directly above the task it blocks. They are put to the repo
 owner when the run reaches that task and not before, and an answer given ahead of

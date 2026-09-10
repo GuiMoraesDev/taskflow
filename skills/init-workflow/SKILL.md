@@ -196,7 +196,9 @@ A prose invariant rots the first time someone edits without reading it.
   paragraph asking for it.
 - **Commit and command discipline** - the plugin's hooks stop and ask the owner
   before `--no-verify`, `git add -A`, bare `npx`-style invocations of the gate
-  binaries, branch deletes/renames, force pushes and any other git force flag. Confirm they are active with `/hooks`.
+  binaries, branch deletes/renames, force pushes and any other git force flag.
+  A git force flag is refused outright unless the call's description says why
+  force is needed. Confirm they are active with `/hooks`.
 
 Report the tier mapping and the diagram decision that were chosen, which gates
 were detected, which were missing, and what you gitignored.

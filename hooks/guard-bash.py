@@ -3,7 +3,8 @@
 
 Prose invariants rot; a hook does not. A match does not deny the call - it
 returns an "ask" decision, so the owner sees the reason and chooses whether the
-command runs.
+command runs. The one refusal is a git force flag with no reason attached: the
+call's description must say why force is needed before the owner is asked.
 """
 
 import json
@@ -30,22 +31,33 @@ RULES = [
         r"git\s+branch\s+(-[dDM]\b|--delete\b|--move\b)",
         "This deletes or renames a branch, which is the repo owner's call.",
     ),
-    (
-        r"\bgit\b[^|;&]*?(?<!\S)(--force(?!-with-lease|-if-includes)|-[a-zA-Z]*f[a-zA-Z]*)(?!\S)",
-        "This runs a git command with a force flag, which skips git's own "
-        "safety checks and can discard work (push -f overwrites the remote - "
-        "--force-with-lease is the safer form; clean -f, checkout -f, "
-        "branch -f, add -f past .gitignore).",
-    ),
 ]
 
+FORCE = re.compile(
+    r"\bgit\b[^|;&]*?(?<!\S)(--force(?!-with-lease|-if-includes)|-[a-zA-Z]*f[a-zA-Z]*)(?!\S)"
+)
 
-def ask(reason):
+FORCE_RISK = (
+    "This runs a git command with a force flag, which skips git's own safety "
+    "checks and can discard work (push -f overwrites the remote - "
+    "--force-with-lease is the safer form; clean -f, checkout -f, branch -f, "
+    "add -f past .gitignore)."
+)
+
+FORCE_UNEXPLAINED = (
+    "A git force flag needs a reason. First look for a way without force - "
+    "--force-with-lease, a stash, a new branch - and use it if it works. If "
+    "force is really needed, run the command again with the Bash description "
+    "saying why force is necessary here, not just what the command does."
+)
+
+
+def decide(decision, reason):
     json.dump(
         {
             "hookSpecificOutput": {
                 "hookEventName": "PreToolUse",
-                "permissionDecision": "ask",
+                "permissionDecision": decision,
                 "permissionDecisionReason": f"taskflow guard: {reason}",
             }
         },
@@ -59,13 +71,22 @@ def main():
     except json.JSONDecodeError:
         return 0
 
-    command = payload.get("tool_input", {}).get("command", "")
+    tool_input = payload.get("tool_input", {})
+    command = tool_input.get("command", "")
     if not command:
+        return 0
+
+    if FORCE.search(command):
+        why = (tool_input.get("description") or "").strip()
+        if why:
+            decide("ask", f"{FORCE_RISK} Reason given: {why}")
+        else:
+            decide("deny", FORCE_UNEXPLAINED)
         return 0
 
     for pattern, message in RULES:
         if re.search(pattern, command):
-            ask(message)
+            decide("ask", message)
             return 0
 
     return 0
