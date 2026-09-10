@@ -194,9 +194,9 @@ A prose invariant rots the first time someone edits without reading it.
 - **Dependency direction** - if the repo has directional layers, add the lint rule
   that fails the import (`no-restricted-imports` or the equivalent), rather than a
   paragraph asking for it.
-- **Commit and command discipline** - the plugin's hooks block `--no-verify`,
-  `git add -A`, bare `npx`-style invocations of the gate binaries, auto-branching
-  and force pushes. Confirm they are active with `/hooks`.
+- **Commit and command discipline** - the plugin's hooks stop and ask the owner
+  before `--no-verify`, `git add -A`, bare `npx`-style invocations of the gate
+  binaries, branch deletes/renames and force pushes. Confirm they are active with `/hooks`.
 
 Report the tier mapping and the diagram decision that were chosen, which gates
 were detected, which were missing, and what you gitignored.

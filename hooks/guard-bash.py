@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
-"""Block the shell commands the workflow forbids, before they run.
+"""Stop the shell commands the workflow treats as sensitive, and ask first.
 
-Prose invariants rot; a hook does not. Exit 2 denies the call and hands the
-message back to the model.
+Prose invariants rot; a hook does not. A match does not deny the call - it
+returns an "ask" decision, so the owner sees the reason and chooses whether the
+command runs.
 """
 
 import json
@@ -12,30 +13,42 @@ import sys
 RULES = [
     (
         r"git\s+commit\b[^|;&]*(--no-verify|(?<!\S)-n(?!\S))",
-        "git commit --no-verify is forbidden. Let the pre-commit hook run. "
-        "If it fails, fix the failure - do not bypass it.",
+        "git commit --no-verify skips the pre-commit hook. The usual fix is to "
+        "make the hook pass rather than bypass it.",
     ),
     (
         r"git\s+add\s+(-A\b|--all\b|\.(?:\s|$))",
-        "git add -A / git add . is forbidden. Stage an explicit pathspec - the "
-        "working tree usually holds unrelated local files.",
+        "git add -A / git add . stages the whole working tree, which usually "
+        "holds unrelated local files. An explicit pathspec is safer.",
     ),
     (
         r"(?:npx|pnpm\s+dlx|bunx|yarn\s+dlx)\s+(eslint|tsc|vitest|playwright|jest)\b",
-        "Run the repo's own gate script from .claude/workflow.json, not the "
-        "binary directly - the script carries the flags the gates depend on.",
+        "This runs a gate binary directly instead of the repo's gate script from "
+        ".claude/workflow.json - the script carries the flags the gates depend on.",
     ),
     (
         r"git\s+branch\s+(-[dDM]\b|--delete\b|--move\b)",
-        "Deleting or renaming a branch is the repo owner's call. Creating one is "
-        "fine; discarding one is not.",
+        "This deletes or renames a branch, which is the repo owner's call.",
     ),
     (
         r"git\s+push\b[^|;&]*(--force(?!-with-lease)|(?<!\S)-f(?!\S))",
-        "git push --force is forbidden. Use --force-with-lease, and only when "
-        "the owner asked for it.",
+        "git push --force can overwrite others' work on the remote. "
+        "--force-with-lease is the safer form.",
     ),
 ]
+
+
+def ask(reason):
+    json.dump(
+        {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "ask",
+                "permissionDecisionReason": f"taskflow guard: {reason}",
+            }
+        },
+        sys.stdout,
+    )
 
 
 def main():
@@ -50,8 +63,8 @@ def main():
 
     for pattern, message in RULES:
         if re.search(pattern, command):
-            print(message, file=sys.stderr)
-            return 2
+            ask(message)
+            return 0
 
     return 0
 

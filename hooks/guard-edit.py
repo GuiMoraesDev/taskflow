@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Block edits to files the workflow keeps off-limits.
+"""Ask before edits to files the workflow treats as sensitive.
 
 Two cases, both of which look reasonable in the moment and are wrong later:
 a test-runner config edited to silence flakiness, and a dependency vulnerability
-papered over with a resolution override.
+papered over with a resolution override. A match does not deny the edit - it
+returns an "ask" decision, so the owner sees the reason and chooses.
 """
 
 import json
@@ -11,15 +12,15 @@ import os
 import re
 import sys
 
-BLOCKED_FILES = (
+SENSITIVE_FILES = (
     (
         re.compile(
             r"(playwright|cypress|jest|vitest|karma)\.config\.[a-z]+$|"
             r"(pytest\.ini|tox\.ini)$"
         ),
-        "The test-runner config is off-limits. Do not tune the runner to work "
-        "around flakiness - fix the test, or hand the config change to the repo "
-        "owner.",
+        "This edits the test-runner config. Tuning the runner to work around "
+        "flakiness usually hides a broken test - fixing the test is the "
+        "safer route.",
     ),
 )
 
@@ -30,6 +31,19 @@ def written_text(tool_input):
     parts = [tool_input.get("content", ""), tool_input.get("new_string", "")]
     parts += [e.get("new_string", "") for e in tool_input.get("edits", [])]
     return "\n".join(p for p in parts if p)
+
+
+def ask(reason):
+    json.dump(
+        {
+            "hookSpecificOutput": {
+                "hookEventName": "PreToolUse",
+                "permissionDecision": "ask",
+                "permissionDecisionReason": f"taskflow guard: {reason}",
+            }
+        },
+        sys.stdout,
+    )
 
 
 def main():
@@ -43,21 +57,20 @@ def main():
     if not path:
         return 0
 
-    for pattern, message in BLOCKED_FILES:
+    for pattern, message in SENSITIVE_FILES:
         if pattern.search(path) and os.path.exists(path):
-            print(message, file=sys.stderr)
-            return 2
+            ask(message)
+            return 0
 
     if os.path.basename(path) == "package.json":
         text = written_text(tool_input)
         if any(f'"{key}"' in text for key in OVERRIDE_KEYS):
-            print(
-                'Adding "overrides"/"resolutions" to package.json is forbidden. '
-                "Upgrade the real dependency instead - an override hides the "
-                "vulnerable version rather than removing it.",
-                file=sys.stderr,
+            ask(
+                'This adds "overrides"/"resolutions" to package.json. An '
+                "override hides the vulnerable version rather than removing it - "
+                "upgrading the real dependency is the safer fix."
             )
-            return 2
+            return 0
 
     return 0
 
