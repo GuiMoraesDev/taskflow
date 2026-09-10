@@ -22,7 +22,7 @@ install.
 | Command | `/plan-status` | The ledger, unanswered questions and what they block, last log entries, next actionable task |
 | Command | `/next-task` | Picks the next ⬜ row and runs the cycle on it |
 | Command | `/deviation` | Appends a departure from the plan to the session log |
-| Hooks | `guard-bash`, `guard-edit`, `progress-reminder` | Ask before `--no-verify`, `git add -A`, bare `npx`-style gate invocations, auto-branching, git force flags (refused without a stated reason), test-runner-config edits and dependency overrides; remind to close the task row after a commit |
+| Hooks | `guard-bash`, `guard-edit`, `progress-reminder` | Ask before `--no-verify`, `git add -A`, bare `npx`-style gate invocations, auto-branching, git force flags (refused without a stated reason), test-runner-config edits and dependency overrides - every matching rule is listed in one prompt, force first; remind to close the task row after a commit |
 
 ## The portability seam
 

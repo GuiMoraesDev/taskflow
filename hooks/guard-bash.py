@@ -5,17 +5,25 @@ Prose invariants rot; a hook does not. A match does not deny the call - it
 returns an "ask" decision, so the owner sees the reason and chooses whether the
 command runs. The one refusal is a git force flag with no reason attached: the
 call's description must say why force is needed before the owner is asked.
+
+Every rule is checked, not just the first to match, so a chained command shows
+the owner each risk it carries - listed in priority order, force first.
 """
 
 import json
 import re
 import sys
 
+# Priority order, most important first; the force gate sits above all of these.
 RULES = [
     (
         r"git\s+commit\b[^|;&]*(--no-verify|(?<!\S)-n(?!\S))",
         "git commit --no-verify skips the pre-commit hook. The usual fix is to "
         "make the hook pass rather than bypass it.",
+    ),
+    (
+        r"git\s+branch\s+(-[dDM]\b|--delete\b|--move\b)",
+        "This deletes or renames a branch, which is the repo owner's call.",
     ),
     (
         r"git\s+add\s+(-A\b|--all\b|\.(?:\s|$))",
@@ -27,14 +35,10 @@ RULES = [
         "This runs a gate binary directly instead of the repo's gate script from "
         ".claude/workflow.json - the script carries the flags the gates depend on.",
     ),
-    (
-        r"git\s+branch\s+(-[dDM]\b|--delete\b|--move\b)",
-        "This deletes or renames a branch, which is the repo owner's call.",
-    ),
 ]
 
 FORCE = re.compile(
-    r"\bgit\b[^|;&]*?(?<!\S)(--force(?!-with-lease|-if-includes)|-[a-zA-Z]*f[a-zA-Z]*)(?!\S)"
+    r"\bgit\b[^|;&]*?(?<!\S)(--force(?!-with-lease|-if-includes)|-[a-zA-Z]*[fF][a-zA-Z]*)(?!\S)"
 )
 
 FORCE_RISK = (
@@ -50,6 +54,12 @@ FORCE_UNEXPLAINED = (
     "force is really needed, run the command again with the Bash description "
     "saying why force is necessary here, not just what the command does."
 )
+
+
+def listed(reasons):
+    if len(reasons) == 1:
+        return reasons[0]
+    return " ".join(f"({i}) {r}" for i, r in enumerate(reasons, 1))
 
 
 def decide(decision, reason):
@@ -76,19 +86,17 @@ def main():
     if not command:
         return 0
 
+    reasons = []
     if FORCE.search(command):
         why = (tool_input.get("description") or "").strip()
-        if why:
-            decide("ask", f"{FORCE_RISK} Reason given: {why}")
-        else:
+        if not why:
             decide("deny", FORCE_UNEXPLAINED)
-        return 0
-
-    for pattern, message in RULES:
-        if re.search(pattern, command):
-            decide("ask", message)
             return 0
+        reasons.append(f"{FORCE_RISK} Reason given: {why}")
 
+    reasons += [message for pattern, message in RULES if re.search(pattern, command)]
+    if reasons:
+        decide("ask", listed(reasons))
     return 0
 
 

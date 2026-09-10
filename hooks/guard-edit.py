@@ -4,7 +4,8 @@
 Two cases, both of which look reasonable in the moment and are wrong later:
 a test-runner config edited to silence flakiness, and a dependency vulnerability
 papered over with a resolution override. A match does not deny the edit - it
-returns an "ask" decision, so the owner sees the reason and chooses.
+returns an "ask" decision, so the owner sees the reason and chooses. Both checks
+always run, and every match is listed in one prompt.
 """
 
 import json
@@ -33,6 +34,12 @@ def written_text(tool_input):
     return "\n".join(p for p in parts if p)
 
 
+def listed(reasons):
+    if len(reasons) == 1:
+        return reasons[0]
+    return " ".join(f"({i}) {r}" for i, r in enumerate(reasons, 1))
+
+
 def ask(reason):
     json.dump(
         {
@@ -57,21 +64,23 @@ def main():
     if not path:
         return 0
 
-    for pattern, message in SENSITIVE_FILES:
-        if pattern.search(path) and os.path.exists(path):
-            ask(message)
-            return 0
+    reasons = [
+        message
+        for pattern, message in SENSITIVE_FILES
+        if pattern.search(path) and os.path.exists(path)
+    ]
 
     if os.path.basename(path) == "package.json":
         text = written_text(tool_input)
         if any(f'"{key}"' in text for key in OVERRIDE_KEYS):
-            ask(
+            reasons.append(
                 'This adds "overrides"/"resolutions" to package.json. An '
                 "override hides the vulnerable version rather than removing it - "
                 "upgrading the real dependency is the safer fix."
             )
-            return 0
 
+    if reasons:
+        ask(listed(reasons))
     return 0
 
 
