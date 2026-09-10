@@ -31,9 +31,11 @@ RULES = [
         "This deletes or renames a branch, which is the repo owner's call.",
     ),
     (
-        r"git\s+push\b[^|;&]*(--force(?!-with-lease)|(?<!\S)-f(?!\S))",
-        "git push --force can overwrite others' work on the remote. "
-        "--force-with-lease is the safer form.",
+        r"\bgit\b[^|;&]*?(?<!\S)(--force(?!-with-lease|-if-includes)|-[a-zA-Z]*f[a-zA-Z]*)(?!\S)",
+        "This runs a git command with a force flag, which skips git's own "
+        "safety checks and can discard work (push -f overwrites the remote - "
+        "--force-with-lease is the safer form; clean -f, checkout -f, "
+        "branch -f, add -f past .gitignore).",
     ),
 ]
 
