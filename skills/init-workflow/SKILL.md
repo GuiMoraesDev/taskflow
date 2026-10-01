@@ -78,7 +78,7 @@ labelled `(current)`.
 | ----------------- | -------------------------------------------------------------------------------------------------------------------------------------- | --------- | ----------------- |
 | 🧠 **deep**       | Crosses module boundaries; touches the subsystem where a mistake is expensive. Plans, sequencing, PR splits and findings also run here | `opus`    | `fable`, `sonnet` |
 | ⚙️ **surface**    | One layer, one view, one service, one spec. The bulk of a plan                                                                         | `sonnet`  | `opus`, `haiku`   |
-| 🔧 **mechanical** | Proven by the gates alone: rename, copy fix, version bump, dependency bump                                                             | `haiku`   | `sonnet`          |
+| 🔧 **mechanical** | Proven by the gates alone: rename, copy fix, version bump, dependency bump                                                             | `haiku`   | `sonnet`, a Codex model |
 
 Say what each choice costs in the option description, so the answer is informed:
 
@@ -89,7 +89,9 @@ Say what each choice costs in the option description, so the answer is informed:
   the standards review.
 - **mechanical → `haiku`** - safe precisely because the gates, not the model,
   decide whether the task is done. If the repo has no unit suite, there are no
-  gates to lean on: recommend `sonnet` instead and say why.
+  gates to lean on: recommend `sonnet` instead and say why. Offer a Codex model,
+  such as `gpt-6-luna`, only when the Codex plugin is installed: the tier then
+  runs through `codex:codex-rescue`, `gate-runner` included.
 
 The 🙋 **human** tier is fixed and takes no model - a merge, a login, a
 credential. It exists so those steps are tracked rather than assumed.
@@ -140,7 +142,8 @@ section, and the `docs-diagram-auditor` agent checks prose only.
 `examples/workflow.example.json` is the shape. Every value in it is a
 placeholder - replace all of them with what steps 1 to 3 found. On a re-run,
 start from the file that is already there and change only the fields step 0
-settled. Record the model answers as the aliases the harness accepts:
+settled. Record the model answers as the aliases the harness accepts, or as the
+Codex model id when a tier runs on Codex:
 
 ```json
 "models": { "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }

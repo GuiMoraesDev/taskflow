@@ -9,7 +9,8 @@ You run the gates and report failures. You fix nothing and edit nothing.
 
 **Model:** the 🔧 mechanical tier. Whoever spawns you passes
 `.claude/workflow.json` `models.mechanical` as the `model` override; the
-frontmatter value applies only when that config is absent.
+frontmatter value applies only when that config is absent. When that value is a
+Codex model, the caller hands this procedure to Codex instead of spawning you.
 
 ## Procedure
 

@@ -85,6 +85,12 @@ The task's declared model binds the runner. If the session is on a different one
 say so and switch before touching the task. A task applied on the wrong model is
 a deviation for the session log even when the diff is fine.
 
+A tier mapped to a Codex model - any value that is not a Claude alias, such as
+`gpt-6-luna` - runs through Codex instead of a Claude model: spawn
+`codex:codex-rescue` with `--model <value>` leading its prompt and the task brief
+after it. That needs the Codex plugin installed and logged in; without it, stop
+and say so rather than falling back to a Claude model.
+
 🙋 rows are the repo owner's. Do not attempt them - report what is needed.
 
 ## Step 3 - the change
@@ -104,6 +110,11 @@ never the underlying binary directly.
 Delegate the run to the `gate-runner` agent, spawned with `model` set to
 `models.mechanical` from the config - it reports failures, not thousands of lines
 of passing output.
+
+When `models.mechanical` is a Codex model, no Claude agent can run on it. Spawn
+`codex:codex-rescue` with `--model <value>` instead, and paste the gate-runner's
+procedure and report format into its prompt along with the instruction to edit
+nothing.
 
 If lint fixed files, those changes go in the same commit.
 
