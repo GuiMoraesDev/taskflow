@@ -70,6 +70,16 @@ Copy `templates/QUESTIONS.md`. Number the questions **in the order the tasks nee
 
 **Every question carries a recommendation.** No exceptions. A question handed to the owner without a recommendation is unfinished work - you read the code, they did not.
 
+**The recommendation explains itself.** "A, because it is simpler" is not enough. Give the template's four lines:
+- **Why** - tied to something checkable, and why the other options lose.
+- **What it looks like** - a concrete example, one per option for any copy or UX choice.
+- **What it costs.**
+- **Reversible by.**
+
+An owner who can see the outcomes can answer in one word. An owner who can only see labels has to ask you what they mean, and that round trip is exactly what the recommendation exists to save.
+
+**Give every question a status marker** - ⬜ unanswered, 🚧 partly answered, ✅ answered. It goes in its heading (`### ⬜ Q1 · 🟦 …`) and in the status table at the top of the file. A question harvested as already decided starts at ✅.
+
 Then mark each one. The mark sets how hard the question is pressed - every question blocks its task either way.
 
 - **🟦 routine** - a preference, a name, a default. Cheap to reverse. Put to the owner in a line.
@@ -84,7 +94,7 @@ Copy `templates/PROGRESS.md`. One ledger in execution order, with **each questio
 The asking rules are the point of the ordering:
 
 - **Ask late.** A question is put to the owner when the run reaches the task below it. Do not open the plan by asking all of them.
-- **Accept early.** If the owner answers one before it is asked, record it in `QUESTIONS.md` and flip the row immediately. Never re-ask what has been answered.
+- **Accept early.** If the owner answers one before it is asked, record it in `QUESTIONS.md` and flip it to ✅ immediately - its heading, the status table and its `PROGRESS.md` row, all in the same turn. Never re-ask what has been answered.
 - **Unanswered at its task: stop.** The task does not start, whatever the mark. A recommendation lets the owner answer in one word; it is not permission to proceed without them.
 - **Unsure either way** - the answer was ambiguous, or it opened something the plan did not consider - the row stays 🚧 and progress stops. Do not resolve an owner's half-answer by inference.
 

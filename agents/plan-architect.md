@@ -70,7 +70,12 @@ Four sections, matching the four files the plan is written into.
   hand one over bare either. Each carries:
   - the task it blocks
   - the options, and what each costs
-  - a **recommendation**, always, with your reasoning and how reversible it is
+  - a **recommendation**, always. It says:
+    - why it wins, tied to something you read, and why the other options lose;
+    - what each option concretely looks like - the copy, the payload, the row
+      before and after, with one example per option for any copy or UX choice;
+    - what it costs;
+    - how reversible it is.
   - a risk mark: **🟦 routine** (a preference or default, cheap to reverse) or
     **⚠️ critical** (hard, expensive to reverse, specific to this business, high
     priority, or carrying a security consequence)

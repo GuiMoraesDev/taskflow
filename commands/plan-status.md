@@ -14,8 +14,9 @@ Report, and nothing else:
 
 1. The ledger as it stands, questions in their positions, with a count line:
    `n done · n in progress · n pending · n blocked`.
-2. Any **unanswered** open question: its ID, its mark, the task it blocks, and
-   its recommendation in one line. Every one of them is holding its task, so say
+2. Any **unanswered** (⬜) or **partly answered** (🚧) question: its ID, its
+   mark, the task it blocks, and its recommendation with the deciding reason in
+   one line. Every one of them is holding its task, so say
    which tasks are unreachable until they are answered. Flag the ⚠️ ones
    separately - those are the ones whose consequences the owner has to weigh.
 3. The last three session-log entries, one line each.
@@ -29,7 +30,11 @@ Report, and nothing else:
 This is a status report, not the question gate. Listing an open question here is
 not asking it: do not press the owner for an answer to a question whose task is
 not next, and do not apply any recommendation. If they answer one anyway, record
-it in `QUESTIONS.md` and flip its row.
+it in `QUESTIONS.md` and flip it to ✅: its heading, the status table and its
+`PROGRESS.md` row.
+
+If a question's heading, its status-table row and its `PROGRESS.md` row
+disagree, flag it.
 
 If a row is 🔄 and the tree is clean with a commit since it was marked, flag it:
 the marker was probably never flipped to ✅.

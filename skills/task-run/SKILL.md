@@ -30,7 +30,7 @@ are raised, and the reason they were not raised earlier.
 
 | State                              | Do                                                                                                                    |
 | ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Already answered                   | Proceed. Never re-ask - the owner may have answered it turns ago, unprompted                                          |
+| Already answered                   | Proceed. Never re-ask - the owner may have answered it turns ago, unprompted. If the heading or status table still shows ⬜, flip it to ✅ first |
 | Unanswered                         | **Stop.** Put it to the owner with its recommendation, mark the question row and the task row 🚧, and wait           |
 | Answered, but you are still unsure | **Stop.** Mark 🚧 and say precisely what is still undetermined                                                          |
 
@@ -46,6 +46,20 @@ The last row matters as much as the middle one. An answer that is ambiguous, tha
 assumes something the plan did not, or that opens a case nobody considered is not
 an answer yet. Resolving it by inference is how a plan quietly becomes a
 different plan. Ask again - the cost is one message.
+
+When you put a question to the owner, explain the recommendation rather than
+naming it:
+- why it wins, and why the alternatives lose;
+- what each option concretely looks like - the copy, the payload, the row;
+- what it costs;
+- how it is reversed.
+
+Bare option labels make the owner come back and ask what they mean.
+
+When the answer arrives, record it with its provenance and flip the question to
+✅ at once: its heading marker, the status table in `QUESTIONS.md` and its
+`PROGRESS.md` row. A partial answer goes to 🚧 in all three. Do this before doing
+anything else with the answer.
 
 When you put a ⚠️ question to the owner, lead with the consequence, not the
 options. "Answering B means any authenticated user can fetch another user's

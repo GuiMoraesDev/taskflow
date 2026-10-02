@@ -25,13 +25,44 @@ that is not ownership-checked (IDOR), a permission default, a token lifetime, a
 field added to a public response, a rate limit, anything logged. If the wrong
 answer here would be a vulnerability rather than a preference, it is ⚠️.
 
-**Every question carries a recommendation.** A question posed without one is
-unfinished work handed to the owner.
+**Every question carries a recommendation, and the recommendation explains
+itself.** A question posed without one is unfinished work handed to the owner,
+and so is a bare "A, because it is simpler". The owner did not read the code,
+so the recommendation has to carry what you saw. It gives:
+
+- **Why** - the deciding reason, tied to something the owner can check: the
+  code, the spec, the design, the existing behaviour. Also say why the other
+  options lose, not just why this one wins.
+- **What it looks like** - a concrete example: the copy the user would see, the
+  payload, the row before and after. For a copy or UX choice, give **one example
+  per option**, so the owner compares outcomes instead of descriptions.
+- **What it costs** - what this option gives up, or what extra has to be built.
+- **Reversible by** - how you would undo it, and how expensive that is.
 
 **Only decisions live here.** If the answer is somewhere in the repository - the
 code, the config, the git history, the CI workflow - go and read it rather than
 asking. An unanswered question halts its task, so a question the repo could have
 answered stalls the work for nothing.
+
+## Status
+
+Every question carries a status marker in its heading and in this table, and the
+two always agree:
+
+- ⬜ unanswered
+- 🚧 partly answered - the answer is ambiguous or opened something new
+- ✅ answered
+
+The moment the owner answers, flip the question to ✅ in the same turn: the
+heading, this table and its `PROGRESS.md` row together. A decision recorded in
+the body while the heading still shows ⬜ reads as still open to every later
+reader.
+
+| ID | Mark | Question            | Blocks | Status                  |
+| -- | ---- | ------------------- | ------ | ----------------------- |
+| Q1 | 🟦   | <one-line question> | TASK-2 | ⬜ unanswered           |
+| Q2 | ⚠️   | <one-line question> | TASK-5 | ⬜ unanswered           |
+| Q3 | 🟦   | <one-line question> | TASK-7 | ✅ answered: **B**      |
 
 ## Provenance
 
@@ -46,7 +77,7 @@ conversation and one made at the gate are different kinds of evidence:
 
 ---
 
-### Q1 · 🟦 <the question, in one line>
+### ⬜ Q1 · 🟦 <the question, in one line>
 
 **Blocks:** TASK-2 · **Asked when:** before TASK-2 starts
 
@@ -57,13 +88,19 @@ conversation and one made at the gate are different kinds of evidence:
 - **A —** what it means, and what it costs.
 - **B —** what it means, and what it costs.
 
-**Recommendation:** A, because ... . Reversible by ... .
+**Recommendation:** A.
+
+- **Why:** the deciding reason, tied to what the code or the spec shows, and why
+  B loses.
+- **What it looks like:** under A, the user sees "..."; under B, they see "...".
+- **What it costs:** what A gives up, or what extra it needs.
+- **Reversible by:** how it is undone, and at what cost.
 
 **Decision:** _unanswered — TASK-2 is blocked_
 
 ---
 
-### Q2 · ⚠️ <the question, in one line>
+### ⬜ Q2 · ⚠️ <the question, in one line>
 
 **Blocks:** TASK-5 · **Asked when:** before TASK-5 starts
 
@@ -77,7 +114,12 @@ conversation and one made at the gate are different kinds of evidence:
 - **B —** what it means.
   **Consequence:** the same, for B.
 
-**Recommendation:** B, because ... .
+**Recommendation:** B.
+
+- **Why:** the deciding reason, and why A loses.
+- **What it looks like:** the concrete outcome of each option.
+- **What it costs:** what B gives up.
+- **Reversible by:** how it is undone, and at what cost.
 
 **Consequence of getting this wrong:** the concrete failure - "any authenticated
 user could read another user's invoices by guessing the ID", not "a security
@@ -87,7 +129,7 @@ concern". Name it in the terms an incident report would use.
 
 ---
 
-### Q3 · 🟦 <answered example>
+### ✅ Q3 · 🟦 <answered example>
 
 **Blocks:** TASK-7 · **Asked when:** before TASK-7 starts
 

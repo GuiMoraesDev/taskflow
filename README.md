@@ -62,8 +62,10 @@ repository and add that URL instead.
    files, and how it will be verified. A wide mechanical change is sequenced
    expand, migrate, contract rather than forced into slices that cannot go green.
 3. Questions are for decisions only - anything the repo can answer, the agent
-   reads for itself. Each carries a recommendation and is asked at the task that
-   needs it, not up front. An unanswered question blocks that task; the
+   reads for itself. Each carries a recommendation that explains itself - why,
+   a concrete example per option, the cost, how to reverse it - and is asked at
+   the task that needs it, not up front. An answered question is marked ✅ the
+   moment the answer arrives. An unanswered question blocks that task; the
    recommendation makes the answer cheap rather than standing in for one. Hard or
    security-bearing questions are put with their consequences stated plainly.
 4. Apply one task, present it, gate it, commit it, log it. Then stop.

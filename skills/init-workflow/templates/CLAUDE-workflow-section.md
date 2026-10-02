@@ -45,7 +45,7 @@ Git force flags are a last resort. Try the way without force first -
 command's description says why it is necessary, not what it does; the guard
 hook refuses a force flag without one.
 
-Open questions live in `QUESTIONS.md`, each carrying a recommendation and sitting
+Open questions live in `QUESTIONS.md`, each carrying a recommendation - why, a concrete example per option, the cost, how to reverse it - and a ⬜ / 🚧 / ✅ status that flips the moment it is answered, and sitting
 in `PROGRESS.md` directly above the task it blocks. They are put to the repo
 owner when the run reaches that task and not before, and an answer given ahead of
 time is recorded with where it came from, rather than re-asked. Questions are for
