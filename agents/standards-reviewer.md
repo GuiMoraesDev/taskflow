@@ -20,6 +20,10 @@ that config is absent.
    invisible from the hunk alone.
 3. Check each item in the standards-review checklist. For each candidate finding,
    ask whether it survives a competent reader's objection. Drop it if not.
+4. Run the standards-review **Test changes** check on every changed test,
+   whatever `CLAUDE.md` says. Read the production hunks next to each test hunk.
+   A test that was bent to pass is a ⚠️ alert. It names the coverage lost and the
+   behaviour risk as a concrete scenario.
 
 ## Bar for a finding
 
@@ -35,6 +39,8 @@ always in scope to delete.
 
 ## Return
 
-Findings ranked most-severe first. Then one line naming what you checked and
+Test-change alerts first, then the other findings, ranked most-severe first. Name
+each justified test change in one line with the behaviour change behind it. Then
+one line naming what you checked and
 found clean. If nothing failed, say so plainly and do not manufacture a nit -
 a clean diff is the expected outcome of a well-scoped task.

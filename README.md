@@ -13,7 +13,7 @@ install.
 | Skill | `task-run` | The per-task cycle - model check, 🔄, change, review, gates, commit, ✅, session log - then stop |
 | Skill | `bug-red-test` | Makes a regression test red against the old behaviour before the fix ships |
 | Skill | `docs-sync` | The docs checklist, plus the glossary and the diagram sweep when the repo keeps them |
-| Skill | `standards-review` | Audits a diff against the standards the repo's `CLAUDE.md` states |
+| Skill | `standards-review` | Audits a diff against the standards the repo's `CLAUDE.md` states, and alerts when a test was bent to pass rather than changed with the behaviour - naming the coverage lost and the behaviour put at risk |
 | Agent | `plan-architect` (deep tier) | Surveys the code and returns the task breakdown a plan needs |
 | Agent | `gate-runner` (mechanical tier) | Runs lint/types/unit/e2e, reports failures only - keeps passing output out of the main context |
 | Agent | `standards-reviewer` (deep tier) | Read-only standards audit of a diff |

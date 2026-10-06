@@ -115,6 +115,15 @@ do the useful thing, then write down that you did.
 🔴 bug tasks route through the `bug-red-test` skill before the gates. A bug fix
 without a test verified failing against the old behaviour is not done.
 
+## Step 4 - the review
+
+When the diff touches a test, run the **Test changes** check from
+`standards-review` before the gates. It asks whether each test change follows a
+behaviour change or was bent to pass. Put every ⚠️ alert in front of the owner,
+with the coverage lost and the behaviour risk, and wait for their call. Do not
+answer an alert by rewriting the test again. Passing gates prove nothing about a
+test that was loosened to pass them.
+
 ## Step 5 - the gates
 
 Run the commands in `.claude/workflow.json` `gates`, in order: lint → types →
