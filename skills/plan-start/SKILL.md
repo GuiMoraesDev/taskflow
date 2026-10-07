@@ -73,12 +73,22 @@ it exists:
 
 | Field                         | Rule                                                                                       |
 | ----------------------------- | ------------------------------------------------------------------------------------------ |
-| Title                         | The conventional-commit title the pull request will carry, `<type>: <description>`         |
-| Branch                        | `<type>/<slug>` and its base - the default branch, or the branch of the pull request it depends on |
+| Title                         | The conventional-commit title the pull request will carry, `<type>: <description>`, after `pullRequests.titlePrefix` when one is set |
+| Branch                        | `<type>/<slug>` after `pullRequests.branchPrefix`, and its base - the default branch, or the branch of the pull request it depends on |
+| Ticket                        | Only when a prefix holds `{ticket}`: the ticket the pull request answers to. Unknown → a 🟦 question blocking its first task |
+| Labels                        | Its labels, from `pullRequests.labels` - `always`, plus `byType` for its type. Omit when none apply |
 | Size                          | The estimate against the budget, `~310 / 400`                                              |
 | Tasks                         | The task IDs that land on it, in order. Each is one commit                                 |
 | What you will see on GitHub   | The commits in order, the files, and what the reviewer checks                              |
 | Acceptance criteria           | Step 7                                                                                     |
+
+When `pullRequests.stack` names a tool, the plan says which pull requests form
+a stack: with `scope: "dependent"`, each chain of **Depends on**; with
+`scope: "all"`, every pull request in the plan, in ledger order. A stacked pull
+request's base is the one below it, and the tool, not plain git, opens and
+submits it. A pull request outside every stack is **independent** - and when
+`pullRequests.parallel` is `true`, independent pull requests may run side by
+side, so name them.
 
 The concept of a task does not change: one task is one commit, applied and
 reviewed on its own, on the model it declares. A pull request only groups them.
@@ -180,6 +190,6 @@ Report the plan as GitHub will show it: one line per pull request - title,
 branch, estimated size against the budget, criteria agreed - with its tasks
 beneath it, each with category and model. A pull request whose criteria are
 still 📋 holds its tasks off the frontier - name it and what is left to agree.
-Name the frontier - every task that could start now - and the model the first one needs, then stop. Do not start it in the same turn.
+Name the frontier - every task that could start now - and the model the first one needs, then stop. With stacks, show each as one chain; with `pullRequests.parallel`, say which frontier tasks sit on independent pull requests and could run together. Do not start it in the same turn.
 
 Say how many questions are open and how many are ⚠️, but **do not ask them yet** - name the task each is attached to instead. If the owner volunteers answers now, take them and record them with their provenance.

@@ -1,6 +1,6 @@
 ---
 name: init-workflow
-description: Set up the plan-and-task workflow in a repo that does not have it yet - writes .claude/workflow.json from the repo's real scripts and layout, asks which model takes each difficulty tier, and adds the workflow section to CLAUDE.md. Use when installing this plugin into a new project, or when the gate commands, the model tiers or the docs checklist have drifted. Safe to re-run - an existing config is reconciled, never overwritten.
+description: Set up the plan-and-task workflow in a repo that does not have it yet - writes .claude/workflow.json from the repo's real scripts and layout, asks which model takes each difficulty tier and the pull-request conventions (branch and title prefixes, labels, assignee, stacking, parallel runs), and adds the workflow section to CLAUDE.md. Use when installing this plugin into a new project, or when the gate commands, the model tiers or the docs checklist have drifted. Safe to re-run - an existing config is reconciled, never overwritten.
 ---
 
 # init-workflow
@@ -21,7 +21,7 @@ change it.
 | -------------- | ---------- |
 | Detection agrees with the file | Say so and stop. A re-run that changes nothing is the expected outcome |
 | Detection found drift - a renamed script, a doc that no longer exists, a new diagram folder | List each difference as `current -> found` and ask which to keep, per field |
-| The owner wants a tier or the diagram decision changed | Re-ask **only** those questions, carrying the current value as the first option, labelled `(current)` |
+| The owner wants a tier, the diagram decision or a pull-request convention changed | Re-ask **only** those questions, carrying the current value as the first option, labelled `(current)` |
 
 Preserve every field you were not asked to change, including any the owner hand
 edited after the last run. Write the file only once the answers are in.
@@ -36,7 +36,7 @@ edited after the last run. Write the file only once the answers are in.
 | `docsChecklist`   | One row per doc that must stay true, each with what it owns. Read the repo's docs before writing rows                                                                                                                   |
 | `decisions`       | Where the repo keeps decision records and its glossary, if it keeps either. **Detect, do not create - see below**                                                                                                       |
 | `diagrams`        | **Not yours to decide. Ask - step 3.** Find the candidates first, excluding copies: see the command below                                                                                                               |
-| `pullRequests`    | `maxLines` 400 unless the owner names another budget. `excludeFromCount`: the repo's real test globs (read the test runner's config), its lockfile, and any snapshot or generated folder - tests are excluded so the budget measures the code a reviewer reasons about |
+| `pullRequests`    | The conventions - prefixes, labels, assignee, stack, parallel runs - are **asked in step 4**, from what the history shows. `maxLines` 400 unless the owner names another budget. `excludeFromCount`: the repo's real test globs (read the test runner's config), its lockfile, and any snapshot or generated folder - tests are excluded so the budget measures the code a reviewer reasons about |
 | `commitTypes`     | Conventional-commit types the repo already uses - check `git log --format=%s -n 40`                                                                                                                                     |
 | `models`          | **Not detectable. Ask - step 2.**                                                                                                                                                                                       |
 
@@ -138,10 +138,70 @@ another question - state which you inferred:
 If they choose **None**, say plainly what turns off: `docs-sync` skips its diagram
 section, and the `docs-diagram-auditor` agent checks prose only.
 
-## 4. Write `.claude/workflow.json`
+## 4. Ask the pull-request conventions
+
+Every pull request this workflow opens carries a branch name, a title, labels
+and an assignee, and a repo that already has a house style rejects one that
+ignores it. Those conventions are the owner's, so ask - but read the history
+first, so each question carries the answer the repo already gives:
+
+```bash
+gh pr list --state merged -L 30 --json title,headRefName,labels,assignees
+gh label list -L 100 --json name
+git branch -r --format='%(refname:short)' | head -40
+```
+
+Without `gh` or a GitHub remote, read the branch names alone and say the rest
+went undetected.
+
+Then look for a stacking tool. A stack is a chain of pull requests, each based
+on the one below it, that the tool rebases and submits together:
+
+| Tool | Detected by | Opens a branch on the stack | Submits |
+| ---- | ----------- | --------------------------- | ------- |
+| Graphite | `gt` on `PATH` and `.git/.graphite_repo_config` | `gt create <branch> -m "<message>"` | `gt submit --stack --draft` |
+| git-town | `git config --get-regexp '^git-town\.'` prints a line | `git town append <branch>` | `git town propose` |
+
+Another stacking tool in use - `spr`, `ghstack`, Sapling - is recorded by name
+with the commands the owner gives you. A tool installed but never configured
+for this repo is not in use.
+
+**A second `AskUserQuestion` call** carries the first four questions, and a
+third carries what follows from them - the cap is four per call. Recommend what
+the history shows; when it shows nothing, recommend the plain option.
+
+| # | Question | Options | Config |
+| - | -------- | ------- | ------ |
+| 1 | Does a branch name carry a prefix? | None - `<type>/<slug>` · the prefix the history shows, such as `gm/` or `{ticket}/` · Other | `branchPrefix` |
+| 2 | Does a pull-request title carry a prefix? | None - the conventional title as is · the prefix the history shows, such as `[{ticket}] ` · Other | `titlePrefix` |
+| 3 | Which labels does a pull request get? | By commit type, mapped to the labels that exist (`fix` → `bug`) · one fixed set on every pull request · None | `labels.byType`, `labels.always` |
+| 4 | Is the owner assigned to every pull request? | Yes - `--assignee @me` · No | `assignOwner` |
+
+The third call:
+
+| # | Asked when | Question | Options | Config |
+| - | ---------- | -------- | ------- | ------ |
+| 5 | Question 3 chose labels | A label is not in the repo when a pull request opens. Create it, or ask which existing one to use instead? | Ask (Recommended) - a label created by an agent is noise every other pull request inherits · Create | `labels.onMissing`: `ask`, `create` |
+| 6 | A stacking tool was detected | Is the stack the standard? | Stack the pull requests that depend on each other (Recommended) · stack every pull request in a plan, one chain · Do not use the stack - plain branches with a base | `stack`: `{ "tool": "graphite", "scope": "dependent" }`, `"scope": "all"`, or `null` |
+| 7 | Always | When a plan has pull requests that do not depend on each other - outside any stack - may their tasks run in parallel subagents? | No (Recommended) - one task at a time, the owner's attention on one diff · Yes - one subagent per pull request, each in its own worktree | `parallel`: `false`, `true` |
+
+`{ticket}` in a prefix is a placeholder: the plan records each pull request's
+ticket, and a pull request without one gets a question at its first task. A
+prefix that is the same on every pull request is written literally.
+
+Say what the parallel answer costs in its option. The subagents' work runs at
+once, but every checkpoint the owner holds - the tests, the grill, the diff, the
+commit - stays in the main session, one pull request at a time. It saves wall
+time on the writing and the gates, not attention.
+
+On a re-run, ask only the conventions being changed, the current value first
+and labelled `(current)`. If the owner dismisses an ask, take the recommended
+options and say so in the report.
+
+## 5. Write `.claude/workflow.json`
 
 `examples/workflow.example.json` is the shape. Every value in it is a
-placeholder - replace all of them with what steps 1 to 3 found. On a re-run,
+placeholder - replace all of them with what steps 1 to 4 found. On a re-run,
 start from the file that is already there and change only the fields step 0
 settled. Record the model answers as the aliases the harness accepts, or as the
 Codex model id when a tier runs on Codex:
@@ -177,7 +237,7 @@ nothing.
 Skip the whole step when `projectsDir` is already ignored - re-running this skill
 must not append a second copy of the rule.
 
-## 5. Put the workflow section in CLAUDE.md
+## 6. Put the workflow section in CLAUDE.md
 
 **Read CLAUDE.md first.** A repo that already describes a workflow gets
 reconciled, not appended to - a second, subtly different account of the cycle is
@@ -195,7 +255,7 @@ repo actually has. Drop the diagram line when diagrams are off. Do not restate
 the plugin's skill bodies - CLAUDE.md carries the repo's rules, the plugin
 carries the procedure.
 
-## 6. Enforce what prose cannot
+## 7. Enforce what prose cannot
 
 A prose invariant rots the first time someone edits without reading it.
 
@@ -208,5 +268,5 @@ A prose invariant rots the first time someone edits without reading it.
   A git force flag is refused outright unless the call's description says why
   force is needed. Confirm they are active with `/hooks`.
 
-Report the tier mapping and the diagram decision that were chosen, which gates
+Report the tier mapping, the diagram decision and the pull-request conventions that were chosen, which gates
 were detected, which were missing, and what you gitignored.

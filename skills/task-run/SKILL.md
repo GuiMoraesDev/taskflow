@@ -8,6 +8,11 @@ description: Apply exactly one task from TASKS.md through the full cycle - quest
 One task. Then stop. Batching several tasks into one review is the failure this
 whole cycle exists to prevent.
 
+The one exception is `pullRequests.parallel: true` in `.claude/workflow.json`:
+then one task per **independent** pull request may run at once - see
+[Parallel pull requests](#parallel-pull-requests). Still one task each, and
+still reviewed one at a time.
+
 ## The cycle
 
 ```
@@ -131,6 +136,15 @@ branch only through that pull request, reviewed and merged by the owner.
   merged yet, so the review shows only this pull request's diff.
 - Every later task checks out the existing branch and adds its commit on top.
   Pull first when the branch is already pushed.
+
+The branch name is the one the plan gave, which already carries
+`pullRequests.branchPrefix`. A `{ticket}` the plan could not fill is an open
+question for this step, not a placeholder to push.
+
+When `pullRequests.stack` names a tool and the pull request sits on a stack,
+the tool opens the branch on top of the one below it - `gt create`,
+`git town append`, or the commands recorded for it - rather than
+`git checkout -b`, so the tool knows the chain it has to restack.
 
 One pull request, one branch, one commit per task.
 
@@ -323,12 +337,26 @@ request:
 
 | The task is | Do |
 | ----------- | -- |
-| The first of its pull request | Open it **as a draft** (`gh pr create --draft`) against the base from step 1 |
+| The first of its pull request | Open it **as a draft** (`gh pr create --draft`) against the base from step 1, with its labels and assignee |
 | In the middle | Nothing more - the push adds its commit to the open draft |
 | The last | Mark it ready for review (`gh pr ready`) and update the body |
 | Alone in its pull request | Open it ready for review |
 
-The title is the one the plan gave the pull request. The body says what the pull
+On a stack, the tool submits instead of `gh pr create` - `gt submit --stack
+--draft`, `git town propose` - and the labels and the assignee are set on the
+pull request it opened with `gh pr edit`.
+
+The title is the one the plan gave the pull request, `pullRequests.titlePrefix`
+included. Then the conventions:
+
+- **Labels** - the plan's, from `labels.always` and `labels.byType`, passed as
+  `--label`. Check each against `gh label list` first. A missing label under
+  `onMissing: "ask"` is put to the owner with the closest existing labels as
+  options; under `"create"`, create it with `gh label create` and say so in the
+  report. Never drop a label silently.
+- **Assignee** - `--assignee @me` when `assignOwner` is `true`.
+
+The body says what the pull
 request changes, lists its acceptance criteria as a checklist with the test that
 proves each one, carries the **Agreed behaviour** from each task's grill, and
 says how it was verified - in the register of the commit
@@ -341,6 +369,29 @@ leaves it.
 
 Merging is the repo owner's call. Stop there; do not start the next task in the
 same turn.
+
+## Parallel pull requests
+
+Only when `pullRequests.parallel` is `true`, and only across pull requests that
+are **independent**: no **Depends on** between them, not on the same stack, and
+no file in common. Two tasks that touch one file are not parallel, whatever the
+plan says - take them one after the other.
+
+- One worktree per pull request, on its branch:
+  `git worktree add ../<repo>-<branch> <branch>`. The subagent works there and
+  nowhere else, and its prompt names the path.
+- Spawn the red subagents together in one message, and later the green ones and
+  the `gate-runner`s. Each runs on its own task's model.
+- Every owner checkpoint stays in this session and takes **one pull request at a
+  time**, named at the top: the gate, the tests and their grill, the diff and its
+  grill, the size, the commit message. A second pull request waits at its
+  checkpoint until the first is through it - the owner never reviews two diffs in
+  one message.
+- Commit and push from each worktree with `git -C <path>`. Remove a worktree only
+  after its task is logged, and only after asking the owner.
+
+Report each pull request's outcome on its own lines. A failure in one stops that
+one, not the others.
 
 ## Step 10 - the log
 

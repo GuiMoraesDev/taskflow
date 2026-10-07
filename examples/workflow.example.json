@@ -45,7 +45,17 @@
       "package-lock.json",
       "pnpm-lock.yaml",
       "yarn.lock"
-    ]
+    ],
+    "branchPrefix": "",
+    "titlePrefix": "[{ticket}] ",
+    "labels": {
+      "always": [],
+      "byType": { "fix": ["bug"], "feat": ["enhancement"] },
+      "onMissing": "ask"
+    },
+    "assignOwner": true,
+    "stack": { "tool": "graphite", "scope": "dependent" },
+    "parallel": false
   },
   "aiSignature": false,
   "commitTypes": ["fix", "feat", "refactor", "chore", "docs", "test"],

@@ -55,7 +55,7 @@ To install from a local checkout instead, pass its path to
 
 | Name | Does |
 | ---- | ---- |
-| `init-workflow` | Writes `.claude/workflow.json` from the target repo's real scripts and layout, asks which model takes each tier and whether the repo keeps diagrams, and adds the workflow section to its `CLAUDE.md`. A re-run reports drift and asks only about what changed |
+| `init-workflow` | Writes `.claude/workflow.json` from the target repo's real scripts and layout, asks which model takes each tier, whether the repo keeps diagrams and its pull-request conventions, and adds the workflow section to its `CLAUDE.md`. A re-run reports drift and asks only about what changed |
 | `plan-start` | Grills the owner over the design tree in rounds until both share an understanding, then scaffolds the four plan docs: scope, pull requests of one topic under the line budget, acceptance criteria per pull request, one-commit tasks with a category, model and red-first tests each, and every open question carrying a recommendation |
 | `task-run` | The per-task cycle - criteria and question gate, the pull request's branch, 🔄, tests shown and run red, implementation to green in a subagent on the task's model, the owner grilled over the tests and the domain logic written, review, gates, size check, commit, draft or ready pull request, ✅, session log - then stop |
 | `bug-red-test` | Makes a regression test red against the old behaviour before the fix ships |
@@ -105,7 +105,7 @@ is the full shape.
 | `docsChecklist` | Each doc and what it owns, walked before a behaviour change is done |
 | `decisions` | Where decision records and the glossary live |
 | `diagrams` | Whether diagrams are kept, where, in what format, and who edits them |
-| `pullRequests` | The changed-line budget and the paths it does not count |
+| `pullRequests` | The changed-line budget and the paths it does not count, the branch and title prefixes, the labels and what to do when one is missing, whether the owner is assigned, the stacking tool and how much of a plan it stacks, and whether independent pull requests run in parallel |
 | `aiSignature` | Whether commits and pull requests may carry an AI signature |
 | `commitTypes` | The allowed conventional-commit types |
 | `models` | Which model each tier runs on, e.g. `{ "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }` |

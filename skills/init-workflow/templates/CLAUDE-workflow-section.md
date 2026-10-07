@@ -24,7 +24,8 @@ The plan is split into pull requests - one topic each, under
 pull request carries acceptance criteria agreed with the repo owner before any
 of its tasks start. A pull request has one branch; its first task opens it as a
 draft, its last marks it ready, and it reaches the default branch only when the
-repo owner reviews and merges it.
+repo owner reviews and merges it. Its branch prefix, title prefix, labels,
+assignee and stacking follow `pullRequests` in `.claude/workflow.json`.
 
 One task per commit, applied and reviewed one at a time. Every task declares the
 model that must take it, and its change is made by a subagent spawned on that
