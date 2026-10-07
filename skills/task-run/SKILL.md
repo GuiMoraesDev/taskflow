@@ -1,6 +1,6 @@
 ---
 name: task-run
-description: Apply exactly one task from TASKS.md through the full cycle - question and acceptance-criteria gate, the pull request's branch, mark in progress, tests written and watched red, implementation to green in a subagent on the task's model, review, gates, size check, commit, draft or ready pull request, session log - then stop. Use when the user says "do TASK-3", "next task", "continue the plan", or approves a task for implementation.
+description: Apply exactly one task from TASKS.md through the full cycle - question and acceptance-criteria gate, the pull request's branch, mark in progress, tests written and watched red, implementation to green in a subagent on the task's model, the owner grilled over the tests and the critical logic, review, gates, size check, commit, draft or ready pull request, session log - then stop. Use when the user says "do TASK-3", "next task", "continue the plan", or approves a task for implementation.
 ---
 
 # task-run
@@ -15,10 +15,12 @@ whole cycle exists to prevent.
 1. Work on the pull request's branch, never the default branch
 2. Mark the row 🔄 in PROGRESS.md
 3. Red: a subagent on the task's model writes the tests, nothing else
-   present each test and why it matters ──► changes requested? revise, back to 3
+   present each test and why it matters, grill over them
+                                ──► changes requested? revise, back to 3
    run them ──► each must fail, for its criterion's reason
 4. Green: the same subagent implements until they pass, the tests untouched
-5. Present the diff for review  ──► changes requested? revise, back to 5
+5. Grill over the critical logic, then present the diff
+                                ──► changes requested? revise, back to 4 or 5
 6. Run the gates                ──► any fail? fix, re-run
 7. Stage, check the pull request's size ──► over budget? stop, raise the split
 8. Draft the commit message, present it ──► approved? commit
@@ -34,6 +36,11 @@ request for the owner to switch the session's model.
 The work is spec-driven: the pull request's acceptance criteria were agreed at
 planning, the tests are derived from them, and the implementation is derived
 from the tests. Each step answers to the one before it.
+
+The owner stays in touch with the code through `grilling-code.md` in this
+skill's folder: at steps 3 and 5 the session questions them over the domain
+logic the task wrote, until their model of what the code does matches what it
+does, and records the behaviour they agreed.
 
 ## Step 0 - the gate
 
@@ -145,7 +152,11 @@ Its prompt is self-contained - the subagent sees none of this conversation:
 - the instruction to change only the task's `Files`, to run no git command that
   writes (no add, commit, push or branch), and to report the files touched, each
   test with the criterion it covers, any deviation from the plan, and anything it
-  could not settle.
+  could not settle;
+- the instruction to flag every **critical-logic site** it writes - the kinds
+  `grilling-code.md` lists, with path and line - and every business rule it had
+  to choose on its own: a default, a threshold, a fallback, an ordering. It
+  never settles a business rule silently.
 
 A tier mapped to a Codex model - any value that is not a Claude alias, such as
 `gpt-6-luna` - runs through Codex instead of a Claude model: spawn
@@ -178,8 +189,13 @@ test and run it again. A test that passes before the implementation exists
 proves nothing either - the behaviour is already there, or the test does not
 check it. Raise it with the owner; it is a finding, not a test.
 
-Put the red run in front of the owner with the table, and wait for their
-approval of the tests. Requested changes go back to the same subagent, and the
+**Grill over the tests** - `grilling-code.md`, at its first checkpoint: what each
+test claims the domain does, and the edge cases none of them covers. A
+question whose answer adds or changes a test goes back to the subagent before
+the run.
+
+Put the red run in front of the owner with the table and the agreed behaviour
+so far, and wait for their approval of the tests. Requested changes go back to the same subagent, and the
 run is repeated.
 
 🔴 bug tasks also follow `bug-red-test`: the test is written against the bug's
@@ -205,7 +221,15 @@ step 5 go back to the same subagent.
 
 ## Step 5 - the review
 
-Present the diff with the red-to-green record beside it. Confirm that no
+**Grill first** - `grilling-code.md`, at its second checkpoint, over the
+critical-logic sites the subagent flagged and any it missed. Every business rule
+it chose on its own is a question here, not a fact. When the owner's answers
+change behaviour, the task goes back to step 4, or to step 3 when a test must
+change. Then write the task's agreed behaviour.
+
+Then present the diff with the red-to-green record and the agreed behaviour
+beside it. The owner may read every line, but the grill is what verified they
+understand it. Confirm that no
 approved test changed between step 3 and now: compare the test files against
 what the owner approved, and treat any difference as an alert.
 
@@ -306,10 +330,14 @@ request:
 
 The title is the one the plan gave the pull request. The body says what the pull
 request changes, lists its acceptance criteria as a checklist with the test that
-proves each one, and how it was verified - in the register of the commit
+proves each one, carries the **Agreed behaviour** from each task's grill, and
+says how it was verified - in the register of the commit
 message: no plan-file references, no task IDs, no conversation, and no AI
 signature unless `aiSignature` is `true`. Update the checklist as each task
-lands, so a reviewer opening the draft sees what is proven so far.
+lands, so a reviewer opening the draft sees what is proven so far. When the last
+task lands, consolidate the agreed behaviour into the pull request's **source of
+truth**: one list, no duplicates, the system's behaviour as the pull request
+leaves it.
 
 Merging is the repo owner's call. Stop there; do not start the next task in the
 same turn.
@@ -320,7 +348,8 @@ Flip the task row to ✅ once its commit is pushed, and move the pull request
 row: 📝 draft with its number after the first task, 👀 ready after the last, with
 the measured size in its summary. Append one session-log entry: the hash, the
 pull request and its size against the budget, what actually changed, the tests
-that went red to green, the suite counts, and any **deviation**.
+that went red to green, the task's agreed behaviour, the suite counts, and any
+**deviation**.
 
 Both directions of deviation count. A task that turned out unnecessary and a task
 that had to do more than it said are equally worth writing down - the plan is

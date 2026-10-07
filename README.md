@@ -11,7 +11,7 @@ true as they change - in a form any repo can install.
 | ---- | ---- | ---- |
 | Skill | `init-workflow` | Writes `.claude/workflow.json` from the target repo's real scripts and layout, asks which model takes each tier and whether the repo keeps diagrams, and adds the workflow section to its `CLAUDE.md` |
 | Skill | `plan-start` | Grills the owner over the design tree of the work in rounds until you share an understanding, then scaffolds `SCOPE.md` + `TASKS.md` + `QUESTIONS.md` + `PROGRESS.md`: scope, pull requests of one topic under the line budget, acceptance criteria agreed with the owner per pull request, one-commit tasks with a category, model and red-first tests each, and every open question carrying a recommendation |
-| Skill | `task-run` | The per-task cycle - criteria and question gate, the pull request's branch, 🔄, tests shown and run red, implementation to green in a subagent on the task's model, review, gates, size check, commit, draft or ready pull request, ✅, session log - then stop |
+| Skill | `task-run` | The per-task cycle - criteria and question gate, the pull request's branch, 🔄, tests shown and run red, implementation to green in a subagent on the task's model, the owner grilled over the tests and the domain logic written, review, gates, size check, commit, draft or ready pull request, ✅, session log - then stop |
 | Skill | `bug-red-test` | Makes a regression test red against the old behaviour before the fix ships |
 | Skill | `docs-sync` | The docs checklist, plus the glossary and the diagram sweep when the repo keeps them |
 | Skill | `standards-review` | Audits a diff against the standards the repo's `CLAUDE.md` states, and alerts when a test was bent to pass rather than changed with the behaviour - naming the coverage lost and the behaviour put at risk |
@@ -80,7 +80,8 @@ repository and add that URL instead.
 6. Apply one task - on its pull request's branch, through a subagent on the
    task's model. Show the owner its tests and why each matters, watch them fail
    for the right reason, then implement until they pass without touching them.
-   Review it, gate it, check the pull request's size, commit it, push it - the
+   Grill the owner over the domain logic it wrote until their understanding of
+   the code matches the code, and record the behaviour they agreed. Review it, gate it, check the pull request's size, commit it, push it - the
    first task opens a draft, the last marks it ready - log it. Then stop.
    Nothing reaches the default branch without a reviewed pull request.
 7. A task with no new test says why: it changes no behaviour, and the existing
