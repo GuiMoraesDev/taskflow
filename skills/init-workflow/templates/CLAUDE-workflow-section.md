@@ -40,6 +40,10 @@ Gates before every commit: `<LINT_FIX>`, `<CHECK_TYPES>`, `<TEST_UNIT>`, plus
 `<TEST_E2E>` when the change touches <E2E_TRIGGER_PATHS>. The pre-commit hook
 runs <HOOK_COMMANDS> and never a test, so running them is on you.
 
+Commit messages and pull requests carry no AI signature - no `Co-Authored-By`
+trailer for an AI, no "Generated with Claude Code" line - unless
+`.claude/workflow.json` sets `aiSignature: true`.
+
 A bug fix ships a test verified failing against the old behaviour. Deviations
 from the plan go in the session log.
 

@@ -149,6 +149,10 @@ Codex model id when a tier runs on Codex:
 "models": { "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }
 ```
 
+Write `"aiSignature": false` unless the owner asked for AI attribution in
+commits. It is the switch for every `Co-Authored-By` trailer and "Generated
+with" line the workflow writes, and a missing key means `false`.
+
 Gitignore the per-project plan folders. Plans are working documents: committing
 them invites code and commit messages to cite them, and a citation to a
 gitignored file points at nothing.

@@ -36,6 +36,7 @@
     "format": "excalidraw",
     "editedBy": "human"
   },
+  "aiSignature": false,
   "commitTypes": ["fix", "feat", "refactor", "chore", "docs", "test"],
   "models": { "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }
 }

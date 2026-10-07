@@ -23,13 +23,15 @@ install.
 | Command | `/next-task` | Picks the next ⬜ row and runs the cycle on it |
 | Command | `/deviation` | Appends a departure from the plan to the session log |
 | Hooks | `guard-bash`, `guard-edit`, `progress-reminder` | Ask before `--no-verify`, `git add -A`, bare `npx`-style gate invocations, auto-branching, git force flags (refused without a stated reason), test-runner-config edits and dependency overrides - every matching rule is listed in one prompt, force first; remind to close the task row after a commit |
+| Hook | `guard-signature` | Refuses a commit or pull request carrying an AI signature (`Co-Authored-By` for an AI, "Generated with Claude Code") unless `workflow.json` sets `aiSignature: true` - it defaults to `false` |
+| Hook | `version-bump` | In a repo that ships `.claude-plugin/plugin.json`: bumps the patch version and stages it on the branch's first commit, and refuses a push whose version is not above the remote default branch's |
 
 ## The portability seam
 
 Everything repo-specific lives in one file the target repo owns:
 `.claude/workflow.json` - gate commands, the plan folder, which paths need e2e,
 the docs checklist, where decision records and the glossary live, whether
-diagrams are kept, and which model each difficulty tier runs on. `examples/workflow.example.json` is the shape; `init-workflow`
+diagrams are kept, whether commits carry an AI signature, and which model each difficulty tier runs on. `examples/workflow.example.json` is the shape; `init-workflow`
 fills it in by reading the repo and asking what it cannot read. The plugin
 carries the procedure, `CLAUDE.md` and `workflow.json` carry the repo's rules.
 
