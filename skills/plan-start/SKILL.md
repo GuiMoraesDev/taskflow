@@ -30,19 +30,31 @@ For anything spanning more than two files, delegate the survey to the `plan-arch
 
 If the repo keeps a glossary - `.claude/workflow.json` `decisions.glossary` names it - read it and use its terms throughout the plan. A plan that renames the domain forces every reader to translate. Where the work contradicts an existing decision record, say so before planning around it.
 
-## 3. Harvest what is already decided
+## 3. Grill the plan
 
-Before writing a single question, collect the decisions that have **already been made** - in this conversation, in a design session that preceded it, in an existing decision record. Each becomes an answered entry in `QUESTIONS.md` with its provenance, not an open question.
+Before anything is written, follow `grilling.md` in this skill's folder: interview
+the owner in rounds over the design tree of the work, each question carrying your
+recommended answer, until the frontier is empty and the owner confirms you share
+an understanding. The survey from step 2 is what lets you look facts up instead
+of asking them.
+
+Its frontier is a frontier of **decisions**, not of tasks. Everything the
+grilling settles is harvested in the next step; anything the owner chooses to
+leave open becomes a question in `QUESTIONS.md`, asked at its task.
+
+## 4. Harvest what is already decided
+
+Before writing a single question, collect the decisions that have **already been made** - in the grilling, in this conversation, in a design session that preceded it, in an existing decision record. Each becomes an answered entry in `QUESTIONS.md` with its provenance, not an open question.
 
 Never ask what the owner has already told you. A plan that reopens a settled decision spends their patience and teaches them that answering early is wasted effort.
 
-## 4. Write SCOPE.md
+## 5. Write SCOPE.md
 
 Copy `templates/SCOPE.md`.
 
 **Scope is the part that earns its keep.** Name the areas the plan may change, and the tempting ones it may not. State the escape hatch explicitly: if a task turns out to require an out-of-scope change, stop and raise it rather than widening the plan.
 
-## 5. Split the work into pull requests
+## 6. Split the work into pull requests
 
 Copy `templates/TASKS.md`. The owner reviews the work on GitHub, so the plan is
 written in the units they will see there: **pull requests**, each holding the
@@ -66,12 +78,12 @@ it exists:
 | Size                          | The estimate against the budget, `~310 / 400`                                              |
 | Tasks                         | The task IDs that land on it, in order. Each is one commit                                 |
 | What you will see on GitHub   | The commits in order, the files, and what the reviewer checks                              |
-| Acceptance criteria           | Step 6                                                                                     |
+| Acceptance criteria           | Step 7                                                                                     |
 
 The concept of a task does not change: one task is one commit, applied and
 reviewed on its own, on the model it declares. A pull request only groups them.
 
-## 6. Agree the acceptance criteria
+## 7. Agree the acceptance criteria
 
 Every pull request that changes behaviour carries acceptance criteria, numbered
 `AC-1`, `AC-2` across the whole plan. Each is one observable outcome in
@@ -95,7 +107,7 @@ changes tests already written.
 A pull request that changes no behaviour - a pure refactor, a chore - says so in
 place of the criteria, and the owner agrees to that too.
 
-## 7. Cut the tasks
+## 8. Cut the tasks
 
 **One task is one commit.** If a task cannot be described as a single commit message, it is two tasks. Each declares:
 
@@ -122,7 +134,7 @@ Order tasks so each leaves the tree green. A task whose only justification is "w
 
 **Wide mechanical changes are the exception.** When one change breaks call sites across the codebase at once, no vertical slice stays green, so sequence it as expand, migrate, contract - the template carries the shape. Forcing a rename into vertical slices produces tasks that cannot satisfy their own verification.
 
-## 8. Write QUESTIONS.md
+## 9. Write QUESTIONS.md
 
 Copy `templates/QUESTIONS.md`. Number the questions **in the order the tasks need them**, not in the order they occurred to you.
 
@@ -147,7 +159,7 @@ Then mark each one. The mark sets how hard the question is pressed - every quest
 
 Mark ⚠️ whenever the answer changes who can read or write data, crosses a trust boundary, or touches authorization - an unchecked object reference (IDOR), a permission default, a token lifetime, a field added to a public response, a rate limit, anything logged. When in doubt between the two marks, it is ⚠️. The cost of over-marking is a consequence spelled out that did not need to be; the cost of under-marking is an owner waving through a vulnerability because nobody told them it was one.
 
-## 9. Write PROGRESS.md
+## 10. Write PROGRESS.md
 
 Copy `templates/PROGRESS.md`. One ledger in execution order: each pull request row heads its tasks, and **each question sits directly above the task it blocks**, owned 🙋 by the repo owner.
 
@@ -162,7 +174,7 @@ The mark decides how the question is put, not whether it blocks. 🟦 goes over 
 
 A blocked task holds itself, not the run. Every ⬜ task whose blockers are settled and whose pull request's criteria are agreed is on the **frontier** and may be taken; the ledger's order says which is preferred.
 
-## 10. Hand back
+## 11. Hand back
 
 Report the plan as GitHub will show it: one line per pull request - title,
 branch, estimated size against the budget, criteria agreed - with its tasks

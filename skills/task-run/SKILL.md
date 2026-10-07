@@ -40,7 +40,7 @@ from the tests. Each step answers to the one before it.
 First, the pull request the task belongs to. Its acceptance criteria in
 `TASKS.md` must read `✅ agreed`. If they are still 📋 in discussion, **stop**:
 the task's tests have nothing to be derived from. Put the open criteria to the
-owner and discuss until they agree, as `plan-start` step 6 does, then mark them
+owner and discuss until they agree, as `plan-start` step 7 does, then mark them
 agreed and log it.
 
 Then the questions. Read the task's **Blocked by** line in `TASKS.md`. For each question it names, go
@@ -97,7 +97,8 @@ gate is the wrong shape: each answer arrives without the context of the others,
 and the owner ends up re-deciding the first one after hearing the third.
 
 Name it for what it is - a design problem rather than a decision - and recommend
-a design session before the plan continues. Then bring what it settles back as
+a design session before the plan continues - the grilling from `plan-start`
+step 3, run over just the knot. Then bring what it settles back as
 answered entries with their provenance, and re-plan the affected tasks if the
 shape changed.
 

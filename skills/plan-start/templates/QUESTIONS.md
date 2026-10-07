@@ -70,6 +70,7 @@ Every decision records where it came from, because a choice made in a design
 conversation and one made at the gate are different kinds of evidence:
 
 - **owner, at the gate** - asked when its task came up, answered then.
+- **owner, in the grilling** - settled in a grilling round at plan-start.
 - **owner, ahead of time** - settled in conversation before the question was
   reached, and harvested into this file.
 - **prior decision** - already settled by an existing ADR or a previous plan.

@@ -10,7 +10,7 @@ true as they change - in a form any repo can install.
 | Kind | Name | Does |
 | ---- | ---- | ---- |
 | Skill | `init-workflow` | Writes `.claude/workflow.json` from the target repo's real scripts and layout, asks which model takes each tier and whether the repo keeps diagrams, and adds the workflow section to its `CLAUDE.md` |
-| Skill | `plan-start` | Scaffolds `SCOPE.md` + `TASKS.md` + `QUESTIONS.md` + `PROGRESS.md`: scope, pull requests of one topic under the line budget, acceptance criteria agreed with the owner per pull request, one-commit tasks with a category, model and red-first tests each, and every open question carrying a recommendation |
+| Skill | `plan-start` | Grills the owner over the design tree of the work in rounds until you share an understanding, then scaffolds `SCOPE.md` + `TASKS.md` + `QUESTIONS.md` + `PROGRESS.md`: scope, pull requests of one topic under the line budget, acceptance criteria agreed with the owner per pull request, one-commit tasks with a category, model and red-first tests each, and every open question carrying a recommendation |
 | Skill | `task-run` | The per-task cycle - criteria and question gate, the pull request's branch, 🔄, tests shown and run red, implementation to green in a subagent on the task's model, review, gates, size check, commit, draft or ready pull request, ✅, session log - then stop |
 | Skill | `bug-red-test` | Makes a regression test red against the old behaviour before the fix ships |
 | Skill | `docs-sync` | The docs checklist, plus the glossary and the diagram sweep when the repo keeps them |
