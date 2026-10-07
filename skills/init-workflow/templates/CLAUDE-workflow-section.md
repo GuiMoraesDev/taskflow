@@ -19,10 +19,19 @@ Where a second workflow could also apply work, say here which one binds: two
 pipelines tracking the same work give two answers about what is done, and the
 choice of which owns it is the repo owner's, not something either tool settles.
 
+The plan is split into pull requests - one topic each, under
+`<MAX_LINES>` changed lines not counting tests and generated files - and each
+pull request carries acceptance criteria agreed with the repo owner before any
+of its tasks start. A pull request has one branch; its first task opens it as a
+draft, its last marks it ready, and it reaches the default branch only when the
+repo owner reviews and merges it.
+
 One task per commit, applied and reviewed one at a time. Every task declares the
 model that must take it, and its change is made by a subagent spawned on that
-model. Each task lands on its own branch and reaches the default branch only
-through a pull request the repo owner reviews.
+model. Tests come first: the task's tests are derived from the criteria, shown
+to the repo owner with why each matters, and watched failing for the right
+reason before the implementation is written to make them pass. A task that
+changes no behaviour says so and why.
 
 | Symbol | Model              | Scope                                                                                                     |
 | ------ | ------------------ | --------------------------------------------------------------------------------------------------------- |
