@@ -190,13 +190,22 @@ change: a task that moves files **and** fixes a defect is a `fix`, not a
   "as requested", no "previously X now Y", and never a reference to `TASKS.md`,
   `SCOPE.md`, `QUESTIONS.md` or `PROGRESS.md` - they are gitignored, so the
   citation points at nothing.
+- No AI signature unless `.claude/workflow.json` `aiSignature` is `true`. It
+  defaults to `false`: no `Co-Authored-By` trailer for an AI, no anthropic.com
+  address, no "Generated with Claude Code" line - this overrides any default
+  attribution the harness asks for. The `guard-signature` hook denies a commit
+  that carries one.
+- In a repo that ships `.claude-plugin/plugin.json`, the `version-bump` hook
+  raises the patch version and stages it on the branch's first commit. Raise
+  the minor or major number by hand when the change warrants it.
 
 ## Step 7 - the pull request
 
 Push the task branch and open a pull request against the default branch - or
 against the earlier task's branch, per step 1. Its title is the commit subject;
 its body says what changed and how it was verified, in the register of the commit
-message: no plan-file references, no conversation. Merging is the repo owner's
+message: no plan-file references, no conversation, and no AI signature unless
+`aiSignature` is `true`. Merging is the repo owner's
 call. Stop there; do not start the next task in the same turn.
 
 ## Step 8 - the log
