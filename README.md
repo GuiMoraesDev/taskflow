@@ -1,164 +1,155 @@
-# taskflow
+# Taskflow
 
-A Claude Code plugin carrying a working method - plan first in pull requests the
-owner will review, acceptance criteria agreed before code, tests watched red
-before they go green, one task per commit, gates before every commit, docs kept
-true as they change - in a form any repo can install.
+[![release](https://img.shields.io/github/v/release/GuiMoraesDev/taskflow?label=release)](https://github.com/GuiMoraesDev/taskflow/releases)
+[![claude code](https://img.shields.io/badge/claude%20code-plugin-D97757?logo=claude)](https://docs.claude.com/en/docs/claude-code/plugins)
+[![python](https://img.shields.io/badge/python-3-3776AB?logo=python)](https://www.python.org/downloads/)
+[![github cli](https://img.shields.io/badge/gh-cli-181717?logo=github)](https://cli.github.com/)
+</br>
+<small>Every badge is a link to its docs</small>
 
-The plugin carries the procedure. The target repo keeps its own rules in
-`CLAUDE.md` and `.claude/workflow.json`.
+</br>
 
-## Quick start
+## Description of that project 📖
 
-```bash
+Taskflow is a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that
+gives Claude a disciplined way to ship work, the way a careful senior dev would:
+
+- 🗺️ **Plan first.** Work is planned as the pull requests you will review, each one about one topic and under a line budget.
+- ✅ **Agree what "done" means.** Each pull request gets acceptance criteria you sign off on before any code is written.
+- 🔴🟢 **Red before green.** You see the tests fail for the right reason before Claude writes the implementation.
+- 📦 **One task, one commit.** Claude does a single task end to end, then stops.
+- 🚦 **Gates before every commit.** Lint, type check, unit tests, and e2e when the change needs them.
+- 📚 **Docs stay true.** The docs, and the diagrams if your repo has them, are checked before a change counts as done.
+
+The plugin carries the procedure. Your repo keeps its own rules in `CLAUDE.md` and
+`.claude/workflow.json`.
+
+## Requirements 🛑
+
+To use it, you will need these tools in your environment:
+
+- [Claude Code](https://docs.claude.com/en/docs/claude-code/setup)
+- [Python 3](https://www.python.org/downloads/) on your `PATH`, because the hooks are Python scripts
+- [Git](https://git-scm.com/downloads) and the [GitHub CLI](https://cli.github.com/), signed in to your repo's remote, because Taskflow opens and updates your pull requests
+- Lint, type check and test commands your repo can already run
+
+## Installing the plugin 🧰
+
+Add the marketplace and install the plugin from inside Claude Code:
+
+```sh
 /plugin marketplace add GuiMoraesDev/taskflow
 /plugin install taskflow@taskflow-tools
 ```
 
-Then, in the target repo:
+Then, in the repo you want to use it on:
 
-```bash
-/init-workflow      # writes .claude/workflow.json and the CLAUDE.md workflow section
-/plan-status        # confirms the config took
+```sh
+/init-workflow      # writes .claude/workflow.json and the workflow section of CLAUDE.md
+/plan-status        # checks that the config works
 ```
 
-To install from a local checkout instead, pass its path to
-`/plugin marketplace add`.
+> 💡 To install from a local checkout instead, pass its path to `/plugin marketplace add`.
 
-### Requirements
+## How a piece of work flows 🔁
 
-- `python3` on the `PATH` - the hooks are Python scripts
-- `git`, and the `gh` CLI authenticated against the repo's remote - `task-run`
-  opens and updates the pull requests
-- Gate commands (lint, types, unit, e2e) the repo can already run
+```
+  plan  ──▶  agree criteria  ──▶  run a task  ──▶  repeat  ──▶  check in
+```
 
-## A piece of work, end to end
-
-1. **Plan.** Ask for a plan ("plan the export feature"). `plan-start` grills you
-   over the design until you agree on it, then writes `SCOPE.md`, `TASKS.md`,
-   `QUESTIONS.md` and `PROGRESS.md` under the configured `projectsDir`.
-2. **Agree the criteria.** Each pull request in the plan carries acceptance
-   criteria. Settle them before its first task starts.
-3. **Run a task.** `/next-task` takes the first unblocked ⬜ row (or
-   `/next-task TASK-3` takes a named one) and runs the `task-run` cycle: branch,
-   tests shown red, implementation green in a subagent, a grilling over the logic
-   written, review, gates, size check, commit, push, log. Then it stops.
-4. **Repeat.** The first task of a pull request opens it as a draft; the last
+1. **Plan.** Ask for one, like _"plan the export feature"_. Claude grills you on the
+   design until you both agree, then writes `SCOPE.md`, `TASKS.md`, `QUESTIONS.md`
+   and `PROGRESS.md` in your configured `projectsDir`.
+2. **Agree the criteria.** Settle each pull request's acceptance criteria before its
+   first task starts.
+3. **Run a task.** `/next-task` picks the first task that isn't blocked (or use
+   `/next-task TASK-3` to pick one). Claude runs the full cycle: branch, failing tests,
+   implementation, a review of the logic with you, gates, size check, commit, push and
+   log. Then it stops.
+4. **Repeat.** The first task of a pull request opens it as a draft, and the last task
    marks it ready for review.
-5. **Check in.** `/plan-status` shows the ledger, the open questions and what
-   they block, and the next actionable task. `/deviation` records anything that
-   turned out differently from the plan.
+5. **Check in.** `/plan-status` shows where you are, the open questions and what they
+   block. `/deviation` writes down anything that didn't go as planned.
 
-## What is in it
-
-### Skills
-
-| Name | Does |
-| ---- | ---- |
-| `init-workflow` | Writes `.claude/workflow.json` from the target repo's real scripts and layout, asks which model takes each tier, whether the repo keeps diagrams and its pull-request conventions, and adds the workflow section to its `CLAUDE.md`. A re-run reports drift and asks only about what changed |
-| `plan-start` | Grills the owner over the design tree in rounds until both share an understanding, then scaffolds the four plan docs: scope, pull requests of one topic under the line budget, acceptance criteria per pull request, one-commit tasks with a category, model and red-first tests each, and every open question carrying a recommendation |
-| `task-run` | The per-task cycle - criteria and question gate, the pull request's branch, 🔄, tests shown and run red, implementation to green in a subagent on the task's model, the owner grilled over the tests and the domain logic written, review, gates, size check, commit, draft or ready pull request, ✅, session log - then stop |
-| `bug-red-test` | Makes a regression test red against the old behaviour before the fix ships |
-| `docs-sync` | Walks the docs checklist, plus the glossary and the diagram sweep when the repo keeps them |
-| `standards-review` | Audits a diff against the standards the repo's `CLAUDE.md` states, and alerts when a test was bent to pass rather than changed with the behaviour - naming the coverage lost and the behaviour put at risk |
-
-### Agents
-
-| Name | Tier | Does |
-| ---- | ---- | ---- |
-| `plan-architect` | deep | Surveys the code and returns the task breakdown a plan needs |
-| `standards-reviewer` | deep | Read-only standards audit of a diff |
-| `docs-diagram-auditor` | surface | Sweeps docs, and diagram labels when there are any, for stale claims |
-| `gate-runner` | mechanical | Runs lint/types/unit/e2e and reports failures only, keeping passing output out of the main context |
+## What's inside 🎁
 
 ### Commands
 
-| Name | Does |
-| ---- | ---- |
-| `/init-workflow` | Runs the `init-workflow` skill - the deterministic entry point for setting up or reconciling the config |
-| `/plan-status [project]` | The ledger, unanswered questions and what they block, last log entries, next actionable task |
-| `/next-task [TASK-ID]` | Picks the next ⬜ row, or the one named, and runs the cycle on it |
-| `/deviation <what changed>` | Appends a departure from the plan to the session log |
+| Command | What it does |
+| --- | --- |
+| `/init-workflow` | Sets up or updates the workflow config for your repo |
+| `/plan-status [project]` | Shows the task list, open questions, latest log entries and the next task you can do |
+| `/next-task [TASK-ID]` | Picks the next task, or the one you name, and runs the cycle on it |
+| `/deviation <what changed>` | Logs a change from the plan |
+
+### Skills
+
+| Skill | What it does |
+| --- | --- |
+| `init-workflow` | Reads your repo's scripts and layout, asks what it can't figure out (models, diagrams, pull-request conventions), then writes `.claude/workflow.json` and the workflow section of `CLAUDE.md`. Running it again asks only about what changed |
+| `plan-start` | Grills you on the design, then writes the four plan docs: the scope, the pull requests, their acceptance criteria, one-commit tasks with their tests, and the open questions, each with a recommendation |
+| `task-run` | Runs one task through the full cycle, from the failing tests to the commit and pull request, then stops |
+| `bug-red-test` | Proves a regression test fails against the old behaviour before the fix ships |
+| `docs-sync` | Goes through your docs checklist, plus the glossary and diagrams if your repo has them |
+| `standards-review` | Checks a diff against the standards in your `CLAUDE.md`, and warns you when a test was bent to pass instead of updated with the behaviour |
+
+### Agents
+
+| Agent | Tier | What it does |
+| --- | --- | --- |
+| `plan-architect` | deep | Surveys the code and returns the task breakdown a plan needs |
+| `standards-reviewer` | deep | Audits a diff against the standards without changing anything |
+| `docs-diagram-auditor` | surface | Looks for outdated claims in the docs and diagram labels |
+| `gate-runner` | mechanical | Runs lint, types, unit and e2e tests and reports only the failures |
 
 ### Hooks
 
-| Name | Does |
-| ---- | ---- |
-| `guard-bash` | Asks before `--no-verify`, `git add -A`, bare `npx`-style gate invocations, auto-branching and git force flags (refused without a stated reason). Every matching rule is listed in one prompt, force first |
-| `guard-signature` | Refuses a commit or pull request carrying an AI signature (`Co-Authored-By` for an AI, "Generated with Claude Code") unless `workflow.json` sets `aiSignature: true`. It defaults to `false` |
-| `progress-reminder` | After a commit, reminds to close the task row in `PROGRESS.md` |
-| `version-bump` | In a repo that ships `.claude-plugin/plugin.json`: bumps the patch version and stages it on the branch's first commit, and refuses a push whose version is not above the remote default branch's |
+| Hook | What it does |
+| --- | --- |
+| `guard-bash` | Asks before risky commands: `--no-verify`, `git add -A`, bare `npx`-style gate calls, automatic branching and force flags. It refuses a force flag unless you give a reason |
+| `guard-signature` | Blocks AI signatures (like `Co-Authored-By` for an AI) in commits and pull requests unless `workflow.json` sets `aiSignature: true`. It's `false` by default |
+| `progress-reminder` | After a commit, reminds you to close the task in `PROGRESS.md` |
+| `version-bump` | In a repo that ships `.claude-plugin/plugin.json`, bumps the patch version on a branch's first commit and blocks a push that didn't bump it |
 
-## Configuration
+## Configuration ⚙️
 
-Everything repo-specific lives in one file the target repo owns,
-`.claude/workflow.json`. `init-workflow` fills it in by reading the repo and
-asking what it cannot read. [`examples/workflow.example.json`](examples/workflow.example.json)
-is the full shape.
+Everything specific to your repo lives in one file you own: `.claude/workflow.json`.
+`/init-workflow` fills it in for you. See
+[`examples/workflow.example.json`](examples/workflow.example.json) for the full shape.
 
-| Key | Holds |
-| --- | ----- |
+| Key | What it holds |
+| --- | --- |
 | `projectsDir` | Where plan folders live |
-| `gates` | The lint, types, unit and e2e commands |
-| `e2eTriggerPaths` | Globs whose change makes the e2e suite run |
-| `docsChecklist` | Each doc and what it owns, walked before a behaviour change is done |
-| `decisions` | Where decision records and the glossary live |
-| `diagrams` | Whether diagrams are kept, where, in what format, and who edits them |
-| `pullRequests` | The changed-line budget and the paths it does not count, the branch and title prefixes, the labels and what to do when one is missing, whether the owner is assigned, the stacking tool and how much of a plan it stacks, and whether independent pull requests run in parallel |
+| `gates` | Your lint, types, unit and e2e commands |
+| `e2eTriggerPaths` | File patterns whose changes make the e2e suite run |
+| `docsChecklist` | Each doc and what it covers, checked before a behaviour change is done |
+| `decisions` | Where your decision records and glossary live |
+| `diagrams` | Whether you keep diagrams, where, in what format and who edits them |
+| `pullRequests` | Line budget and the paths it skips, branch and title prefixes, labels, assignee, stacking and whether independent pull requests run in parallel |
 | `aiSignature` | Whether commits and pull requests may carry an AI signature |
 | `commitTypes` | The allowed conventional-commit types |
-| `models` | Which model each tier runs on, e.g. `{ "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }` |
+| `models` | Which model each tier uses, e.g. `{ "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }` |
 
-The tier mapping binds both task rows and the plugin's own agents, so a repo sets
-its cost and latency budget once.
+> 💡 The `models` mapping covers both your plan's tasks and the plugin's own agents, so you set your cost and speed trade-off once.
 
-What does **not** travel: dependency-direction rules belong in the target repo's
-lint config, not in prose. A prose invariant rots.
+Rules about dependency direction belong in your repo's lint config, not in this file.
+Prose rules go stale; lint rules don't.
 
-## The method, in one screen
+## The rules it follows 📏
 
-1. No code before the four plan docs exist. `SCOPE.md` names what may change and
-   the tempting things that may not, `TASKS.md` holds the work, `QUESTIONS.md`
-   holds what is undecided, `PROGRESS.md` is the ledger.
-2. The plan is written as the pull requests the owner will review on GitHub:
-   one topic each, under the line budget (400 changed lines by default, not
-   counting tests), each saying its title, branch, commits and files before any
-   exist.
-3. Each pull request carries acceptance criteria, discussed with the owner until
-   they agree, before any of its tasks start.
-4. One task is one commit, cut vertically so finishing it makes something
-   observably true. Each declares a category, the tier that must take it, its
-   files, and the tests it adds - each tied to a criterion. A wide mechanical
-   change is sequenced expand, migrate, contract rather than forced into slices
-   that cannot go green.
-5. Questions are for decisions only - anything the repo can answer, the agent
-   reads for itself. Each carries a recommendation that explains itself - why,
-   a concrete example per option, the cost, how to reverse it - and is asked at
-   the task that needs it, not up front. An answered question is marked ✅ the
-   moment the answer arrives. An unanswered question blocks that task; the
-   recommendation makes the answer cheap rather than standing in for one. Hard or
-   security-bearing questions are put with their consequences stated plainly.
-6. Apply one task - on its pull request's branch, through a subagent on the
-   task's model. Show the owner its tests and why each matters, watch them fail
-   for the right reason, then implement until they pass without touching them.
-   Grill the owner over the domain logic it wrote until their understanding of
-   the code matches the code, and record the behaviour they agreed. Review it,
-   gate it, check the pull request's size, commit it, push it - the first task
-   opens a draft, the last marks it ready - log it. Then stop. Nothing reaches
-   the default branch without a reviewed pull request.
-7. A task with no new test says why: it changes no behaviour, and the existing
-   suite proves it. A bug fix's test is written against the bug's mechanism.
-8. The docs checklist is walked before a behaviour change is called done - with
-   the diagrams in the same pass, in a repo that keeps them.
-9. A departure from the plan is written down, in both directions - the plan is
-   evidence of what was expected, the log is evidence of what was true.
+1. **No code before the plan.** `SCOPE.md` says what may change and what may not, `TASKS.md` holds the work, `QUESTIONS.md` holds the open decisions and `PROGRESS.md` tracks progress.
+2. **Plans are pull requests.** Each one has one topic and stays under the line budget (400 changed lines by default, tests not counted). Its title, branch, commits and files are written down before any of them exist.
+3. **Criteria come first.** Each pull request's acceptance criteria are agreed with you before its tasks start.
+4. **One task, one commit.** Each task makes something visibly true and lists its category, model tier, files and tests. A wide mechanical change is done as expand, migrate, contract.
+5. **Only real decisions become questions.** Claude reads the repo for anything it can answer itself. Each question comes with a recommendation, examples, cost and how to undo it. It is asked at the task that needs it, and it blocks only that task.
+6. **Tests before code.** You see the tests and why they matter, watch them fail, then Claude implements until they pass without touching them. Claude then walks you through the logic it wrote until you understand the code. Nothing reaches the default branch without a reviewed pull request.
+7. **No test? Say why.** A task without a new test explains why: it changes no behaviour and the existing tests cover it. A bug fix's test targets how the bug happens.
+8. **Docs before done.** The docs checklist, and the diagrams if your repo keeps them, are checked before a behaviour change is called done.
+9. **Write down surprises.** Any change from the plan goes in the log. The plan shows what you expected, the log shows what happened.
 
-## Developing the plugin
+## Project Maintenance 👨‍🔧
 
-The layout follows the Claude Code plugin structure: `skills/`, `agents/`,
-`commands/` and `hooks/` at the root, with the manifest and marketplace entry in
-`.claude-plugin/`. With the plugin installed while working on it, its own
-`version-bump` hook bumps the patch version in `plugin.json` on a branch's first
-commit, and refuses a push that did not bump it. When a pull request merges
-into `main`, the `Release` workflow tags the merge commit `v<version>` and
-publishes a GitHub release for it.
+- The plugin follows the [Claude Code plugin structure](https://docs.claude.com/en/docs/claude-code/plugins): `skills/`, `agents/`, `commands/` and `hooks/` at the root, with the manifest and marketplace entry in `.claude-plugin/`.
+- Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
+- With the plugin installed while you work on it, its `version-bump` hook bumps the patch version in `plugin.json` on a branch's first commit and blocks a push that didn't bump it.
+- When a pull request merges into `main`, the [`Release`](.github/workflows/release.yml) workflow tags the merge commit `v<version>` and publishes a GitHub release.
