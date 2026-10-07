@@ -36,6 +36,17 @@
     "format": "excalidraw",
     "editedBy": "human"
   },
+  "pullRequests": {
+    "maxLines": 400,
+    "excludeFromCount": [
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/__snapshots__/**",
+      "package-lock.json",
+      "pnpm-lock.yaml",
+      "yarn.lock"
+    ]
+  },
   "aiSignature": false,
   "commitTypes": ["fix", "feat", "refactor", "chore", "docs", "test"],
   "models": { "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }

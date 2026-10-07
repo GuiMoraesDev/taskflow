@@ -1,22 +1,32 @@
 # Progress — <Short Title>
 
 Status: ⬜ pending · 🔄 in progress · ✅ done · ⚠️ partial · ❌ skipped · 🚧 blocked
-Category: 🔴 bug · 🟡 refactor · 🟢 chore · 🔍 investigation · ❓ question
+Pull request: 📋 criteria in discussion · ⬜ not opened · 📝 draft · 👀 ready for review · ✅ merged
+Category: 🔴 bug · 🟡 refactor · 🟢 chore · 🔍 investigation · ❓ question · 🔀 pull request
 Model: 🧠 deep · ⚙️ single-surface · 🔧 mechanical · 🙋 human
 
-One ledger, in execution order. **Questions sit in the row immediately above the
-task they block**, owned by 🙋 the repo owner, so the order of the table is the
-order things are needed.
+One ledger, in execution order. Each **pull request row** heads the tasks that
+land on its branch, so the table reads the way GitHub will. **Questions sit in
+the row immediately above the task they block**, owned by 🙋 the repo owner, so
+the order of the table is the order things are needed.
 
-| ID     | Category    | Owner     | Summary                             | Status                |
-| ------ | ----------- | --------- | ----------------------------------- | --------------------- |
-| TASK-1 | 🔴 Bug      | 🧠 Opus   | Short description                   | ⬜ pending            |
-| Q1     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-2      | ⬜ unanswered         |
-| TASK-2 | 🟡 Refactor | ⚙️ Sonnet | Short description                   | 🚧 blocked on Q1      |
-| Q2     | ❓ ⚠️        | 🙋 Owner  | Short question — blocks TASK-5      | 🚧 blocking TASK-5    |
-| TASK-5 | 🟡 Refactor | ⚙️ Sonnet | Short description                   | 🚧 blocked on Q2      |
-| Q3     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-7      | ✅ answered: **B**    |
-| TASK-7 | 🟢 Chore    | 🙋 Owner  | A step only the owner can do        | ⬜ pending            |
+| ID     | Category    | Owner     | Summary                                               | Status                |
+| ------ | ----------- | --------- | ----------------------------------------------------- | --------------------- |
+| PR-1   | 🔀 PR       | —         | feat: rate-limit login · `feat/login-rate-limit` · ~310/400 | 📝 draft #12     |
+| TASK-1 | 🔴 Bug      | 🧠 Opus   | Short description                                     | ✅ done               |
+| Q1     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-2                        | ⬜ unanswered         |
+| TASK-2 | 🟡 Refactor | ⚙️ Sonnet | Short description                                     | 🚧 blocked on Q1      |
+| PR-2   | 🔀 PR       | —         | fix: <title> · `fix/<slug>` · ~120/400                | 📋 criteria in discussion |
+| Q2     | ❓ ⚠️        | 🙋 Owner  | Short question — blocks TASK-5                        | 🚧 blocking TASK-5    |
+| TASK-5 | 🟡 Refactor | ⚙️ Sonnet | Short description                                     | 🚧 blocked on Q2      |
+| PR-3   | 🔀 PR       | —         | chore: <title> · `chore/<slug>` · ~20/400             | ⬜ not opened         |
+| Q3     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-7                        | ✅ answered: **B**    |
+| TASK-7 | 🟢 Chore    | 🙋 Owner  | A step only the owner can do                          | ⬜ pending            |
+
+A pull request row moves 📋 → ⬜ when its acceptance criteria are agreed, → 📝
+when its first task opens the draft, → 👀 when its last task lands, and → ✅
+when the owner merges it. Its summary carries the measured size once the draft
+is open. Its tasks cannot start while it is 📋.
 
 The full text of each question - options, consequences, recommendation - lives in
 `QUESTIONS.md`. This table carries the position and the state, not the argument.
@@ -41,8 +51,8 @@ open questions was never blocked by them.
 
 ## The frontier
 
-The **frontier** is every ⬜ task whose blockers are all settled: the work that
-could be picked up right now. A blocked task holds itself, not the run - if
+The **frontier** is every ⬜ task whose blockers are all settled and whose pull
+request's criteria are agreed: the work that could be picked up right now. A blocked task holds itself, not the run - if
 another task is independent of the open question, it is on the frontier and may
 be taken.
 
@@ -66,13 +76,17 @@ what actually changed, and record anything that turned out differently from the
 plan. Answered questions get an entry too - the decision is part of the history
 of the work.
 
+**YYYY-MM-DD** — PR-1 acceptance criteria agreed: AC-1, AC-2. One line on what
+changed in the discussion - a criterion dropped, split, or added.
+
 **YYYY-MM-DD** — Q1 answered: **A**, by the owner at the gate. One line on their
 reasoning. Note here when a decision was graduated to the repo's decision record,
 and where it landed.
 
-**YYYY-MM-DD** — TASK-1 applied (`abc1234`). What changed, in a sentence or two.
-For a bug: what the defect actually was, and confirmation that the regression
-test was verified failing against the old behaviour. 42 unit / 7 e2e green.
+**YYYY-MM-DD** — TASK-1 applied (`abc1234`, PR-1 draft #12, 140/400 lines). What
+changed, in a sentence or two. Tests: 2 added, red before the implementation for
+the stated reason, green after. For a bug: what the defect actually was.
+42 unit / 7 e2e green.
 
 **YYYY-MM-DD** — TASK-2 applied (`def5678`). **Deviation:** the plan called for
 X, but Y turned out to be true, so this does Z instead. Deviations belong here

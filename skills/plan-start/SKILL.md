@@ -1,6 +1,6 @@
 ---
 name: plan-start
-description: Scaffold the plan docs - SCOPE.md, TASKS.md, QUESTIONS.md and PROGRESS.md - for a new piece of work before any code is touched. Scope, one task per commit, each task carrying a category and the model that must take it, and every open question carrying a recommendation. Use when starting a feature, refactor or bug batch, or when the user says "plan this", "start a project", or names a project folder that does not exist yet.
+description: Scaffold the plan docs - SCOPE.md, TASKS.md, QUESTIONS.md and PROGRESS.md - for a new piece of work before any code is touched. Scope, the work split into pull requests of one topic and under 400 lines each, acceptance criteria agreed with the owner per pull request, one task per commit carrying a category and the model that must take it, the tests each task proves red first, and every open question carrying a recommendation. Use when starting a feature, refactor or bug batch, or when the user says "plan this", "start a project", or names a project folder that does not exist yet.
 ---
 
 # plan-start
@@ -18,7 +18,7 @@ Four files, one job each:
 | File           | Owns                                                                  |
 | -------------- | --------------------------------------------------------------------- |
 | `SCOPE.md`     | what may change, what may not, the constraints, what "done" means    |
-| `TASKS.md`     | the detail of each task - files, approach, verification              |
+| `TASKS.md`     | the pull requests, their acceptance criteria, and each task's detail |
 | `QUESTIONS.md` | every open decision, its options, its consequences, a recommendation |
 | `PROGRESS.md`  | the ledger - tasks and questions interleaved in order, plus the log  |
 
@@ -42,9 +42,60 @@ Copy `templates/SCOPE.md`.
 
 **Scope is the part that earns its keep.** Name the areas the plan may change, and the tempting ones it may not. State the escape hatch explicitly: if a task turns out to require an out-of-scope change, stop and raise it rather than widening the plan.
 
-## 5. Write TASKS.md
+## 5. Split the work into pull requests
 
-Copy `templates/TASKS.md`.
+Copy `templates/TASKS.md`. The owner reviews the work on GitHub, so the plan is
+written in the units they will see there: **pull requests**, each holding the
+tasks that land on its branch.
+
+A pull request is one **topic** - a feature, a fix, a refactor of one area, a
+set of files that belong together. Two topics are two pull requests, however
+small. Each stays under `pullRequests.maxLines` from the config (400 when unset),
+counting additions plus deletions and excluding the paths in
+`pullRequests.excludeFromCount` - tests, lockfiles, snapshots, generated files.
+Estimate from the files the survey named; when an estimate is over, split by
+topic or by file group, never by cutting a behaviour in half.
+
+Each pull request section says what the owner will see on GitHub, before any of
+it exists:
+
+| Field                         | Rule                                                                                       |
+| ----------------------------- | ------------------------------------------------------------------------------------------ |
+| Title                         | The conventional-commit title the pull request will carry, `<type>: <description>`         |
+| Branch                        | `<type>/<slug>` and its base - the default branch, or the branch of the pull request it depends on |
+| Size                          | The estimate against the budget, `~310 / 400`                                              |
+| Tasks                         | The task IDs that land on it, in order. Each is one commit                                 |
+| What you will see on GitHub   | The commits in order, the files, and what the reviewer checks                              |
+| Acceptance criteria           | Step 6                                                                                     |
+
+The concept of a task does not change: one task is one commit, applied and
+reviewed on its own, on the model it declares. A pull request only groups them.
+
+## 6. Agree the acceptance criteria
+
+Every pull request that changes behaviour carries acceptance criteria, numbered
+`AC-1`, `AC-2` across the whole plan. Each is one observable outcome in
+given/when/then form, specific enough that a test can fail against it - "Given
+five failed logins in a minute, when a sixth arrives, it is refused with 429",
+not "login is rate-limited".
+
+Write the pull request sections into `TASKS.md` with their criteria marked
+`📋 in discussion` before cutting tasks, so the discussion survives a lost
+session. Then put them to the owner, one pull request at a time, and **discuss
+until they agree**: take their edits, propose what they missed - the error
+paths, the boundaries, the existing behaviour that must not move - and say what
+each criterion costs when it widens the work.
+
+When the owner agrees, mark the pull request's criteria `✅ agreed <date>` and
+log it. Do not infer agreement from silence or from a reply about something
+else. Criteria are the one thing agreed up front rather than at the task:
+every task's tests are derived from them, so a criterion that changes later
+changes tests already written.
+
+A pull request that changes no behaviour - a pure refactor, a chore - says so in
+place of the criteria, and the owner agrees to that too.
+
+## 7. Cut the tasks
 
 **One task is one commit.** If a task cannot be described as a single commit message, it is two tasks. Each declares:
 
@@ -52,9 +103,18 @@ Copy `templates/TASKS.md`.
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Category     | 🔴 bug · 🟡 refactor · 🟢 chore · 🔍 investigation (produces a finding, not a commit)                                                                                     |
 | Model        | The tier - 🧠 deep · ⚙️ single-surface · 🔧 mechanical · 🙋 human-only - written with the model `workflow.json` maps it to, so the row tells the runner what to switch to |
-| Files        | The real paths. A task with no file list is not planned yet                                                                                                               |
+| Files        | The real paths, tests included. A task with no file list is not planned yet                                                                                              |
 | Blocked by   | The question IDs that must be answered first, or `—`                                                                                                                      |
-| Verification | For 🔴, name the test to add and the behaviour it must fail against. For 🟡, name any test that has to move                                                               |
+| Covers       | The acceptance criteria this task proves, or `—`                                                                                                                          |
+| Tests        | The tests it adds or changes, red first - each with the criterion it covers and why it matters. Or **No new test** and the reason                                        |
+
+Every agreed criterion is covered by at least one task, and every behaviour test
+names the criterion it covers. A test that covers no criterion is either missing
+a criterion - raise it with the owner - or not worth writing.
+
+**No new test** is legitimate only when the task changes no behaviour: a refactor
+proven by the existing suite staying green before and after, a version bump, a
+docs edit, a 🙋 step. Say which, in the task.
 
 Order tasks so each leaves the tree green. A task whose only justification is "we will need it later" is not a task.
 
@@ -62,7 +122,7 @@ Order tasks so each leaves the tree green. A task whose only justification is "w
 
 **Wide mechanical changes are the exception.** When one change breaks call sites across the codebase at once, no vertical slice stays green, so sequence it as expand, migrate, contract - the template carries the shape. Forcing a rename into vertical slices produces tasks that cannot satisfy their own verification.
 
-## 6. Write QUESTIONS.md
+## 8. Write QUESTIONS.md
 
 Copy `templates/QUESTIONS.md`. Number the questions **in the order the tasks need them**, not in the order they occurred to you.
 
@@ -87,9 +147,9 @@ Then mark each one. The mark sets how hard the question is pressed - every quest
 
 Mark ⚠️ whenever the answer changes who can read or write data, crosses a trust boundary, or touches authorization - an unchecked object reference (IDOR), a permission default, a token lifetime, a field added to a public response, a rate limit, anything logged. When in doubt between the two marks, it is ⚠️. The cost of over-marking is a consequence spelled out that did not need to be; the cost of under-marking is an owner waving through a vulnerability because nobody told them it was one.
 
-## 7. Write PROGRESS.md
+## 9. Write PROGRESS.md
 
-Copy `templates/PROGRESS.md`. One ledger in execution order, with **each question sitting directly above the task it blocks**, owned 🙋 by the repo owner.
+Copy `templates/PROGRESS.md`. One ledger in execution order: each pull request row heads its tasks, and **each question sits directly above the task it blocks**, owned 🙋 by the repo owner.
 
 The asking rules are the point of the ordering:
 
@@ -100,10 +160,14 @@ The asking rules are the point of the ordering:
 
 The mark decides how the question is put, not whether it blocks. 🟦 goes over in a line; ⚠️ leads with the consequence. Both stop the task until answered.
 
-A blocked task holds itself, not the run. Every ⬜ task whose blockers are settled is on the **frontier** and may be taken; the ledger's order says which is preferred.
+A blocked task holds itself, not the run. Every ⬜ task whose blockers are settled and whose pull request's criteria are agreed is on the **frontier** and may be taken; the ledger's order says which is preferred.
 
-## 8. Hand back
+## 10. Hand back
 
-Report the task list as a table with categories and models, name the frontier - every task that could start now - and the model the first one needs, then stop. Do not start it in the same turn.
+Report the plan as GitHub will show it: one line per pull request - title,
+branch, estimated size against the budget, criteria agreed - with its tasks
+beneath it, each with category and model. A pull request whose criteria are
+still 📋 holds its tasks off the frontier - name it and what is left to agree.
+Name the frontier - every task that could start now - and the model the first one needs, then stop. Do not start it in the same turn.
 
 Say how many questions are open and how many are ⚠️, but **do not ask them yet** - name the task each is attached to instead. If the owner volunteers answers now, take them and record them with their provenance.

@@ -1,6 +1,6 @@
 ---
 name: plan-architect
-description: Surveys the code a piece of work touches and returns the task breakdown the plan docs need - scope boundaries, one-commit tasks with real file paths, category and model per task, and the questions the plan cannot answer alone, each with a recommendation and a risk mark. Use before writing a plan that spans more than two files.
+description: Surveys the code a piece of work touches and returns the breakdown the plan docs need - scope boundaries, pull requests of one topic under the line budget with draft acceptance criteria, one-commit tasks with real file paths, category, model and red-first tests per task, and the questions the plan cannot answer alone, each with a recommendation and a risk mark. Use before writing a plan that spans more than two files.
 tools: Read, Grep, Glob, Bash
 model: opus
 ---
@@ -46,14 +46,29 @@ priority, a trade-off, an intent. Everything else you go and find.
    Sequence it as expand, migrate, contract: add the new form beside the old;
    migrate call sites in batches sized so each stays green on its own, each batch
    its own task; delete the old form last, in a task blocked by every batch.
-4. **Assign a model per task.**
+4. **Group the tasks into pull requests.** One topic per pull request - a
+   feature, a fix, one area's refactor - each under `pullRequests.maxLines` from
+   `.claude/workflow.json` (400 when unset), counting additions plus deletions
+   and excluding `pullRequests.excludeFromCount` (tests, lockfiles, generated
+   files). Estimate the size of each from the files you read, and split by topic
+   or file group when one is over - never through the middle of a behaviour.
+   Draft each pull request's **acceptance criteria**: observable outcomes in
+   given/when/then form, specific enough for a test to fail against, numbered
+   AC-1, AC-2 across the plan. Include the error paths and the existing
+   behaviour that must not move - the owner will agree or edit them.
+5. **Name each task's tests.** For a task that changes behaviour, the tests it
+   adds or changes, each with the criterion it covers and the regression it would
+   catch, and why it fails against today's code. For one that does not, say
+   **No new test** and why - a refactor kept green by the existing suite, a
+   bump, a docs edit.
+6. **Assign a model per task.**
    - deep 🧠 - crosses module boundaries, or touches the subsystem the repo's
      CLAUDE.md names as risky
    - single-surface ⚙️ - one layer, one view, one service, one spec
    - mechanical 🔧 - proven by the gates alone: rename, copy fix, version bump
    - human 🙋 - a diagram, a merge, a login. Nobody else can do it
-5. **Draw the scope line.** Name the tempting out-of-scope areas explicitly.
-6. **Attach each question to a task.** A question exists because some task cannot
+7. **Draw the scope line.** Name the tempting out-of-scope areas explicitly.
+8. **Attach each question to a task.** A question exists because some task cannot
    start without it. Say which one. A question attached to nothing is either
    already decided or not this plan's problem.
 
@@ -62,8 +77,13 @@ priority, a trade-off, an intent. Everything else you go and find.
 Four sections, matching the four files the plan is written into.
 
 - **Scope** - in, and the tempting out. Constraints. What "done" means.
-- **Tasks** - a table: ID, title, category, model, files, blocking question IDs,
-  one-line verification. Then a short paragraph per task with the approach.
+- **Pull requests** - one block each: title, branch and base, estimated size
+  against the budget, the task IDs it holds, what the owner will see on GitHub,
+  and the draft acceptance criteria.
+- **Tasks** - a table: ID, pull request, title, category, model, files, blocking
+  question IDs, criteria covered. Then a short paragraph per task with the
+  approach and its tests - each with the criterion and why it matters - or No
+  new test and the reason.
 - **Open questions** - what the plan cannot decide alone, numbered in the order
   their tasks need them, and only ever a decision the repository could not have
   told you. Never guess an answer to make the table look finished - but never
