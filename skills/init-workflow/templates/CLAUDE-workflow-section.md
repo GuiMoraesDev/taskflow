@@ -20,7 +20,9 @@ pipelines tracking the same work give two answers about what is done, and the
 choice of which owns it is the repo owner's, not something either tool settles.
 
 One task per commit, applied and reviewed one at a time. Every task declares the
-model that must take it - switch to that model **before** starting the task.
+model that must take it, and its change is made by a subagent spawned on that
+model. Each task lands on its own branch and reaches the default branch only
+through a pull request the repo owner reviews.
 
 | Symbol | Model              | Scope                                                                                                     |
 | ------ | ------------------ | --------------------------------------------------------------------------------------------------------- |
@@ -29,7 +31,8 @@ model that must take it - switch to that model **before** starting the task.
 | 🔧     | <MECHANICAL_MODEL> | Mechanical, proven by the gates alone: rename, copy fix, version bump                                     |
 | 🙋     | Human              | Only the repo owner can do it: a merge, a login, a credential                                             |
 
-The tier binds the runner, and the mapping lives in `.claude/workflow.json`. A
+The tier binds the subagent that makes the change, and the mapping lives in
+`.claude/workflow.json`. A
 task applied on the wrong model is a deviation for the session log even when the
 diff is fine.
 

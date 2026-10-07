@@ -11,7 +11,8 @@ than one, say what else could have been taken.
 State the task ID, its category, and the model it declares before anything else.
 
 Then follow the `task-run` skill from step 0, which is the question gate: one
-task, presented for review, gated, committed, logged. Stop after it. Do not begin
+task, on its own branch, changed by a subagent on its model, presented for
+review, gated, committed, opened as a pull request, logged. Stop after it. Do not begin
 the next row in the same turn.
 
 Raise **only** the questions this task names in its **Blocked by** line.
