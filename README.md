@@ -10,7 +10,7 @@ install.
 | ---- | ---- | ---- |
 | Skill | `init-workflow` | Writes `.claude/workflow.json` from the target repo's real scripts and layout, asks which model takes each tier and whether the repo keeps diagrams, and adds the workflow section to its `CLAUDE.md` |
 | Skill | `plan-start` | Scaffolds `SCOPE.md` + `TASKS.md` + `QUESTIONS.md` + `PROGRESS.md`: scope, one-commit tasks with a category and model each, and every open question carrying a recommendation |
-| Skill | `task-run` | The per-task cycle - model check, 🔄, change, review, gates, commit, ✅, session log - then stop |
+| Skill | `task-run` | The per-task cycle - task branch, 🔄, change in a subagent on the task's model, review, gates, commit, pull request, ✅, session log - then stop |
 | Skill | `bug-red-test` | Makes a regression test red against the old behaviour before the fix ships |
 | Skill | `docs-sync` | The docs checklist, plus the glossary and the diagram sweep when the repo keeps them |
 | Skill | `standards-review` | Audits a diff against the standards the repo's `CLAUDE.md` states, and alerts when a test was bent to pass rather than changed with the behaviour - naming the coverage lost and the behaviour put at risk |
@@ -68,7 +68,9 @@ repository and add that URL instead.
    moment the answer arrives. An unanswered question blocks that task; the
    recommendation makes the answer cheap rather than standing in for one. Hard or
    security-bearing questions are put with their consequences stated plainly.
-4. Apply one task, present it, gate it, commit it, log it. Then stop.
+4. Apply one task - on its own branch, through a subagent on the task's model -
+   present it, gate it, commit it, open a pull request for review, log it. Then
+   stop. Nothing reaches the default branch without a reviewed pull request.
 5. A bug fix ships a test watched failing against the old behaviour.
 6. The docs checklist is walked before a behaviour change is called done - with
    the diagrams in the same pass, in a repo that keeps them.
