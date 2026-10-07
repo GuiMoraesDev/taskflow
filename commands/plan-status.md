@@ -12,16 +12,21 @@ Read `PROGRESS.md` for state and `QUESTIONS.md` for the questions themselves.
 
 Report, and nothing else:
 
-1. The ledger as it stands, questions in their positions, with a count line:
-   `n done · n in progress · n pending · n blocked`.
+1. The ledger as it stands, grouped under its pull request rows, questions in
+   their positions, with a count line:
+   `n done · n in progress · n pending · n blocked`, and one for the pull
+   requests: `n merged · n ready · n draft · n not opened · n in discussion`.
+   Give each opened pull request its number and its size against the budget, and
+   flag any over it.
 2. Any **unanswered** (⬜) or **partly answered** (🚧) question: its ID, its
    mark, the task it blocks, and its recommendation with the deciding reason in
    one line. Every one of them is holding its task, so say
    which tasks are unreachable until they are answered. Flag the ⚠️ ones
    separately - those are the ones whose consequences the owner has to weigh.
 3. The last three session-log entries, one line each.
-4. The **frontier**: every ⬜ task whose blockers are settled, with the model each
-   declares. The ledger's order says which is preferred, so list that one first.
+4. The **frontier**: every ⬜ task whose blockers are settled and whose pull
+   request's criteria are agreed, with the model each declares. A pull request
+   whose criteria are still 📋 is listed as owed by the owner. The ledger's order says which is preferred, so list that one first.
    Do not start any of them.
 
    When the frontier is empty and the plan is unfinished, say so plainly - every

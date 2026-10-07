@@ -35,4 +35,5 @@ a reason. Say what it constrains, not just that it exists.
 ## Definition of done
 
 What has to be true for this plan to be finished, in terms a reader can check
-without reading `TASKS.md`.
+without reading `TASKS.md`. Typically: every pull request merged, and every
+acceptance criterion proven by a test that was watched failing first.

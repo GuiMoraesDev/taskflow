@@ -36,6 +36,7 @@ edited after the last run. Write the file only once the answers are in.
 | `docsChecklist`   | One row per doc that must stay true, each with what it owns. Read the repo's docs before writing rows                                                                                                                   |
 | `decisions`       | Where the repo keeps decision records and its glossary, if it keeps either. **Detect, do not create - see below**                                                                                                       |
 | `diagrams`        | **Not yours to decide. Ask - step 3.** Find the candidates first, excluding copies: see the command below                                                                                                               |
+| `pullRequests`    | `maxLines` 400 unless the owner names another budget. `excludeFromCount`: the repo's real test globs (read the test runner's config), its lockfile, and any snapshot or generated folder - tests are excluded so the budget measures the code a reviewer reasons about |
 | `commitTypes`     | Conventional-commit types the repo already uses - check `git log --format=%s -n 40`                                                                                                                                     |
 | `models`          | **Not detectable. Ask - step 2.**                                                                                                                                                                                       |
 
