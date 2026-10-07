@@ -17,15 +17,6 @@
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/version-bump.py\""
           }
         ]
-      },
-      {
-        "matcher": "Edit|Write|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/guard-edit.py\""
-          }
-        ]
       }
     ],
     "PostToolUse": [
