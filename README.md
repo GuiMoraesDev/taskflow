@@ -159,4 +159,6 @@ The layout follows the Claude Code plugin structure: `skills/`, `agents/`,
 `commands/` and `hooks/` at the root, with the manifest and marketplace entry in
 `.claude-plugin/`. With the plugin installed while working on it, its own
 `version-bump` hook bumps the patch version in `plugin.json` on a branch's first
-commit, and refuses a push that did not bump it.
+commit, and refuses a push that did not bump it. When a pull request merges
+into `main`, the `Release` workflow tags the merge commit `v<version>` and
+publishes a GitHub release for it.
