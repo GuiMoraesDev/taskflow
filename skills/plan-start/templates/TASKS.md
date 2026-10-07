@@ -37,7 +37,7 @@ says **No new test** and why.
 ## PR-1 · feat: <title exactly as it will appear on GitHub>
 
 **Branch:** `feat/<slug>` → `main` · **Size:** ~310 / 400 lines (tests excluded)
-· **Tasks:** TASK-1, TASK-2 · **Depends on:** —
+· **Tasks:** TASK-1, TASK-2 · **Depends on:** — · **Stack:** — · **Labels:** —
 
 **What you will see on GitHub:** a draft opened by TASK-1, one commit per task
 below, marked ready for review when TASK-2 lands. The diff touches
@@ -92,7 +92,7 @@ or be re-pointed.
 ## PR-2 · chore: <title>
 
 **Branch:** `chore/<slug>` → `main` · **Size:** ~20 / 400 lines · **Tasks:**
-TASK-3 · **Depends on:** —
+TASK-3 · **Depends on:** — · **Stack:** — · **Labels:** —
 
 **What you will see on GitHub:** ...
 
