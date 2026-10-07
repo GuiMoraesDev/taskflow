@@ -85,7 +85,6 @@ To install from a local checkout instead, pass its path to
 | Name | Does |
 | ---- | ---- |
 | `guard-bash` | Asks before `--no-verify`, `git add -A`, bare `npx`-style gate invocations, auto-branching and git force flags (refused without a stated reason). Every matching rule is listed in one prompt, force first |
-| `guard-edit` | Asks before edits to test-runner config and dependency overrides |
 | `guard-signature` | Refuses a commit or pull request carrying an AI signature (`Co-Authored-By` for an AI, "Generated with Claude Code") unless `workflow.json` sets `aiSignature: true`. It defaults to `false` |
 | `progress-reminder` | After a commit, reminds to close the task row in `PROGRESS.md` |
 | `version-bump` | In a repo that ships `.claude-plugin/plugin.json`: bumps the patch version and stages it on the branch's first commit, and refuses a push whose version is not above the remote default branch's |
