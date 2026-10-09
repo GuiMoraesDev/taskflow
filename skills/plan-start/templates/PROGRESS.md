@@ -10,18 +10,18 @@ land on its branch, so the table reads the way GitHub will. **Questions sit in
 the row immediately above the task they block**, owned by 🙋 the repo owner, so
 the order of the table is the order things are needed.
 
-| ID     | Category    | Owner     | Summary                                               | Status                |
-| ------ | ----------- | --------- | ----------------------------------------------------- | --------------------- |
-| PR-1   | 🔀 PR       | —         | feat: rate-limit login · `feat/login-rate-limit` · ~310/400 | 📝 draft #12     |
-| TASK-1 | 🔴 Bug      | 🧠 Opus   | Short description                                     | ✅ done               |
-| Q1     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-2                        | ⬜ unanswered         |
-| TASK-2 | 🟡 Refactor | ⚙️ Sonnet | Short description                                     | 🚧 blocked on Q1      |
-| PR-2   | 🔀 PR       | —         | fix: <title> · `fix/<slug>` · ~120/400                | 📋 criteria in discussion |
-| Q2     | ❓ ⚠️        | 🙋 Owner  | Short question — blocks TASK-5                        | 🚧 blocking TASK-5    |
-| TASK-5 | 🟡 Refactor | ⚙️ Sonnet | Short description                                     | 🚧 blocked on Q2      |
-| PR-3   | 🔀 PR       | —         | chore: <title> · `chore/<slug>` · ~20/400             | ⬜ not opened         |
-| Q3     | ❓ 🟦        | 🙋 Owner  | Short question — blocks TASK-7                        | ✅ answered: **B**    |
-| TASK-7 | 🟢 Chore    | 🙋 Owner  | A step only the owner can do                          | ⬜ pending            |
+| Status                     | ID     | Category    | Owner     | Summary                                                     |
+| -------------------------- | ------ | ----------- | --------- | ----------------------------------------------------------- |
+| 📝 draft #12                | PR-1   | 🔀 PR        | —         | feat: rate-limit login · `feat/login-rate-limit` · ~310/400 |
+| ✅ done                     | TASK-1 | 🔴 Bug       | 🧠 Opus    | Short description                                           |
+| ⬜ unanswered               | Q1     | ❓ 🟦         | 🙋 Owner   | Short question — blocks TASK-2                              |
+| 🚧 blocked on Q1            | TASK-2 | 🟡 Refactor  | ⚙️ Sonnet | Short description                                           |
+| 📋 criteria in discussion   | PR-2   | 🔀 PR        | —         | fix: <title> · `fix/<slug>` · ~120/400                      |
+| 🚧 blocking TASK-5          | Q2     | ❓ ⚠️        | 🙋 Owner   | Short question — blocks TASK-5                              |
+| 🚧 blocked on Q2            | TASK-5 | 🟡 Refactor  | ⚙️ Sonnet | Short description                                           |
+| ⬜ not opened               | PR-3   | 🔀 PR        | —         | chore: <title> · `chore/<slug>` · ~20/400                   |
+| ✅ answered: **B**          | Q3     | ❓ 🟦         | 🙋 Owner   | Short question — blocks TASK-7                              |
+| ⬜ pending                  | TASK-7 | 🟢 Chore     | 🙋 Owner   | A step only the owner can do                                |
 
 A pull request row moves 📋 → ⬜ when its acceptance criteria are agreed, → 📝
 when its first task opens the draft, → 👀 when its last task lands, and → ✅
