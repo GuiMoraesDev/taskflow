@@ -4,3 +4,6 @@ docs/
 
 # Claude Code's plugin API types, written per Claude Code version - copied in locally for the editor.
 .claude-plugin/types/
+
+# Editor settings - per person.
+.vscode/
