@@ -15,9 +15,12 @@ export function PlanList({ ui, projects, message, onOpen, onRefresh }: PlanListP
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Text weight="bold">
-        Plans <Text dimColor>{projects.length}</Text>
-      </Text>
+      <Box justifyContent="space-between">
+        <Text weight="bold">
+          Plans <Text dimColor>{projects.length}</Text>
+        </Text>
+        <Button key="refresh" hotkey="r" label="🔄" onPress={onRefresh} />
+      </Box>
       {projects.slice(0, 9).map((project, index) => (
         <PlanCard
           key={`card-${project.name}`}
@@ -27,7 +30,6 @@ export function PlanList({ ui, projects, message, onOpen, onRefresh }: PlanListP
           onOpen={() => onOpen(project.name)}
         />
       ))}
-      <Button key="refresh" hotkey="r" label="Refresh (r)" onPress={onRefresh} />
       {message && <Text dimColor>{message}</Text>}
     </Box>
   )
