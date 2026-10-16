@@ -1,5 +1,5 @@
-import type { PlanRow } from '../../../types'
-import type { Ui } from './ui'
+import type { PlanRow } from '../../../../types'
+import type { Ui } from '../ui'
 
 type PullRequestItemProps = { ui: Ui; row: PlanRow; repoUrl: string | null; worktree: string | undefined }
 

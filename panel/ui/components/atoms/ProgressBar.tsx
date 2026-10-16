@@ -1,4 +1,4 @@
-import type { Ui } from './ui'
+import type { Ui } from '../ui'
 
 type ProgressBarProps = { ui: Ui; done: number; total: number; width: number }
 

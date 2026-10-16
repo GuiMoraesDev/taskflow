@@ -1,7 +1,7 @@
-import type { MascotPreview, PlanRow } from '../../../types'
-import { Loading } from './Loading'
-import { Mascot } from './Mascot'
-import type { Ui } from './ui'
+import type { MascotPreview, PlanRow } from '../../../../types'
+import { Loading } from '../molecules/Loading'
+import { Mascot } from '../molecules/Mascot'
+import type { Ui } from '../ui'
 
 const PREVIEWS: MascotPreview[] = ['idle', 'working', 'blocked', 'asking', 'done', 'loading']
 

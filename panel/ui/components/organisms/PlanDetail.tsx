@@ -1,8 +1,8 @@
-import type { PlanBoard, PlanProject } from '../../../types'
-import { activeTasks, isQuestionOpen, taskTotals } from '../../domain/parse'
-import { ProgressBar } from './ProgressBar'
-import { PullRequestItem } from './PullRequestItem'
-import type { Ui } from './ui'
+import type { PlanBoard, PlanProject } from '../../../../types'
+import { activeTasks, isQuestionOpen, taskTotals } from '../../../domain/parse'
+import { ProgressBar } from '../atoms/ProgressBar'
+import { PullRequestItem } from '../molecules/PullRequestItem'
+import type { Ui } from '../ui'
 
 type PlanDetailProps = {
   ui: Ui

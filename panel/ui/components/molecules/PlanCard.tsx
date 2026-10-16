@@ -1,7 +1,7 @@
-import type { PlanProject } from '../../../types'
-import { isQuestionOpen, taskTotals } from '../../domain/parse'
-import { ProgressBar } from './ProgressBar'
-import type { Ui } from './ui'
+import type { PlanProject } from '../../../../types'
+import { isQuestionOpen, taskTotals } from '../../../domain/parse'
+import { ProgressBar } from '../atoms/ProgressBar'
+import type { Ui } from '../ui'
 
 type PlanCardProps = { ui: Ui; project: PlanProject; hotkey: string; onOpen: () => void }
 

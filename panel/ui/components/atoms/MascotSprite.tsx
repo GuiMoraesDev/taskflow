@@ -1,5 +1,5 @@
-import type { MascotCell } from '../../domain/mascot'
-import type { Ui } from './ui'
+import type { MascotCell } from '../../../domain/mascot'
+import type { Ui } from '../ui'
 
 type MascotSpriteProps = { ui: Ui; cells: MascotCell[][] }
 

@@ -1,9 +1,9 @@
-import type { PlanRow } from '../../../types'
-import { mascotFrame, mascotLine, mascotMood } from '../../domain/mascot'
-import type { MascotMood } from '../../domain/mascot'
-import { taskTotals } from '../../domain/parse'
-import { MascotSprite } from './MascotSprite'
-import type { Ui } from './ui'
+import type { PlanRow } from '../../../../types'
+import { mascotFrame, mascotLine, mascotMood } from '../../../domain/mascot'
+import type { MascotMood } from '../../../domain/mascot'
+import { taskTotals } from '../../../domain/parse'
+import { MascotSprite } from '../atoms/MascotSprite'
+import type { Ui } from '../ui'
 
 type MascotProps = { ui: Ui; rows: PlanRow[]; step: number; mood?: MascotMood }
 

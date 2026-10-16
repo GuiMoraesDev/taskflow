@@ -1,6 +1,6 @@
-import type { PlanProject } from '../../../types'
-import { PlanCard } from './PlanCard'
-import type { Ui } from './ui'
+import type { PlanProject } from '../../../../types'
+import { PlanCard } from '../molecules/PlanCard'
+import type { Ui } from '../ui'
 
 type PlanListProps = {
   ui: Ui

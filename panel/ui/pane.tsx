@@ -1,11 +1,13 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, RenderInput } from 'claude-code'
 
+import type { PlanBoard, PlanProject } from '../../types'
 import { deleteProject, loadBoard } from '../data/board'
-import { Loading } from './components/Loading'
-import { MascotHeader } from './components/MascotHeader'
-import { PlanDetail } from './components/PlanDetail'
-import { PlanList } from './components/PlanList'
+import { Loading } from './components/molecules/Loading'
+import { MascotHeader } from './components/organisms/MascotHeader'
+import { PlanDetail } from './components/organisms/PlanDetail'
+import { PlanList } from './components/organisms/PlanList'
+import type { Ui } from './components/ui'
 
 const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
 const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
@@ -17,7 +19,7 @@ const mascotPreview = atom({ plugin: 'taskflow', key: 'mascotPreview' } as const
 // The container: reads the plugin's state, picks the view and hands the components what a press does.
 export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   const ui = $.ui.resolve(e)
-  const { Box, Text } = ui
+  const { Box } = ui
   const state = await read($, board)
   const selectedName = await read($, selected)
   const deleting = await read($, pendingDelete)
@@ -38,34 +40,71 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         step={step}
         onPreview={preview => update($, mascotPreview, () => preview)}
       />
-      {state.projects.length === 0 ? (
-        <Box flexDirection="column">
-          <Text dimColor>No plans in {state.projectsDir}.</Text>
-          {message && <Text color="warning">{message}</Text>}
-        </Box>
-      ) : project === undefined ? (
-        <PlanList
-          ui={ui}
-          projects={state.projects}
-          message={message}
-          onOpen={name => update($, selected, () => name)}
-          onRefresh={() => loadBoard($)}
-        />
-      ) : (
-        <PlanDetail
-          ui={ui}
-          board={state}
-          project={project}
-          isDeleting={deleting === project.name}
-          message={message}
-          onBack={() => update($, selected, () => null)}
-          onNextTask={() => void $.prompt.submit({ text: '/taskflow:next-task' })}
-          onRefresh={() => loadBoard($)}
-          onAskDelete={() => update($, pendingDelete, () => project.name)}
-          onConfirmDelete={() => deleteProject($, project.name)}
-          onCancelDelete={() => update($, pendingDelete, () => null)}
-        />
-      )}
+
+      <PaneContent
+        ui={ui}
+        board={state}
+        project={project}
+        deleting={deleting}
+        message={message}
+        actions={{
+          open: name => update($, selected, () => name),
+          back: () => update($, selected, () => null),
+          nextTask: () => void $.prompt.submit({ text: '/taskflow:next-task' }),
+          refresh: () => loadBoard($),
+          askDelete: name => update($, pendingDelete, () => name),
+          confirmDelete: name => deleteProject($, name),
+          cancelDelete: () => update($, pendingDelete, () => null),
+        }}
+      />
     </Box>
+  )
+}
+
+// What a press does, built where `$` is: the engine refuses `$` passed as a prop.
+type PaneActions = {
+  open: (name: string) => void
+  back: () => void
+  nextTask: () => void
+  refresh: () => void
+  askDelete: (name: string) => void
+  confirmDelete: (name: string) => void
+  cancelDelete: () => void
+}
+
+type PaneContentProps = {
+  ui: Ui
+  board: PlanBoard
+  project: PlanProject | undefined
+  deleting: string | null
+  message: string | null
+  actions: PaneActions
+}
+
+// Picks the view under the header: no plans, the plan cards, or one plan's details.
+const PaneContent = ({ ui, board: state, project, deleting, message, actions }: PaneContentProps) => {
+  const { Box, Text } = ui
+
+  return state.projects.length === 0 ? (
+    <Box flexDirection="column">
+      <Text dimColor>No plans in {state.projectsDir}.</Text>
+      {message && <Text color="warning">{message}</Text>}
+    </Box>
+  ) : project === undefined ? (
+    <PlanList ui={ui} projects={state.projects} message={message} onOpen={actions.open} onRefresh={actions.refresh} />
+  ) : (
+    <PlanDetail
+      ui={ui}
+      board={state}
+      project={project}
+      isDeleting={deleting === project.name}
+      message={message}
+      onBack={actions.back}
+      onNextTask={actions.nextTask}
+      onRefresh={actions.refresh}
+      onAskDelete={() => actions.askDelete(project.name)}
+      onConfirmDelete={() => actions.confirmDelete(project.name)}
+      onCancelDelete={actions.cancelDelete}
+    />
   )
 }
