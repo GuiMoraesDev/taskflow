@@ -101,7 +101,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
     <Box flexDirection="column" gap={1}>
       <Button key="back" hotkey="b" label="[b] All plans" onPress={() => update($, selected, () => null)} />
 
-      <Box flexDirection="column">
+      <Box flexDirection="column" alignItems="center">
         {mascotArt(mood).map((cells, row) => (
           <Text key={`mascot-${row}`}>
             {cells.map(({ top, bottom }, column) =>
@@ -119,7 +119,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
             )}
           </Text>
         ))}
-        <Text dimColor> {mascotLine(mood, total - done)}</Text>
+        <Text dimColor>{mascotLine(mood, total - done)}</Text>
       </Box>
 
       <Box flexDirection="column">
