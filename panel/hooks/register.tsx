@@ -2,6 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import type { PlanBoard, PlanProject } from '../types'
+import { mascotArt, mascotLine, mascotMood } from './mascot'
 import { activeTasks, isQuestionOpen, isSafeProjectName, parseProgress, repoWebUrl, taskTotals } from './parse'
 
 const PANE = 'taskflow-panel'
@@ -129,9 +130,19 @@ export const register: Register = on => {
     const pullRequests = project.rows.filter(row => row.kind === 'pr')
     const openedPullRequests = pullRequests.filter(row => row.prNumber !== null)
     const openQuestions = project.rows.filter(row => row.kind === 'question' && isQuestionOpen(row.status))
+    const mood = mascotMood(project.rows)
+    const [ears, face, body] = mascotArt(mood)
 
     return (
       <Box flexDirection="column" gap={1}>
+        <Box flexDirection="column">
+          <Text color="claude">{ears}</Text>
+          <Text color="claude">
+            {face} <Text dimColor>{mascotLine(mood, total - done)}</Text>
+          </Text>
+          <Text color="claude">{body}</Text>
+        </Box>
+
         <Box flexDirection="column">
           <Text weight="bold">Plans</Text>
           {state.projects.slice(0, 9).map((candidate, index) => {
