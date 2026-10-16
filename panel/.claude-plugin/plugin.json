@@ -1,0 +1,7 @@
+{
+  "name": "taskflow-panel",
+  "version": "0.1.0",
+  "author": { "name": "Guilherme Moraes" },
+  "description": "Side pane for taskflow plans: active tasks, progress, PRs with links, and deleting a plan workspace",
+  "types": "./types/index.d.ts"
+}
