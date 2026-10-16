@@ -1,6 +1,7 @@
 import type { PlanBoard, PlanProject } from '../../../../types'
 import { activeTasks, isQuestionOpen } from '../../../domain/parse'
 import { PullRequestItem } from '../molecules/PullRequestItem'
+import { TaskItem } from '../molecules/TaskItem'
 import type { Ui } from '../ui'
 
 type PlanDetailProps = {
@@ -33,14 +34,7 @@ export function PlanDetail(props: PlanDetailProps) {
         <Text weight="bold">Active tasks</Text>
         {active.length === 0 && <Text color="success">Nothing left to do.</Text>}
         {active.map(row => (
-          <Text key={`task-${row.id}`}>
-            <Text color={row.status.startsWith('🔄') ? 'warning' : row.status.startsWith('🚧') ? 'error' : 'subtle'}>
-              {row.status.split(' ').slice(0, 2).join(' ')}
-            </Text>{' '}
-            <Text weight="bold">{row.id}</Text> <Text dimColor>{row.owner}</Text>
-            {'\n  '}
-            {row.summary}
-          </Text>
+          <TaskItem key={`task-${row.id}`} ui={ui} row={row} />
         ))}
         {openQuestions.length > 0 && (
           <Text color="warning">
