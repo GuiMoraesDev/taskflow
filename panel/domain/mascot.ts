@@ -8,6 +8,7 @@ const PALETTE: Record<string, string> = {
   A: '#00B4D8',
   B: '#00B7BC',
   D: '#1B3137',
+  E: '#D5DFE0',
   G: '#00BD74',
   K: '#11191C',
   N: '#91513C',
@@ -40,6 +41,24 @@ const FRAMES: Record<MascotMood, string[]> = {
   done: [...HEAD, LIDS, ...Array(4).fill(eyes('GG', 'GG', 'GG')), LIDS, ...VISOR_BOTTOM],
 }
 
+// The loading spinner's ring on the visor, in clockwise order from the top: [row, column].
+const RING: [number, number][] = [
+  [0, 8],
+  [0, 9],
+  [1, 10],
+  [2, 11],
+  [3, 11],
+  [4, 10],
+  [5, 9],
+  [5, 8],
+  [4, 7],
+  [3, 6],
+  [2, 6],
+  [1, 7],
+]
+// The spinning arc, head first, fading into the faint track the rest of the ring shows.
+const ARC = ['Y', 'T', 'N']
+
 export type MascotCell = { top?: string; bottom?: string }
 
 export function mascotMood(rows: PlanRow[]): MascotMood {
@@ -69,9 +88,24 @@ export function mascotLine(mood: MascotMood, left: number) {
   }
 }
 
-// Two pixel rows share one terminal row: the top pixel paints the glyph, the bottom one its background.
 export function mascotArt(mood: MascotMood): MascotCell[][] {
-  const pixels = FRAMES[mood]
+  return toCells(FRAMES[mood])
+}
+
+// Flo with a spinner where the eyes are: each step moves the arc one pixel clockwise.
+export function mascotSpinner(step: number): MascotCell[][] {
+  const visor = Array.from({ length: 6 }, () => [...CLOSED])
+  RING.forEach(([row, column], index) => {
+    const behind = (step - index + RING.length * 2) % RING.length
+    const pixels = visor[row]
+    if (pixels) pixels[column] = ARC[behind] ?? 'E'
+  })
+
+  return toCells([...HEAD, ...visor.map(pixels => pixels.join('')), ...VISOR_BOTTOM])
+}
+
+// Two pixel rows share one terminal row: the top pixel paints the glyph, the bottom one its background.
+function toCells(pixels: string[]): MascotCell[][] {
   const rows: MascotCell[][] = []
   for (let y = 0; y < pixels.length; y += 2) {
     const upper = pixels[y] ?? ''

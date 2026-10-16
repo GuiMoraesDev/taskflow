@@ -8,6 +8,7 @@ const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
 const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
 const pendingDelete = atom({ plugin: 'taskflow', key: 'pendingDelete' } as const, null)
 const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
+const spinnerStep = atom({ plugin: 'taskflow', key: 'spinnerStep' } as const, 0)
 
 const DEFAULT_PROJECTS_DIR = '.planning/projects'
 
@@ -27,7 +28,18 @@ async function readProjectsDir($: EngineInterface, root: string) {
   }
 }
 
+// The first load spins Flo's loader until the board is in; a refresh keeps showing the board.
 export async function loadBoard($: EngineInterface) {
+  const isFirstLoad = (await read($, board)) === null
+  const spinner = isFirstLoad ? $.clock.every(100, () => void update($, spinnerStep, step => step + 1)) : null
+  try {
+    await readBoard($)
+  } finally {
+    spinner?.cancel()
+  }
+}
+
+async function readBoard($: EngineInterface) {
   const root = await repoRoot($)
   const projectsDir = await readProjectsDir($, root)
   const projectsPath = `${root}/${projectsDir}`
