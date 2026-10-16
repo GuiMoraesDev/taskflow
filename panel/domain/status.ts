@@ -15,9 +15,12 @@ export function isPlanActive(project: PlanProject) {
   return started && done < total
 }
 
-// The lines under Flo on the plan list: how many plans, how many active, what is moving across all of them.
-export function boardStatus(projects: PlanProject[]): string[] {
-  if (projects.length === 0) return ['No plans yet.']
+// What Flo says: a bold headline, an optional progress bar, then dim detail lines.
+export type FloStatus = { headline: string; progress?: { done: number; total: number }; details: string[] }
+
+// On the plan list: how many plans, how many active, what is moving across all of them.
+export function boardStatus(projects: PlanProject[]): FloStatus {
+  if (projects.length === 0) return { headline: 'No plans yet.', details: [] }
   const rows = projects.flatMap(project => project.rows)
   const inProgress = tasksWith(rows, '🔄').length
   const blocked = tasksWith(rows, '🚧').length
@@ -28,28 +31,26 @@ export function boardStatus(projects: PlanProject[]): string[] {
     questions > 0 && plural(questions, 'open question', 'open questions'),
   ])
 
-  return [
-    `${plural(projects.length, 'plan', 'plans')} · ${projects.filter(isPlanActive).length} active`,
-    activity || 'Nothing in progress',
-  ]
+  return {
+    headline: `${plural(projects.length, 'plan', 'plans')} · ${projects.filter(isPlanActive).length} active`,
+    details: [activity || 'Nothing in progress'],
+  }
 }
 
-// The lines under Flo on a plan's page: which plan, its progress, and the task that matters now.
-export function planStatus(project: PlanProject): string[] {
+// On a plan's page: which plan, its progress, and the task or question that needs attention.
+export function planStatus(project: PlanProject): FloStatus {
   const { done, total } = taskTotals(project.rows)
   const blocked = tasksWith(project.rows, '🚧')[0]
   const working = tasksWith(project.rows, '🔄')[0]
   const questions = openQuestions(project.rows).length
-  const now = blocked
-    ? `${blocked.id} blocked`
-    : working
-      ? `${working.id} in progress`
-      : total > 0 && done === total
-        ? 'all done'
-        : 'nothing in progress'
+  const attention = joined([
+    blocked ? `${blocked.id} blocked` : working ? `${working.id} in progress` : false,
+    questions > 0 && plural(questions, 'open question', 'open questions'),
+  ])
 
-  return [
-    `Viewing '${project.name}' plan`,
-    joined([`${done}/${total} tasks done`, now, questions > 0 && plural(questions, 'open question', 'open questions')]),
-  ]
+  return {
+    headline: `Viewing '${project.name}' plan`,
+    progress: { done, total },
+    details: attention ? [attention] : [],
+  }
 }

@@ -29,20 +29,25 @@ test('a plan is active once a task started and until every task is done', () => 
 })
 
 test('the plan list counts plans, active plans and what is moving', () => {
-  expect(boardStatus([])).toEqual(['No plans yet.'])
-  expect(boardStatus([started, untouched, finished])).toEqual([
-    '3 plans · 1 active',
-    '1 task in progress · 1 open question',
-  ])
-  expect(boardStatus([untouched])).toEqual(['1 plan · 0 active', 'Nothing in progress'])
+  expect(boardStatus([])).toEqual({ headline: 'No plans yet.', details: [] })
+  expect(boardStatus([started, untouched, finished])).toEqual({
+    headline: '3 plans · 1 active',
+    details: ['1 task in progress · 1 open question'],
+  })
+  expect(boardStatus([untouched])).toEqual({ headline: '1 plan · 0 active', details: ['Nothing in progress'] })
 })
 
-test('a plan page names the plan, its progress and the task that matters now', () => {
-  expect(planStatus(started)).toEqual([
-    "Viewing 'Rollout' plan",
-    '1/2 tasks done · TASK-2 in progress · 1 open question',
-  ])
-  expect(planStatus(finished)).toEqual(["Viewing 'Cleanup' plan", '1/1 tasks done · all done'])
+test('a plan page names the plan, carries its progress and what needs attention', () => {
+  expect(planStatus(started)).toEqual({
+    headline: "Viewing 'Rollout' plan",
+    progress: { done: 1, total: 2 },
+    details: ['TASK-2 in progress · 1 open question'],
+  })
+  expect(planStatus(untouched)).toEqual({
+    headline: "Viewing 'Docs' plan",
+    progress: { done: 0, total: 1 },
+    details: [],
+  })
   const stuck = plan('Stuck', [row('task', 'TASK-4', '🔄 in progress'), row('task', 'TASK-5', '🚧 blocked')])
-  expect(planStatus(stuck)[1]).toBe('0/2 tasks done · TASK-5 blocked')
+  expect(planStatus(stuck).details).toEqual(['TASK-5 blocked'])
 })

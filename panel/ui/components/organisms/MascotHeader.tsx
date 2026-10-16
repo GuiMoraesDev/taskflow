@@ -1,4 +1,5 @@
 import type { MascotPreview, PlanRow } from '../../../../types'
+import type { FloStatus } from '../../../domain/status'
 import { Loading } from '../molecules/Loading'
 import { Mascot } from '../molecules/Mascot'
 import type { Ui } from '../ui'
@@ -8,7 +9,7 @@ const PREVIEWS: MascotPreview[] = ['idle', 'working', 'blocked', 'asking', 'done
 type MascotHeaderProps = {
   ui: Ui
   rows: PlanRow[]
-  status: string[]
+  status: FloStatus
   preview: MascotPreview | null
   step: number
   onPreview: (preview: MascotPreview | null) => void

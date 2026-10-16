@@ -1,6 +1,5 @@
 import type { PlanBoard, PlanProject } from '../../../../types'
-import { activeTasks, isQuestionOpen, taskTotals } from '../../../domain/parse'
-import { ProgressBar } from '../atoms/ProgressBar'
+import { activeTasks, isQuestionOpen } from '../../../domain/parse'
 import { PullRequestItem } from '../molecules/PullRequestItem'
 import type { Ui } from '../ui'
 
@@ -21,8 +20,6 @@ type PlanDetailProps = {
 export function PlanDetail(props: PlanDetailProps) {
   const { ui, board, project, isDeleting, message } = props
   const { Box, Text, Button } = ui
-  const { done, total } = taskTotals(project.rows)
-  const percent = total === 0 ? 0 : Math.round((done / total) * 100)
   const active = activeTasks(project.rows)
   const pullRequests = project.rows.filter(row => row.kind === 'pr')
   const opened = pullRequests.filter(row => row.prNumber !== null).length
@@ -30,16 +27,7 @@ export function PlanDetail(props: PlanDetailProps) {
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Button key="back" hotkey="b" label="[b] All plans" onPress={props.onBack} />
-
-      <Box flexDirection="column">
-        <Text weight="bold" color="claude">
-          {project.title}
-        </Text>
-        <Text>
-          <ProgressBar ui={ui} done={done} total={total} width={20} /> {done}/{total} tasks · {percent}%
-        </Text>
-      </Box>
+      <Button key="back" hotkey="b" label="← Plans (b)" onPress={props.onBack} />
 
       <Box flexDirection="column">
         <Text weight="bold">Active tasks</Text>
@@ -84,15 +72,15 @@ export function PlanDetail(props: PlanDetailProps) {
               Delete {board.projectsDir}/{project.name}? This cannot be undone.
             </Text>
             <Box gap={2}>
-              <Button key="confirm-delete" hotkey="y" label="[y] Yes, delete" onPress={props.onConfirmDelete} />
-              <Button key="cancel-delete" hotkey="n" label="[n] Cancel" onPress={props.onCancelDelete} />
+              <Button key="confirm-delete" hotkey="y" label="Yes, delete (y)" onPress={props.onConfirmDelete} />
+              <Button key="cancel-delete" hotkey="n" label="Cancel (n)" onPress={props.onCancelDelete} />
             </Box>
           </Box>
         ) : (
           <Box gap={2}>
-            <Button key="next-task" hotkey="t" label="[t] Next task" onPress={props.onNextTask} />
-            <Button key="refresh" hotkey="r" label="[r] Refresh" onPress={props.onRefresh} />
-            <Button key="delete" hotkey="x" label="[x] Delete workspace" onPress={props.onAskDelete} />
+            <Button key="next-task" hotkey="t" label="Next task (t)" onPress={props.onNextTask} />
+            <Button key="refresh" hotkey="r" label="Refresh (r)" onPress={props.onRefresh} />
+            <Button key="delete" hotkey="x" label="Delete workspace (x)" onPress={props.onAskDelete} />
           </Box>
         )}
         {message && <Text dimColor>{message}</Text>}

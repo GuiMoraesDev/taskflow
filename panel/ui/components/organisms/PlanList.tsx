@@ -27,7 +27,7 @@ export function PlanList({ ui, projects, message, onOpen, onRefresh }: PlanListP
           onOpen={() => onOpen(project.name)}
         />
       ))}
-      <Button key="refresh" hotkey="r" label="[r] Refresh" onPress={onRefresh} />
+      <Button key="refresh" hotkey="r" label="Refresh (r)" onPress={onRefresh} />
       {message && <Text dimColor>{message}</Text>}
     </Box>
   )
