@@ -34,7 +34,7 @@ export function MascotHeader({ ui, rows, preview, step, onPreview }: MascotHeade
       {preview === 'loading' ? (
         <Loading ui={ui} step={step} />
       ) : (
-        <Mascot ui={ui} rows={rows} mood={preview ?? undefined} />
+        <Mascot ui={ui} rows={rows} step={step} mood={preview ?? undefined} />
       )}
     </Box>
   )

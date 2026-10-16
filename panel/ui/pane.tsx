@@ -2,7 +2,6 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, RenderInput } from 'claude-code'
 
 import { deleteProject, loadBoard } from '../data/board'
-import { previewMascot } from '../data/mascot'
 import { Loading } from './components/Loading'
 import { MascotHeader } from './components/MascotHeader'
 import { PlanDetail } from './components/PlanDetail'
@@ -12,7 +11,7 @@ const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
 const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
 const pendingDelete = atom({ plugin: 'taskflow', key: 'pendingDelete' } as const, null)
 const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
-const spinnerStep = atom({ plugin: 'taskflow', key: 'spinnerStep' } as const, 0)
+const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 const mascotPreview = atom({ plugin: 'taskflow', key: 'mascotPreview' } as const, null)
 
 // The container: reads the plugin's state, picks the view and hands the components what a press does.
@@ -24,7 +23,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   const deleting = await read($, pendingDelete)
   const message = await read($, notice)
 
-  const step = await read($, spinnerStep)
+  const step = await read($, animationStep)
   if (state === null) return <Loading ui={ui} step={step} />
 
   const project = state.projects.find(candidate => candidate.name === selectedName)
@@ -37,7 +36,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         rows={rows}
         preview={await read($, mascotPreview)}
         step={step}
-        onPreview={preview => previewMascot($, preview)}
+        onPreview={preview => update($, mascotPreview, () => preview)}
       />
       {state.projects.length === 0 ? (
         <Box flexDirection="column">

@@ -1,3 +1,4 @@
+import { atom, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
 import { loadBoard } from './data/board'
@@ -5,6 +6,8 @@ import { renderPane } from './ui/pane'
 
 const PANE = 'taskflow'
 const TITLE = 'Taskflow'
+
+const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 
 async function openPane($: EngineInterface, focus = false) {
   await $.ui.open({ id: PANE, title: TITLE, columns: 60, ...(focus ? { focus: true as const } : {}) })
@@ -15,6 +18,8 @@ export const register: Register = on => {
     await $.command.register({ name: 'taskflow', description: 'Open the Taskflow pane: plans, tasks, PRs' })
     void loadBoard($)
     void openPane($)
+    // One clock drives every animation of Flo, the loader's spinner included.
+    $.clock.every(100, () => void update($, animationStep, step => step + 1))
 
     return next(e)
   })

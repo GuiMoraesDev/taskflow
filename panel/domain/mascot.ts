@@ -11,6 +11,7 @@ const PALETTE: Record<string, string> = {
   E: '#D5DFE0',
   G: '#00BD74',
   K: '#11191C',
+  M: '#8E2A20',
   N: '#91513C',
   R: '#F36353',
   S: '#1F6D75',
@@ -33,12 +34,41 @@ const CLOSED = 'DWWWWWWWWWWWWWWWWDSS'
 const eyes = (left: string, middle: string, right: string) => `DWD${left}DWD${middle}DWD${right}DWDSS`
 const open = eyes('YY', 'TT', 'NN')
 
-const FRAMES: Record<MascotMood, string[]> = {
-  working: [...HEAD, LIDS, open, open, open, open, LIDS, ...VISOR_BOTTOM],
-  idle: [...HEAD, CLOSED, CLOSED, CLOSED, LIDS, open, open, ...VISOR_BOTTOM],
-  blocked: [...HEAD, LIDS, ...Array(4).fill(eyes('RR', 'RR', 'RR')), LIDS, ...VISOR_BOTTOM],
-  asking: [...HEAD, LIDS, eyes('YK', 'TK', 'NK'), open, open, open, LIDS, ...VISOR_BOTTOM],
-  done: [...HEAD, LIDS, ...Array(4).fill(eyes('GG', 'GG', 'GG')), LIDS, ...VISOR_BOTTOM],
+// Each mood loops on the animation step, one step every 100 ms: `phase(step, 8)` flips every 8 steps.
+const phase = (step: number, length: number) => Math.floor(step / length) % 2 === 1
+const blinks = (step: number, every: number) => step % every < 2
+const shut = [CLOSED, CLOSED, CLOSED, LIDS, CLOSED, CLOSED]
+
+function moodFrame(mood: MascotMood, step: number): { visor: string[]; antenna: string } {
+  switch (mood) {
+    case 'working': {
+      const glance = phase(step, 8) ? eyes('YK', 'TK', 'NK') : eyes('KY', 'KT', 'KN')
+      return { visor: blinks(step, 40) ? shut : [LIDS, open, glance, glance, open, LIDS], antenna: 'A' }
+    }
+    case 'idle':
+      return {
+        visor: phase(step, 15)
+          ? [CLOSED, CLOSED, CLOSED, CLOSED, LIDS, open]
+          : [CLOSED, CLOSED, CLOSED, LIDS, open, open],
+        antenna: 'A',
+      }
+    case 'blocked': {
+      const alarm = phase(step, 4)
+      const red = alarm ? eyes('MM', 'MM', 'MM') : eyes('RR', 'RR', 'RR')
+      return { visor: [LIDS, red, red, red, red, LIDS], antenna: alarm ? 'A' : 'R' }
+    }
+    case 'asking': {
+      const up = phase(step, 6) ? eyes('YK', 'TK', 'NK') : eyes('KY', 'KT', 'KN')
+      return { visor: [LIDS, up, open, open, open, LIDS], antenna: phase(step, 5) ? 'Y' : 'A' }
+    }
+    case 'done': {
+      const green = eyes('GG', 'GG', 'GG')
+      return {
+        visor: blinks(step, 30) ? shut : [LIDS, green, green, green, green, LIDS],
+        antenna: phase(step, 8) ? 'G' : 'A',
+      }
+    }
+  }
 }
 
 // The loading spinner's ring on the visor, in clockwise order from the top: [row, column].
@@ -88,8 +118,11 @@ export function mascotLine(mood: MascotMood, left: number) {
   }
 }
 
-export function mascotArt(mood: MascotMood): MascotCell[][] {
-  return toCells(FRAMES[mood])
+export function mascotFrame(mood: MascotMood, step: number): MascotCell[][] {
+  const { visor, antenna } = moodFrame(mood, step)
+  const head = HEAD.map(row => row.replaceAll('A', antenna))
+
+  return toCells([...head, ...visor, ...VISOR_BOTTOM])
 }
 
 // Flo with a spinner where the eyes are: each step moves the arc one pixel clockwise.

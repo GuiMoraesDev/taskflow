@@ -34,7 +34,7 @@ declare module 'claude-code' {
       selected: string | null
       pendingDelete: string | null
       notice: string | null
-      spinnerStep: number
+      animationStep: number
       mascotPreview: MascotPreview | null
     }
   }
