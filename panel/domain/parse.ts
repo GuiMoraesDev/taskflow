@@ -29,6 +29,7 @@ export function parseProgress(markdown: string): { title: string; rows: PlanRow[
     if (kind === null) continue
 
     const prMatch = kind === 'pr' ? `${id} ${status}`.match(/#(\d+)/) : null
+    const branchMatch = kind === 'pr' ? summaryCells.join(' | ').match(/`([^`]+)`/) : null
     rows.push({
       id,
       kind,
@@ -36,6 +37,7 @@ export function parseProgress(markdown: string): { title: string; rows: PlanRow[
       owner,
       summary: summaryCells.join(' | ').replace(/`/g, ''),
       prNumber: prMatch ? Number(prMatch[1]) : null,
+      branch: branchMatch?.[1] ?? null,
     })
   }
 
@@ -72,4 +74,16 @@ export function repoWebUrl(remote: string): string | null {
 
 export function isSafeProjectName(name: string) {
   return /^[\w.-]+$/.test(name) && name !== '.' && name !== '..'
+}
+
+// `git worktree list --porcelain` prints one block per worktree: its path, then `branch refs/heads/<name>`.
+export function parseWorktrees(porcelain: string): Record<string, string> {
+  const worktrees: Record<string, string> = {}
+  for (const block of porcelain.split('\n\n')) {
+    const path = block.match(/^worktree (.+)$/m)?.[1]
+    const branch = block.match(/^branch refs\/heads\/(.+)$/m)?.[1]
+    if (path && branch) worktrees[branch] = path
+  }
+
+  return worktrees
 }

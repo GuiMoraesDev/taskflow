@@ -7,6 +7,7 @@ export type PlanRow = {
   owner: string
   summary: string
   prNumber: number | null
+  branch: string | null
 }
 
 export type PlanProject = {
@@ -19,6 +20,7 @@ export type PlanProject = {
 export type PlanBoard = {
   projectsDir: string
   repoUrl: string | null
+  worktrees: Record<string, string>
   projects: PlanProject[]
 }
 

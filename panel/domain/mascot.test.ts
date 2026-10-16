@@ -10,6 +10,7 @@ const row = (kind: PlanRow['kind'], status: string): PlanRow => ({
   owner: '',
   summary: '',
   prNumber: null,
+  branch: null,
 })
 
 test('mascot mood follows the plan', () => {

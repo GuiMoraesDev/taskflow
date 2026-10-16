@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { activeTasks, isSafeProjectName, parseProgress, repoWebUrl, taskTotals } from './parse'
+import { activeTasks, isSafeProjectName, parseProgress, parseWorktrees, repoWebUrl, taskTotals } from './parse'
 
 const PROGRESS = `# Progress — Fix double rollout (CORE-1396)
 
@@ -52,4 +52,26 @@ test('refuses project names that escape the projects folder', () => {
   expect(isSafeProjectName('core-1396-double-rollout')).toBe(true)
   expect(isSafeProjectName('..')).toBe(false)
   expect(isSafeProjectName('a/../b')).toBe(false)
+})
+
+test('reads each pull request branch from its backticked summary', () => {
+  const { rows } = parseProgress(PROGRESS)
+  const branches = rows.filter(row => row.kind === 'pr').map(row => row.branch)
+  expect(branches).toEqual(['core-1396-staging-rollout', null, null])
+})
+
+test('maps each checked-out branch to its worktree path', () => {
+  const porcelain = `worktree /repo
+HEAD abc
+branch refs/heads/main
+
+worktree /repo-wt/rollout
+HEAD def
+branch refs/heads/core-1396-staging-rollout
+
+worktree /repo-wt/detached
+HEAD 123
+detached
+`
+  expect(parseWorktrees(porcelain)).toEqual({ main: '/repo', 'core-1396-staging-rollout': '/repo-wt/rollout' })
 })

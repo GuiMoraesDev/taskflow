@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface } from 'claude-code'
 
 import type { PlanBoard, PlanProject } from '../../types'
-import { isSafeProjectName, parseProgress, repoWebUrl } from '../domain/parse'
+import { isSafeProjectName, parseProgress, parseWorktrees, repoWebUrl } from '../domain/parse'
 
 const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
 const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
@@ -33,6 +33,8 @@ export async function loadBoard($: EngineInterface) {
   const projectsPath = `${root}/${projectsDir}`
   const remote = await $.process.run(['git', 'remote', 'get-url', 'origin'], { cwd: root })
   const repoUrl = remote.exitCode === 0 ? repoWebUrl(remote.stdout) : null
+  const worktreeList = await $.process.run(['git', 'worktree', 'list', '--porcelain'], { cwd: root })
+  const worktrees = worktreeList.exitCode === 0 ? parseWorktrees(worktreeList.stdout) : {}
 
   const projects: PlanProject[] = []
   if (await $.fs.exists(projectsPath)) {
@@ -47,12 +49,12 @@ export async function loadBoard($: EngineInterface) {
   }
   projects.sort((first, second) => second.updatedAt - first.updatedAt)
 
-  const next: PlanBoard = { projectsDir, repoUrl, projects }
+  const next: PlanBoard = { projectsDir, repoUrl, worktrees, projects }
   await update($, board, () => next)
 
   const current = await read($, selected)
   if (!projects.some(project => project.name === current)) {
-    await update($, selected, () => projects[0]?.name ?? null)
+    await update($, selected, () => null)
   }
 }
 

@@ -76,7 +76,9 @@ export function mascotArt(mood: MascotMood): MascotCell[][] {
   const pixels = FRAMES[mood]
   const rows: MascotCell[][] = []
   for (let y = 0; y < pixels.length; y += 2) {
-    rows.push([...pixels[y]].map((top, x) => ({ top: PALETTE[top], bottom: PALETTE[pixels[y + 1][x]] })))
+    const upper = pixels[y] ?? ''
+    const lower = pixels[y + 1] ?? ''
+    rows.push([...upper].map((top, x) => ({ top: PALETTE[top], bottom: PALETTE[lower[x] ?? '.'] })))
   }
 
   return rows
