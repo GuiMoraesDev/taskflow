@@ -1,0 +1,36 @@
+import type { PlanProject } from '../../../types'
+import { Mascot } from './Mascot'
+import { PlanCard } from './PlanCard'
+import type { Ui } from './ui'
+
+type PlanListProps = {
+  ui: Ui
+  projects: PlanProject[]
+  message: string | null
+  onOpen: (name: string) => void
+  onRefresh: () => void
+}
+
+export function PlanList({ ui, projects, message, onOpen, onRefresh }: PlanListProps) {
+  const { Box, Text, Button } = ui
+
+  return (
+    <Box flexDirection="column" gap={1}>
+      <Mascot ui={ui} rows={projects.flatMap(project => project.rows)} />
+      <Text weight="bold">
+        Plans <Text dimColor>{projects.length}</Text>
+      </Text>
+      {projects.slice(0, 9).map((project, index) => (
+        <PlanCard
+          key={`card-${project.name}`}
+          ui={ui}
+          project={project}
+          hotkey={String(index + 1)}
+          onOpen={() => onOpen(project.name)}
+        />
+      ))}
+      <Button key="refresh" hotkey="r" label="[r] Refresh" onPress={onRefresh} />
+      {message && <Text dimColor>{message}</Text>}
+    </Box>
+  )
+}
