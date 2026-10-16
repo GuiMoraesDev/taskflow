@@ -28,7 +28,10 @@ export function PlanDetail(props: PlanDetailProps) {
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Button key="back" hotkey="b" label="← Plans (b)" onPress={props.onBack} />
+      <Box justifyContent="space-between">
+        <Button key="back" hotkey="b" label="← Plans (b)" onPress={props.onBack} />
+        <Button key="refresh" hotkey="r" label="🔄" onPress={props.onRefresh} />
+      </Box>
 
       <Box flexDirection="column">
         <Text weight="bold">Active tasks</Text>
@@ -73,7 +76,6 @@ export function PlanDetail(props: PlanDetailProps) {
         ) : (
           <Box gap={2}>
             <Button key="next-task" hotkey="t" label="Next task (t)" onPress={props.onNextTask} />
-            <Button key="refresh" hotkey="r" label="Refresh (r)" onPress={props.onRefresh} />
             <Button key="delete" hotkey="x" label="Delete workspace (x)" onPress={props.onAskDelete} />
           </Box>
         )}
