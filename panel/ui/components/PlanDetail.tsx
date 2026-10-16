@@ -1,6 +1,5 @@
 import type { PlanBoard, PlanProject } from '../../../types'
 import { activeTasks, isQuestionOpen, taskTotals } from '../../domain/parse'
-import { Mascot } from './Mascot'
 import { ProgressBar } from './ProgressBar'
 import { PullRequestItem } from './PullRequestItem'
 import type { Ui } from './ui'
@@ -31,7 +30,6 @@ export function PlanDetail(props: PlanDetailProps) {
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Mascot ui={ui} rows={project.rows} />
       <Button key="back" hotkey="b" label="[b] All plans" onPress={props.onBack} />
 
       <Box flexDirection="column">

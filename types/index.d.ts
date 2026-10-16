@@ -24,6 +24,9 @@ export type PlanBoard = {
   projects: PlanProject[]
 }
 
+// What the mascot header forces Flo to show; null follows the plan.
+export type MascotPreview = 'idle' | 'working' | 'blocked' | 'asking' | 'done' | 'loading'
+
 declare module 'claude-code' {
   interface PluginState {
     'taskflow': {
@@ -32,6 +35,7 @@ declare module 'claude-code' {
       pendingDelete: string | null
       notice: string | null
       spinnerStep: number
+      mascotPreview: MascotPreview | null
     }
   }
 }

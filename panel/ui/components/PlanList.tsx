@@ -1,5 +1,4 @@
 import type { PlanProject } from '../../../types'
-import { Mascot } from './Mascot'
 import { PlanCard } from './PlanCard'
 import type { Ui } from './ui'
 
@@ -16,7 +15,6 @@ export function PlanList({ ui, projects, message, onOpen, onRefresh }: PlanListP
 
   return (
     <Box flexDirection="column" gap={1}>
-      <Mascot ui={ui} rows={projects.flatMap(project => project.rows)} />
       <Text weight="bold">
         Plans <Text dimColor>{projects.length}</Text>
       </Text>
