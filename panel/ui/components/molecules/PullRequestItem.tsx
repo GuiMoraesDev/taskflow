@@ -3,21 +3,30 @@ import type { Ui } from '../ui'
 
 type PullRequestItemProps = { ui: Ui; row: PlanRow; repoUrl: string | null; worktree: string | undefined }
 
+// A pull request by its branch: once opened, its number links to it; until then, the row is drawn light gray.
 export function PullRequestItem({ ui: { Box, Text, Link }, row, repoUrl, worktree }: PullRequestItemProps) {
+  const isOpened = row.prNumber !== null
+
   return (
     <Box flexDirection="column">
-      <Text>
-        <Text dimColor>{row.status}</Text>{' '}
-        {row.prNumber !== null && repoUrl !== null ? (
-          <Link href={`${repoUrl}/pull/${row.prNumber}`} label={`#${row.prNumber}`} />
-        ) : (
-          <Text weight="bold">{row.id}</Text>
-        )}{' '}
-        {row.summary.split(' · ')[0]}
+      <Text dimColor={!isOpened} wrap="truncate-end">
+        {row.branch ?? row.id}
+        {isOpened && (
+          <Text>
+            {' - '}
+            {repoUrl === null ? (
+              `#${row.prNumber}`
+            ) : (
+              <Link href={`${repoUrl}/pull/${row.prNumber}`} label={`#${row.prNumber}`} />
+            )}
+          </Text>
+        )}
       </Text>
-      <Text dimColor wrap="truncate-end">
-        {'  '}branch {row.branch ?? 'not named'} · worktree {worktree ?? 'not checked out'}
-      </Text>
+      {worktree && (
+        <Text dimColor wrap="truncate-end">
+          {'  '}worktree {worktree}
+        </Text>
+      )}
     </Box>
   )
 }
