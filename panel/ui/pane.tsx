@@ -3,6 +3,7 @@ import type { EngineInterface, RenderInput } from 'claude-code'
 
 import type { PlanBoard, PlanProject } from '../../types'
 import { deleteProject, loadBoard } from '../data/board'
+import { boardStatus, planStatus } from '../domain/status'
 import { Loading } from './components/molecules/Loading'
 import { MascotHeader } from './components/organisms/MascotHeader'
 import { PlanDetail } from './components/organisms/PlanDetail'
@@ -36,6 +37,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
       <MascotHeader
         ui={ui}
         rows={rows}
+        status={project ? planStatus(project) : boardStatus(state.projects)}
         preview={await read($, mascotPreview)}
         step={step}
         onPreview={preview => update($, mascotPreview, () => preview)}

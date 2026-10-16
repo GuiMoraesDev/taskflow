@@ -103,21 +103,6 @@ export function mascotMood(rows: PlanRow[]): MascotMood {
   return 'idle'
 }
 
-export function mascotLine(mood: MascotMood, left: number) {
-  switch (mood) {
-    case 'done':
-      return 'All done. Ship it!'
-    case 'blocked':
-      return 'Something is blocked.'
-    case 'asking':
-      return 'A question needs an answer.'
-    case 'working':
-      return `${left} task(s) to go.`
-    case 'idle':
-      return left === 0 ? 'No tasks yet.' : `${left} task(s) waiting. Press [t].`
-  }
-}
-
 export function mascotFrame(mood: MascotMood, step: number): MascotCell[][] {
   const { visor, antenna } = moodFrame(mood, step)
   const head = HEAD.map(row => row.replaceAll('A', antenna))

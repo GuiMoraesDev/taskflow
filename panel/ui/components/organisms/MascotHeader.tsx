@@ -8,13 +8,14 @@ const PREVIEWS: MascotPreview[] = ['idle', 'working', 'blocked', 'asking', 'done
 type MascotHeaderProps = {
   ui: Ui
   rows: PlanRow[]
+  status: string[]
   preview: MascotPreview | null
   step: number
   onPreview: (preview: MascotPreview | null) => void
 }
 
 // Heads every view: a row that forces Flo into any state, then Flo itself.
-export function MascotHeader({ ui, rows, preview, step, onPreview }: MascotHeaderProps) {
+export function MascotHeader({ ui, rows, status, preview, step, onPreview }: MascotHeaderProps) {
   const { Box, Button } = ui
 
   return (
@@ -34,7 +35,7 @@ export function MascotHeader({ ui, rows, preview, step, onPreview }: MascotHeade
       {preview === 'loading' ? (
         <Loading ui={ui} step={step} />
       ) : (
-        <Mascot ui={ui} rows={rows} step={step} mood={preview ?? undefined} />
+        <Mascot ui={ui} rows={rows} status={status} step={step} mood={preview ?? undefined} />
       )}
     </Box>
   )
