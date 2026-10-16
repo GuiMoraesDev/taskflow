@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, RenderInput } from 'claude-code'
 
 import { deleteProject, loadBoard } from '../data/board'
-import { mascotArt, mascotLine, mascotMood } from '../domain/mascot'
+import { MASCOT_SPEECH_ROW, mascotArt, mascotLine, mascotMood } from '../domain/mascot'
 import { activeTasks, isQuestionOpen, taskTotals } from '../domain/parse'
 
 const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
@@ -42,10 +42,22 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   return (
     <Box flexDirection="column" gap={1}>
       <Box flexDirection="column">
-        {mascotArt(mood).map((line, index) => (
-          <Text key={index} color="claude">
-            {line}
-            {index === MASCOT_SPEECH_ROW && <Text dimColor> {mascotLine(mood, total - done)}</Text>}
+        {mascotArt(mood).map((cells, row) => (
+          <Text key={row}>
+            {cells.map(({ top, bottom }, column) =>
+              top ? (
+                <Text key={column} color={top} backgroundColor={bottom}>
+                  ▀
+                </Text>
+              ) : bottom ? (
+                <Text key={column} color={bottom}>
+                  ▄
+                </Text>
+              ) : (
+                ' '
+              ),
+            )}
+            {row === MASCOT_SPEECH_ROW && <Text dimColor>  {mascotLine(mood, total - done)}</Text>}
           </Text>
         ))}
       </Box>

@@ -1,7 +1,7 @@
 import { expect, test } from 'claude-code/testing'
 
 import type { PlanRow } from '../../types'
-import { mascotLine, mascotMood } from './mascot'
+import { mascotArt, mascotLine, mascotMood } from './mascot'
 
 const row = (kind: PlanRow['kind'], status: string): PlanRow => ({
   id: 'X',
@@ -24,4 +24,13 @@ test('mascot mood follows the plan', () => {
 test('mascot line counts remaining tasks', () => {
   expect(mascotLine('working', 2)).toBe('2 task(s) to go.')
   expect(mascotLine('idle', 0)).toBe('No tasks yet.')
+})
+
+test('every mood frame is the same full-cell grid', () => {
+  const moods = ['idle', 'working', 'blocked', 'asking', 'done'] as const
+  for (const mood of moods) {
+    const rows = mascotArt(mood)
+    expect(rows.length).toBe(7)
+    for (const cells of rows) expect(cells.length).toBe(20)
+  }
 })
