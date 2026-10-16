@@ -1,16 +1,18 @@
-import type { PlanRow } from '../types'
+import type { PlanRow } from '../../types'
 
 import { isQuestionOpen, taskTotals } from './parse'
 
 export type MascotMood = 'idle' | 'working' | 'blocked' | 'asking' | 'done'
 
-const FACES: Record<MascotMood, string> = {
-  idle: '( -.- )',
-  working: '( o.o )',
-  blocked: '( ;_; )',
-  asking: '( o.O )',
-  done: '( ^.^ )',
+const EYES: Record<MascotMood, [string, string, string]> = {
+  idle: ['-', '-', '-'],
+  working: ['o', 'o', 'o'],
+  blocked: [';', ';', ';'],
+  asking: ['o', 'O', '?'],
+  done: ['^', '^', '^'],
 }
+
+export const MASCOT_SPEECH_ROW = 3
 
 export function mascotMood(rows: PlanRow[]): MascotMood {
   const { done, total } = taskTotals(rows)
@@ -40,5 +42,16 @@ export function mascotLine(mood: MascotMood, left: number) {
 }
 
 export function mascotArt(mood: MascotMood) {
-  return ['  /\\_/\\', ` ${FACES[mood]}`, '  /|_|\\~']
+  const [left, middle, right] = EYES[mood]
+
+  return [
+    '          (@)',
+    '    .------|-----.',
+    '   /              \\',
+    `  | [ ${left}   ${middle}   ${right} ] |`,
+    '  |          (O)  |=',
+    '  |       (o)     |=',
+    "  '---------------'",
+    '    [===]   [===]',
+  ]
 }

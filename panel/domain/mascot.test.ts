@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import type { PlanRow } from '../types'
+import type { PlanRow } from '../../types'
 import { mascotLine, mascotMood } from './mascot'
 
 const row = (kind: PlanRow['kind'], status: string): PlanRow => ({

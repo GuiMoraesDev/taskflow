@@ -24,7 +24,7 @@ export type PlanBoard = {
 
 declare module 'claude-code' {
   interface PluginState {
-    'taskflow-panel': {
+    'taskflow': {
       board: PlanBoard | null
       selected: string | null
       pendingDelete: string | null

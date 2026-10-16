@@ -1,4 +1,4 @@
-import type { PlanRow, RowKind } from '../types'
+import type { PlanRow, RowKind } from '../../types'
 
 const SEPARATOR_CELL = /^:?-+:?$/
 
