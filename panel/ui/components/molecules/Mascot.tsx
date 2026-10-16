@@ -22,8 +22,14 @@ export function Mascot({ ui, rows, status, step, mood: forced }: MascotProps) {
           <Text dimColor>
             {progress.done}/{progress.total} tasks done ·{' '}
           </Text>
-          <ProgressBar ui={ui} done={progress.done} total={progress.total} width={12} />{' '}
-          <Text dimColor>{progress.total === 0 ? 0 : Math.round((progress.done / progress.total) * 100)}%</Text>
+          {progress.done === 0 ? (
+            <Text dimColor>Nothing in progress</Text>
+          ) : (
+            <Text>
+              <ProgressBar ui={ui} done={progress.done} total={progress.total} width={12} />{' '}
+              <Text dimColor>{Math.round((progress.done / progress.total) * 100)}%</Text>
+            </Text>
+          )}
         </Text>
       )}
       {status.details.map(line => (
