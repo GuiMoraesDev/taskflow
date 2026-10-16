@@ -2,7 +2,7 @@ import { atom, read, update } from 'claude-code'
 import type { EngineInterface, RenderInput } from 'claude-code'
 
 import { deleteProject, loadBoard } from '../data/board'
-import { MASCOT_SPEECH_ROW, mascotArt, mascotLine, mascotMood } from '../domain/mascot'
+import { mascotArt, mascotLine, mascotMood } from '../domain/mascot'
 import { activeTasks, isQuestionOpen, taskTotals } from '../domain/parse'
 
 const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
@@ -62,10 +62,17 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
                 <Text weight="bold">{candidate.title}</Text>
               </Button>
               <Text>
-                {progressBar(totals.done, totals.total, 12)} <Text dimColor>{totals.done}/{totals.total} tasks</Text>
+                {progressBar(totals.done, totals.total, 12)}{' '}
+                <Text dimColor>
+                  {totals.done}/{totals.total} tasks
+                </Text>
               </Text>
               <Text dimColor wrap="truncate-end">
-                {working ? `${working.id} ${working.summary}` : totals.done === totals.total ? 'All tasks done' : 'Nothing in progress'}
+                {working
+                  ? `${working.id} ${working.summary}`
+                  : totals.done === totals.total
+                    ? 'All tasks done'
+                    : 'Nothing in progress'}
               </Text>
               <Text dimColor>
                 {opened}/{pullRequests.length} PRs opened
@@ -110,9 +117,9 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
                 ' '
               ),
             )}
-            {row === MASCOT_SPEECH_ROW && <Text dimColor>  {mascotLine(mood, total - done)}</Text>}
           </Text>
         ))}
+        <Text dimColor> {mascotLine(mood, total - done)}</Text>
       </Box>
 
       <Box flexDirection="column">
@@ -178,13 +185,28 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
               Delete {state.projectsDir}/{project.name}? This cannot be undone.
             </Text>
             <Box gap={2}>
-              <Button key="confirm-delete" hotkey="y" label="[y] Yes, delete" onPress={() => deleteProject($, project.name)} />
-              <Button key="cancel-delete" hotkey="n" label="[n] Cancel" onPress={() => update($, pendingDelete, () => null)} />
+              <Button
+                key="confirm-delete"
+                hotkey="y"
+                label="[y] Yes, delete"
+                onPress={() => deleteProject($, project.name)}
+              />
+              <Button
+                key="cancel-delete"
+                hotkey="n"
+                label="[n] Cancel"
+                onPress={() => update($, pendingDelete, () => null)}
+              />
             </Box>
           </Box>
         ) : (
           <Box gap={2}>
-            <Button key="next-task" hotkey="t" label="[t] Next task" onPress={() => void $.prompt.submit({ text: '/taskflow:next-task' })} />
+            <Button
+              key="next-task"
+              hotkey="t"
+              label="[t] Next task"
+              onPress={() => void $.prompt.submit({ text: '/taskflow:next-task' })}
+            />
             <Button key="refresh" hotkey="r" label="[r] Refresh" onPress={() => loadBoard($)} />
             <Button
               key="delete"

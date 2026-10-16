@@ -40,8 +40,6 @@ const FRAMES: Record<MascotMood, string[]> = {
   done: [...HEAD, LIDS, ...Array(4).fill(eyes('GG', 'GG', 'GG')), LIDS, ...VISOR_BOTTOM],
 }
 
-export const MASCOT_SPEECH_ROW = 4
-
 export type MascotCell = { top?: string; bottom?: string }
 
 export function mascotMood(rows: PlanRow[]): MascotMood {
