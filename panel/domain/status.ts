@@ -1,13 +1,11 @@
 import type { PlanProject, PlanRow } from '../../types'
-import { isQuestionOpen, taskTotals } from './parse'
+import { openQuestions, taskTotals } from './parse'
 
 const tasksWith = (rows: PlanRow[], mark: string) =>
   rows.filter(row => row.kind === 'task' && row.status.startsWith(mark))
-const openQuestions = (rows: PlanRow[]) => rows.filter(row => row.kind === 'question' && isQuestionOpen(row.status))
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`
 const joined = (parts: (string | false)[]) => parts.filter(part => part !== false).join(' · ')
 
-// Active: at least one task has started, and not every task is done.
 export function isPlanActive(project: PlanProject) {
   const { done, total } = taskTotals(project.rows)
   const started = project.rows.some(row => row.kind === 'task' && !row.status.startsWith('⬜'))
@@ -15,10 +13,8 @@ export function isPlanActive(project: PlanProject) {
   return started && done < total
 }
 
-// What Flo says: a bold headline, an optional progress bar, then dim detail lines.
 export type FloStatus = { headline: string; progress?: { done: number; total: number }; details: string[] }
 
-// On the plan list: how many plans, how many active, what is moving across all of them.
 export function boardStatus(projects: PlanProject[]): FloStatus {
   if (projects.length === 0) return { headline: 'No plans yet.', details: [] }
   const rows = projects.flatMap(project => project.rows)
@@ -37,7 +33,6 @@ export function boardStatus(projects: PlanProject[]): FloStatus {
   }
 }
 
-// On a plan's page: which plan, its progress, and the task or question that needs attention.
 export function planStatus(project: PlanProject): FloStatus {
   const { done, total } = taskTotals(project.rows)
   const blocked = tasksWith(project.rows, '🚧')[0]

@@ -1,5 +1,5 @@
 import type { PlanProject } from '../../../../types'
-import { isQuestionOpen, taskTotals } from '../../../domain/parse'
+import { openQuestions, taskTotals } from '../../../domain/parse'
 import { ProgressBar } from '../atoms/ProgressBar'
 import type { Ui } from '../ui'
 
@@ -9,7 +9,7 @@ export function PlanCard({ ui, project, hotkey, onOpen }: PlanCardProps) {
   const { Box, Text, Button } = ui
   const { done, total } = taskTotals(project.rows)
   const working = project.rows.find(row => row.kind === 'task' && /^(🔄|🚧)/.test(row.status))
-  const questions = project.rows.filter(row => row.kind === 'question' && isQuestionOpen(row.status)).length
+  const questions = openQuestions(project.rows).length
   const pullRequests = project.rows.filter(row => row.kind === 'pr')
   const opened = pullRequests.filter(row => row.prNumber !== null).length
 

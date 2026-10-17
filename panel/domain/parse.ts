@@ -52,6 +52,10 @@ export function isQuestionOpen(status: string) {
   return !status.startsWith('✅') && !status.startsWith('❌')
 }
 
+export function openQuestions(rows: PlanRow[]) {
+  return rows.filter(row => row.kind === 'question' && isQuestionOpen(row.status))
+}
+
 export function taskTotals(rows: PlanRow[]) {
   const tasks = rows.filter(row => row.kind === 'task')
 
@@ -76,7 +80,6 @@ export function isSafeProjectName(name: string) {
   return /^[\w.-]+$/.test(name) && name !== '.' && name !== '..'
 }
 
-// `git worktree list --porcelain` prints one block per worktree: its path, then `branch refs/heads/<name>`.
 export function parseWorktrees(porcelain: string): Record<string, string> {
   const worktrees: Record<string, string> = {}
   for (const block of porcelain.split('\n\n')) {

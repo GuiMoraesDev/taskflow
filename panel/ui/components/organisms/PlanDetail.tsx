@@ -1,5 +1,5 @@
 import type { PlanBoard, PlanProject } from '../../../../types'
-import { activeTasks, isQuestionOpen } from '../../../domain/parse'
+import { activeTasks, openQuestions } from '../../../domain/parse'
 import { ActionMenu } from '../molecules/ActionMenu'
 import { PullRequestItem } from '../molecules/PullRequestItem'
 import { TaskItem } from '../molecules/TaskItem'
@@ -27,7 +27,7 @@ export function PlanDetail(props: PlanDetailProps) {
   const active = activeTasks(project.rows)
   const pullRequests = project.rows.filter(row => row.kind === 'pr')
   const opened = pullRequests.filter(row => row.prNumber !== null).length
-  const openQuestions = project.rows.filter(row => row.kind === 'question' && isQuestionOpen(row.status))
+  const questions = openQuestions(project.rows)
 
   return (
     <Box flexDirection="column" gap={1} flexGrow={1} position="relative">
@@ -36,16 +36,15 @@ export function PlanDetail(props: PlanDetailProps) {
         <Button key="menu" hotkey="m" label={isMenuOpen ? '✕ Close (m)' : '☰ Menu (m)'} onPress={props.onToggleMenu} />
       </Box>
 
-      {/* Takes the room left over, so the pull requests and the actions sit at the pane's bottom edge. */}
       <Box flexDirection="column" flexGrow={1} flexShrink={1} overflow="hidden">
         <Text weight="bold">Active tasks</Text>
         {active.length === 0 && <Text color="success">Nothing left to do.</Text>}
         {active.map(row => (
           <TaskItem key={`task-${row.id}`} ui={ui} row={row} />
         ))}
-        {openQuestions.length > 0 && (
+        {questions.length > 0 && (
           <Text color="warning">
-            {openQuestions.length} open question(s): {openQuestions.map(row => row.id).join(', ')}
+            {questions.length} open question(s): {questions.map(row => row.id).join(', ')}
           </Text>
         )}
       </Box>
@@ -85,7 +84,6 @@ export function PlanDetail(props: PlanDetailProps) {
         {message && <Text dimColor>{message}</Text>}
       </Box>
 
-      {/* Last, so it paints over the content; one row down puts it under the Menu button. */}
       {isMenuOpen && (
         <ActionMenu
           top={1}
