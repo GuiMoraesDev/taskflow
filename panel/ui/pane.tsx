@@ -5,7 +5,7 @@ import type { PlanBoard, PlanProject } from '../../types'
 import { deleteProject, loadBoard } from '../data/board'
 import { boardStatus, planStatus } from '../domain/status'
 import { Loading } from './components/molecules/Loading'
-import { MascotHeader } from './components/organisms/MascotHeader'
+import { Mascot } from './components/molecules/Mascot'
 import { PlanDetail } from './components/organisms/PlanDetail'
 import { PlanList } from './components/organisms/PlanList'
 import type { Ui } from './components/ui'
@@ -15,7 +15,6 @@ const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
 const pendingDelete = atom({ plugin: 'taskflow', key: 'pendingDelete' } as const, null)
 const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
 const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
-const mascotPreview = atom({ plugin: 'taskflow', key: 'mascotPreview' } as const, null)
 const isMenuOpen = atom({ plugin: 'taskflow', key: 'isMenuOpen' } as const, false)
 
 export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
@@ -34,14 +33,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
 
   return (
     <Box flexDirection="column" gap={1} minHeight={e.props.scroll.bodyRows}>
-      <MascotHeader
-        ui={ui}
-        rows={rows}
-        status={project ? planStatus(project) : boardStatus(state.projects)}
-        preview={await read($, mascotPreview)}
-        step={step}
-        onPreview={preview => update($, mascotPreview, () => preview)}
-      />
+      <Mascot ui={ui} rows={rows} status={project ? planStatus(project) : boardStatus(state.projects)} step={step} />
 
       <PaneContent
         ui={ui}

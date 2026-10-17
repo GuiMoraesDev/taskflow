@@ -24,8 +24,6 @@ export type PlanBoard = {
   projects: PlanProject[]
 }
 
-export type MascotPreview = 'idle' | 'working' | 'blocked' | 'asking' | 'done' | 'loading'
-
 declare module 'claude-code' {
   interface PluginState {
     'taskflow': {
@@ -34,7 +32,6 @@ declare module 'claude-code' {
       pendingDelete: string | null
       notice: string | null
       animationStep: number
-      mascotPreview: MascotPreview | null
       isMenuOpen: boolean
     }
   }

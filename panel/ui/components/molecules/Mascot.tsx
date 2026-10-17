@@ -1,20 +1,19 @@
 import type { PlanRow } from '../../../../types'
 import { mascotFrame, mascotMood } from '../../../domain/mascot'
-import type { MascotMood } from '../../../domain/mascot'
 import type { FloStatus } from '../../../domain/status'
 import { MascotSprite } from '../atoms/MascotSprite'
 import { ProgressBar } from '../atoms/ProgressBar'
 import type { Ui } from '../ui'
 
-type MascotProps = { ui: Ui; rows: PlanRow[]; status: FloStatus; step: number; mood?: MascotMood }
+type MascotProps = { ui: Ui; rows: PlanRow[]; status: FloStatus; step: number }
 
-export function Mascot({ ui, rows, status, step, mood: forced }: MascotProps) {
+export function Mascot({ ui, rows, status, step }: MascotProps) {
   const { Box, Text } = ui
   const { progress } = status
 
   return (
     <Box flexDirection="column" alignItems="center">
-      <MascotSprite ui={ui} cells={mascotFrame(forced ?? mascotMood(rows), step)} />
+      <MascotSprite ui={ui} cells={mascotFrame(mascotMood(rows), step)} />
       <Text weight="bold">{status.headline}</Text>
       {progress && (
         <Text>
