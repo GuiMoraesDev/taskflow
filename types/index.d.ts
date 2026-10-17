@@ -36,6 +36,7 @@ declare module 'claude-code' {
       notice: string | null
       animationStep: number
       mascotPreview: MascotPreview | null
+      isMenuOpen: boolean
     }
   }
 }

@@ -1,5 +1,6 @@
 import type { PlanBoard, PlanProject } from '../../../../types'
 import { activeTasks, isQuestionOpen } from '../../../domain/parse'
+import { ActionMenu } from '../molecules/ActionMenu'
 import { PullRequestItem } from '../molecules/PullRequestItem'
 import { TaskItem } from '../molecules/TaskItem'
 import type { Ui } from '../ui'
@@ -9,8 +10,10 @@ type PlanDetailProps = {
   board: PlanBoard
   project: PlanProject
   isDeleting: boolean
+  isMenuOpen: boolean
   message: string | null
   onBack: () => void
+  onToggleMenu: () => void
   onNextTask: () => void
   onRefresh: () => void
   onAskDelete: () => void
@@ -19,7 +22,7 @@ type PlanDetailProps = {
 }
 
 export function PlanDetail(props: PlanDetailProps) {
-  const { ui, board, project, isDeleting, message } = props
+  const { ui, board, project, isDeleting, isMenuOpen, message } = props
   const { Box, Text, Button } = ui
   const active = activeTasks(project.rows)
   const pullRequests = project.rows.filter(row => row.kind === 'pr')
@@ -27,10 +30,10 @@ export function PlanDetail(props: PlanDetailProps) {
   const openQuestions = project.rows.filter(row => row.kind === 'question' && isQuestionOpen(row.status))
 
   return (
-    <Box flexDirection="column" gap={1} flexGrow={1}>
+    <Box flexDirection="column" gap={1} flexGrow={1} position="relative">
       <Box justifyContent="space-between">
         <Button key="back" hotkey="b" label="← Plans (b)" onPress={props.onBack} />
-        <Button key="refresh" hotkey="r" label="🔄" onPress={props.onRefresh} />
+        <Button key="menu" hotkey="m" label={isMenuOpen ? '✕ Close (m)' : '☰ Menu (m)'} onPress={props.onToggleMenu} />
       </Box>
 
       <Box flexDirection="column">
@@ -79,11 +82,23 @@ export function PlanDetail(props: PlanDetailProps) {
         ) : (
           <Box gap={2}>
             <Button key="next-task" hotkey="t" label="Next task (t)" onPress={props.onNextTask} />
-            <Button key="delete" hotkey="x" label="Delete workspace (x)" onPress={props.onAskDelete} />
           </Box>
         )}
         {message && <Text dimColor>{message}</Text>}
       </Box>
+
+      {/* Last, so it paints over the content; one row down puts it under the Menu button. */}
+      {isMenuOpen && (
+        <ActionMenu
+          top={1}
+          right={0}
+          ui={ui}
+          items={[
+            { key: 'refresh', icon: '🔄', label: 'Refresh (r)', hotkey: 'r', onPress: props.onRefresh },
+            { key: 'delete', icon: '🗑️', label: 'Delete workspace (x)', hotkey: 'x', onPress: props.onAskDelete },
+          ]}
+        />
+      )}
     </Box>
   )
 }

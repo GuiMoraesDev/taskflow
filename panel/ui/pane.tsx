@@ -16,6 +16,7 @@ const pendingDelete = atom({ plugin: 'taskflow', key: 'pendingDelete' } as const
 const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
 const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 const mascotPreview = atom({ plugin: 'taskflow', key: 'mascotPreview' } as const, null)
+const isMenuOpen = atom({ plugin: 'taskflow', key: 'isMenuOpen' } as const, false)
 
 // The container: reads the plugin's state, picks the view and hands the components what a press does.
 export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
@@ -48,13 +49,24 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         board={state}
         project={project}
         deleting={deleting}
+        isMenuOpen={await read($, isMenuOpen)}
         message={message}
         actions={{
           open: name => update($, selected, () => name),
-          back: () => update($, selected, () => null),
+          back: () => {
+            void update($, isMenuOpen, () => false)
+            void update($, selected, () => null)
+          },
+          toggleMenu: () => update($, isMenuOpen, open => !open),
           nextTask: () => void $.prompt.submit({ text: '/taskflow:next-task' }),
-          refresh: () => loadBoard($),
-          askDelete: name => update($, pendingDelete, () => name),
+          refresh: () => {
+            void update($, isMenuOpen, () => false)
+            void loadBoard($)
+          },
+          askDelete: name => {
+            void update($, isMenuOpen, () => false)
+            void update($, pendingDelete, () => name)
+          },
           confirmDelete: name => deleteProject($, name),
           cancelDelete: () => update($, pendingDelete, () => null),
         }}
@@ -67,6 +79,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
 type PaneActions = {
   open: (name: string) => void
   back: () => void
+  toggleMenu: () => void
   nextTask: () => void
   refresh: () => void
   askDelete: (name: string) => void
@@ -79,12 +92,13 @@ type PaneContentProps = {
   board: PlanBoard
   project: PlanProject | undefined
   deleting: string | null
+  isMenuOpen: boolean
   message: string | null
   actions: PaneActions
 }
 
 // Picks the view under the header: no plans, the plan cards, or one plan's details.
-const PaneContent = ({ ui, board: state, project, deleting, message, actions }: PaneContentProps) => {
+const PaneContent = ({ ui, board: state, project, deleting, isMenuOpen, message, actions }: PaneContentProps) => {
   const { Box, Text } = ui
 
   return state.projects.length === 0 ? (
@@ -100,8 +114,10 @@ const PaneContent = ({ ui, board: state, project, deleting, message, actions }: 
       board={state}
       project={project}
       isDeleting={deleting === project.name}
+      isMenuOpen={isMenuOpen}
       message={message}
       onBack={actions.back}
+      onToggleMenu={actions.toggleMenu}
       onNextTask={actions.nextTask}
       onRefresh={actions.refresh}
       onAskDelete={() => actions.askDelete(project.name)}
