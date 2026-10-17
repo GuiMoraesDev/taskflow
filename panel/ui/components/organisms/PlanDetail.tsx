@@ -36,7 +36,8 @@ export function PlanDetail(props: PlanDetailProps) {
         <Button key="menu" hotkey="m" label={isMenuOpen ? '✕ Close (m)' : '☰ Menu (m)'} onPress={props.onToggleMenu} />
       </Box>
 
-      <Box flexDirection="column">
+      {/* Takes the room left over, so the pull requests and the actions sit at the pane's bottom edge. */}
+      <Box flexDirection="column" flexGrow={1} flexShrink={1} overflow="hidden">
         <Text weight="bold">Active tasks</Text>
         {active.length === 0 && <Text color="success">Nothing left to do.</Text>}
         {active.map(row => (
@@ -64,9 +65,6 @@ export function PlanDetail(props: PlanDetailProps) {
           />
         ))}
       </Box>
-
-      {/* Takes the room left over, so the actions sit at the pane's bottom edge. */}
-      <Box flexGrow={1} />
 
       <Box flexDirection="column">
         {isDeleting ? (
