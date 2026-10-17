@@ -7,3 +7,6 @@ docs/
 
 # Editor settings - per person.
 .vscode/
+
+# Dev tooling - lint, format and type check.
+node_modules/
