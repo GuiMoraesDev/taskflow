@@ -1,6 +1,5 @@
 # Taskflow
 
-[![release](https://img.shields.io/github/v/release/GuiMoraesDev/taskflow?label=release)](https://github.com/GuiMoraesDev/taskflow/releases)
 [![claude code](https://img.shields.io/badge/claude%20code-plugin-D97757?logo=claude)](https://docs.claude.com/en/docs/claude-code/plugins)
 [![python](https://img.shields.io/badge/python-3-3776AB?logo=python)](https://www.python.org/downloads/)
 [![github cli](https://img.shields.io/badge/gh-cli-181717?logo=github)](https://cli.github.com/)
