@@ -27,7 +27,7 @@ export function PlanDetail(props: PlanDetailProps) {
   const openQuestions = project.rows.filter(row => row.kind === 'question' && isQuestionOpen(row.status))
 
   return (
-    <Box flexDirection="column" gap={1}>
+    <Box flexDirection="column" gap={1} flexGrow={1}>
       <Box justifyContent="space-between">
         <Button key="back" hotkey="b" label="← Plans (b)" onPress={props.onBack} />
         <Button key="refresh" hotkey="r" label="🔄" onPress={props.onRefresh} />
@@ -61,6 +61,9 @@ export function PlanDetail(props: PlanDetailProps) {
           />
         ))}
       </Box>
+
+      {/* Takes the room left over, so the actions sit at the pane's bottom edge. */}
+      <Box flexGrow={1} />
 
       <Box flexDirection="column">
         {isDeleting ? (

@@ -33,7 +33,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   const rows = project?.rows ?? state.projects.flatMap(candidate => candidate.rows)
 
   return (
-    <Box flexDirection="column" gap={1}>
+    <Box flexDirection="column" gap={1} minHeight={e.props.scroll.bodyRows}>
       <MascotHeader
         ui={ui}
         rows={rows}
