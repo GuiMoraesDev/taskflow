@@ -51,6 +51,12 @@ Then, in the repo you want to use it on:
 
 > 💡 To install from a local checkout instead, pass its path to `/plugin marketplace add`.
 
+The plugin also adds a side pane. `/taskflow`
+opens it: every plan's progress, its active tasks and open questions, the pull requests
+with their links, a key for `/next-task`, and a delete button for a plan folder that
+asks before it removes anything. It opens by itself at session start on terminals of 144
+columns or more.
+
 ## How a piece of work flows 🔁
 
 ```

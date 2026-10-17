@@ -1,6 +1,8 @@
 {
   "name": "taskflow-tools",
-  "owner": { "name": "Guilherme Moraes" },
+  "owner": {
+    "name": "Guilherme Moraes"
+  },
   "plugins": [
     {
       "name": "taskflow",

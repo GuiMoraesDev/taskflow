@@ -1,3 +1,12 @@
 # Local working notes - research, comparisons, improvement plans.
 # Kept out of the plugin: what ships is the procedure, not the reasoning behind it.
 docs/
+
+# Claude Code's plugin API types, written per Claude Code version - copied in locally for the editor.
+.claude-plugin/types/
+
+# Editor settings - per person.
+.vscode/
+
+# Dev tooling - lint, format and type check.
+node_modules/
