@@ -8,7 +8,6 @@ import type { Ui } from '../ui'
 
 type MascotProps = { ui: Ui; rows: PlanRow[]; status: FloStatus; step: number; mood?: MascotMood }
 
-// Flo's mood follows the rows it is given, unless a mood is forced; the status says what is going on.
 export function Mascot({ ui, rows, status, step, mood: forced }: MascotProps) {
   const { Box, Text } = ui
   const { progress } = status

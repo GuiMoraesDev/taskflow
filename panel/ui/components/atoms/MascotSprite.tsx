@@ -3,7 +3,6 @@ import type { Ui } from '../ui'
 
 type MascotSpriteProps = { ui: Ui; cells: MascotCell[][] }
 
-// Draws pixel cells as half blocks: the glyph takes the top pixel's color, its background the bottom one's.
 export function MascotSprite({ ui: { Box, Text }, cells }: MascotSpriteProps) {
   return (
     <Box flexDirection="column">

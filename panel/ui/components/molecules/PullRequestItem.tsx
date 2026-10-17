@@ -3,7 +3,6 @@ import type { Ui } from '../ui'
 
 type PullRequestItemProps = { ui: Ui; row: PlanRow; repoUrl: string | null; worktree: string | undefined }
 
-// A pull request by its branch: once opened, its number links to it; until then, the row is drawn light gray.
 export function PullRequestItem({ ui: { Box, Text, Link }, row, repoUrl, worktree }: PullRequestItemProps) {
   const isOpened = row.prNumber !== null
 

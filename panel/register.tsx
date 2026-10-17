@@ -18,7 +18,6 @@ export const register: Register = on => {
     await $.command.register({ name: 'taskflow', description: 'Open the Taskflow pane: plans, tasks, PRs' })
     void loadBoard($)
     void openPane($)
-    // One clock drives every animation of Flo, the loader's spinner included.
     $.clock.every(100, () => void update($, animationStep, step => step + 1))
 
     return next(e)

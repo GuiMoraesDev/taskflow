@@ -15,7 +15,6 @@ type MascotHeaderProps = {
   onPreview: (preview: MascotPreview | null) => void
 }
 
-// Heads every view: a row that forces Flo into any state, then Flo itself.
 export function MascotHeader({ ui, rows, status, preview, step, onPreview }: MascotHeaderProps) {
   const { Box, Button } = ui
 

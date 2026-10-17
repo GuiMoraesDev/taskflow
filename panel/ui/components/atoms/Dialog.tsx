@@ -24,7 +24,9 @@ export function Dialog({ ui: { Box, Text }, rows, top, right, borderColor }: Dia
     <Box position="absolute" top={top} right={right} flexDirection="column">
       {horizontalEdge('╭', '╮')}
       {emptyLine('padding-top')}
-      {rows.flatMap((row, index) => (index === 0 ? [contentLine(row)] : [emptyLine(`gap-${row.key}`), contentLine(row)]))}
+      {rows.flatMap((row, index) =>
+        index === 0 ? [contentLine(row)] : [emptyLine(`gap-${row.key}`), contentLine(row)],
+      )}
       {emptyLine('padding-bottom')}
       {horizontalEdge('╰', '╯')}
     </Box>

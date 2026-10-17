@@ -18,7 +18,6 @@ const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const
 const mascotPreview = atom({ plugin: 'taskflow', key: 'mascotPreview' } as const, null)
 const isMenuOpen = atom({ plugin: 'taskflow', key: 'isMenuOpen' } as const, false)
 
-// The container: reads the plugin's state, picks the view and hands the components what a press does.
 export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   const ui = $.ui.resolve(e)
   const { Box } = ui
@@ -75,7 +74,6 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   )
 }
 
-// What a press does, built where `$` is: the engine refuses `$` passed as a prop.
 type PaneActions = {
   open: (name: string) => void
   back: () => void
@@ -97,7 +95,6 @@ type PaneContentProps = {
   actions: PaneActions
 }
 
-// Picks the view under the header: no plans, the plan cards, or one plan's details.
 const PaneContent = ({ ui, board: state, project, deleting, isMenuOpen, message, actions }: PaneContentProps) => {
   const { Box, Text } = ui
 

@@ -5,10 +5,8 @@ export type MenuItem = { key: string; icon: string; label: string; hotkey: strin
 
 type ActionMenuProps = { ui: Ui; items: MenuItem[]; top: number; right: number }
 
-// A button reads `[ <icon> <label> ]`, its icon two cells wide.
 const buttonWidth = (item: MenuItem) => item.label.length + 7
 
-// A dropdown drawn over the content at `top`/`right` of its parent, one button per item.
 export function ActionMenu({ ui, items, top, right }: ActionMenuProps) {
   const { Button } = ui
 
