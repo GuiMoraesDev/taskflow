@@ -69,7 +69,7 @@ export function PlanDetail(props: PlanDetailProps) {
         {isDeleting ? (
           <Box flexDirection="column">
             <Text color="error" weight="bold">
-              Delete {board.projectsDir}/{project.name}? This cannot be undone.
+              Delete {board.planDir?.label}/{project.name}? This cannot be undone.
             </Text>
             <Box gap={2}>
               <Button key="confirm-delete" hotkey="y" label="Yes, delete (y)" onPress={props.onConfirmDelete} />
