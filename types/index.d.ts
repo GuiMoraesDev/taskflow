@@ -17,8 +17,14 @@ export type PlanProject = {
   updatedAt: number
 }
 
+export type PlanDir = {
+  base: string
+  label: string
+}
+
 export type PlanBoard = {
-  projectsDir: string
+  planDir: PlanDir | null
+  planDirError: string | null
   repoUrl: string | null
   worktrees: Record<string, string>
   projects: PlanProject[]

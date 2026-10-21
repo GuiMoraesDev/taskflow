@@ -92,7 +92,11 @@ const PaneContent = ({ ui, board: state, project, deleting, isMenuOpen, message,
 
   return state.projects.length === 0 ? (
     <Box flexDirection="column">
-      <Text dimColor>No plans in {state.projectsDir}.</Text>
+      {state.planDir === null ? (
+        <Text color="error">{state.planDirError}</Text>
+      ) : (
+        <Text dimColor>No plans in {state.planDir.label}.</Text>
+      )}
       {message && <Text color="warning">{message}</Text>}
     </Box>
   ) : project === undefined ? (
