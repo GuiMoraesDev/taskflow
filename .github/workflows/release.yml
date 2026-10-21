@@ -1,8 +1,7 @@
 name: Release
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches: [main]
 
 permissions:
@@ -14,12 +13,9 @@ concurrency:
 
 jobs:
   release:
-    if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.merge_commit_sha }}
 
       - name: Read the plugin version
         id: version
@@ -29,7 +25,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           TAG: ${{ steps.version.outputs.tag }}
-          SHA: ${{ github.event.pull_request.merge_commit_sha }}
+          SHA: ${{ github.sha }}
         run: |
           if gh release view "$TAG" > /dev/null 2>&1; then
             echo "::warning::Release $TAG already exists - plugin.json was not bumped"
