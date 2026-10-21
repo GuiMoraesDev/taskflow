@@ -1,0 +1,46 @@
+{
+  "projectsDir": "docs/projects",
+  "planTemplates": "plugin",
+  "gates": {
+    "lint": "npm run lint && npm run format:check",
+    "types": "npm run typecheck"
+  },
+  "e2eTriggerPaths": [],
+  "docsChecklist": [
+    {
+      "path": "CLAUDE.md",
+      "owns": "the workflow, the commands, the code standards"
+    },
+    {
+      "path": "README.md",
+      "owns": "what the plugin does, its skills and agents, and how to install and configure it"
+    },
+    {
+      "path": "examples/workflow.example.json",
+      "owns": "the shape of .claude/workflow.json every skill reads"
+    }
+  ],
+  "decisions": {},
+  "diagrams": { "maintain": false },
+  "pullRequests": {
+    "maxLines": 400,
+    "excludeFromCount": ["package-lock.json"],
+    "branchPrefix": "",
+    "titlePrefix": "",
+    "labels": {
+      "always": [],
+      "byType": {
+        "fix": ["bug"],
+        "feat": ["enhancement"],
+        "docs": ["documentation"]
+      },
+      "onMissing": "ask"
+    },
+    "assignOwner": true,
+    "stack": null,
+    "parallel": false
+  },
+  "aiSignature": false,
+  "commitTypes": ["feat", "fix", "refactor", "chore", "docs"],
+  "models": { "deep": "opus", "surface": "sonnet", "mechanical": "sonnet" }
+}
