@@ -7,8 +7,9 @@ Paste into the target repo's `CLAUDE.md`, replacing the bracketed values.
 ## Workflow
 
 Before touching code, create `SCOPE.md`, `TASKS.md`, `QUESTIONS.md` and
-`PROGRESS.md` in `<PROJECTS_DIR>/<project-name>/`. Run `/plan-start
-<project-name>` to scaffold them.
+`PROGRESS.md` in `<project-name>/` under the plan directory
+`.claude/workflow.json` / `.claude/workflow.env` resolve (see plan-start). Run
+`/plan-start <project-name>` to scaffold them.
 
 <!-- Keep the next paragraph only if this repo also uses another planning or
      implementation workflow. Delete it otherwise: it answers a question a
