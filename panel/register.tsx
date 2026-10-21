@@ -1,11 +1,12 @@
 import { atom, update } from 'claude-code'
 import type { EngineInterface, Register } from 'claude-code'
 
-import { loadBoard } from './data/board'
+import { boardSignature, loadBoard } from './data/board'
 import { renderPane } from './ui/pane'
 
 const PANE = 'taskflow'
 const TITLE = 'Taskflow'
+const WATCH_MS = 1000
 
 const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 
@@ -19,6 +20,15 @@ export const register: Register = on => {
     void loadBoard($)
     void openPane($)
     $.clock.every(100, () => void update($, animationStep, step => step + 1))
+
+    // Reload whenever a PROGRESS.md changes - mid-turn, from a subagent or from Obsidian - not only at turn end.
+    let lastSignature = ''
+    $.clock.every(WATCH_MS, async () => {
+      const signature = await boardSignature($)
+      if (signature === lastSignature) return
+      lastSignature = signature
+      await loadBoard($)
+    })
 
     return next(e)
   })

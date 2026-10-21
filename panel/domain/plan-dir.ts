@@ -1,6 +1,6 @@
 import type { PlanDir } from '../../types'
 
-const ENV_KEYS = [
+export const ENV_KEYS = [
   'TASKFLOW_PLANS_SOURCE',
   'TASKFLOW_OBSIDIAN_VAULT',
   'TASKFLOW_OBSIDIAN_VAULT_PATH',
@@ -11,9 +11,11 @@ export type WorkflowEnv = Partial<Record<(typeof ENV_KEYS)[number], string>>
 
 export const DEFAULT_PROJECTS_DIR = 'docs/projects'
 
-const isEnvKey = (key: string): key is (typeof ENV_KEYS)[number] => ENV_KEYS.some(allowed => allowed === key)
+export const isEnvKey = (key: string): key is (typeof ENV_KEYS)[number] => ENV_KEYS.some(allowed => allowed === key)
 
-const basename = (path: string) => path.replace(/\/+$/, '').split('/').pop() ?? ''
+export const basename = (path: string) => path.replace(/\/+$/, '').split('/').pop() ?? ''
+
+export const escapesVault = (inner: string) => inner.startsWith('/') || inner.split('/').includes('..')
 
 // workflow.env is untracked, so only the keys that pick the plan source are read - never gates or models.
 export function parseWorkflowEnv(text: string): WorkflowEnv {
@@ -63,7 +65,7 @@ export function resolvePlanDir(input: {
   }
 
   const inner = (env.TASKFLOW_OBSIDIAN_PATH ?? '').replace(/\/+$/, '')
-  if (inner.startsWith('/') || inner.split('/').includes('..')) {
+  if (escapesVault(inner)) {
     return { error: `TASKFLOW_OBSIDIAN_PATH "${inner}" must stay inside the vault.` }
   }
 

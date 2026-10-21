@@ -3,9 +3,11 @@ import type { EngineInterface, RenderInput } from 'claude-code'
 
 import type { PlanBoard, PlanProject, TrashEntry } from '../../types'
 import { clearTrash, closeTrash, deleteProject, loadBoard, openTrash, recoverPlan } from '../data/board'
+import { closeSettings, editSettings, openSettings, submitSettings } from '../data/settings'
 import { boardStatus, planStatus } from '../domain/status'
 import { Loading } from './components/molecules/Loading'
 import { Mascot } from './components/molecules/Mascot'
+import { ObsidianSettings } from './components/organisms/ObsidianSettings'
 import { PlanDetail } from './components/organisms/PlanDetail'
 import { PlanList } from './components/organisms/PlanList'
 import { TrashView } from './components/organisms/TrashView'
@@ -19,6 +21,7 @@ const trashEntries = atom({ plugin: 'taskflow', key: 'trashEntries' } as const, 
 const pendingClear = atom({ plugin: 'taskflow', key: 'pendingClear' } as const, false)
 const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 const isMenuOpen = atom({ plugin: 'taskflow', key: 'isMenuOpen' } as const, false)
+const settings = atom({ plugin: 'taskflow', key: 'settings' } as const, null)
 
 export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   const ui = $.ui.resolve(e)
@@ -30,6 +33,21 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
 
   const step = await read($, animationStep)
   if (state === null) return <Loading ui={ui} step={step} />
+
+  const settingsView = await read($, settings)
+  if (settingsView !== null) {
+    return (
+      <Box flexDirection="column" gap={1} minHeight={e.props.scroll.bodyRows}>
+        <ObsidianSettings
+          ui={ui}
+          view={settingsView}
+          onBack={() => void closeSettings($)}
+          onChange={change => void editSettings($, change)}
+          onSave={() => void submitSettings($, settingsView.draft)}
+        />
+      </Box>
+    )
+  }
 
   const project = state.projects.find(candidate => candidate.name === selectedName)
   const rows = project?.rows ?? state.projects.flatMap(candidate => candidate.rows)
@@ -55,6 +73,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
           },
           toggleMenu: () => update($, isMenuOpen, open => !open),
           nextTask: () => void $.prompt.submit({ text: '/taskflow:next-task' }),
+          openSettings: () => void openSettings($),
           refresh: () => {
             void update($, isMenuOpen, () => false)
             void loadBoard($)
@@ -82,6 +101,7 @@ type PaneActions = {
   back: () => void
   toggleMenu: () => void
   nextTask: () => void
+  openSettings: () => void
   refresh: () => void
   askDelete: (name: string) => void
   confirmDelete: (name: string) => void
@@ -139,6 +159,7 @@ const PaneContent = ({
         <Text dimColor>No plans in {state.planDir.label}.</Text>
       )}
       {message && <Text color="warning">{message}</Text>}
+      <Button key="settings" hotkey="s" label="⚙ Settings (s)" onPress={actions.openSettings} />
       {state.planDir !== null && <Button key="trash" hotkey="t" label="🗑️ Trash (t)" onPress={actions.openTrash} />}
     </Box>
   ) : project === undefined ? (
@@ -148,6 +169,7 @@ const PaneContent = ({
       message={message}
       onOpen={actions.open}
       onRefresh={actions.refresh}
+      onSettings={actions.openSettings}
       onOpenTrash={actions.openTrash}
     />
   ) : (
