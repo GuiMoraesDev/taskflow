@@ -11,32 +11,114 @@ import os
 import re
 import sys
 
-DEFAULT_PROJECTS_DIRS = ("docs/projects", "src/docs/projects", ".planning")
+DEFAULT_PROJECTS_DIR = "docs/projects"
+ENV_KEYS = (
+    "TASKFLOW_PLANS_SOURCE",
+    "TASKFLOW_OBSIDIAN_VAULT",
+    "TASKFLOW_OBSIDIAN_VAULT_PATH",
+    "TASKFLOW_OBSIDIAN_PATH",
+)
 
 
-def projects_dirs(cwd):
+def basename(path):
+    return path.rstrip("/").split("/")[-1]
+
+
+def read_projects_dir(cwd):
     config = os.path.join(cwd, ".claude", "workflow.json")
     try:
         with open(config) as fh:
-            configured = json.load(fh).get("projectsDir")
-        if configured:
-            return (configured,)
-    except (OSError, json.JSONDecodeError):
-        pass
-    return DEFAULT_PROJECTS_DIRS
+            return json.load(fh).get("projectsDir") or None
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return None
+
+
+# workflow.env is untracked, so only the keys that pick the plan source are read.
+def parse_workflow_env(text):
+    env = {}
+    for line in text.split("\n"):
+        line = line.strip()
+        separator = line.find("=")
+        if line.startswith("#") or separator < 1:
+            continue
+        key = line[:separator].strip()
+        if key in ENV_KEYS:
+            env[key] = line[separator + 1 :].strip()
+    return env
+
+
+def read_workflow_env(cwd):
+    try:
+        with open(os.path.join(cwd, ".claude", "workflow.env")) as fh:
+            return parse_workflow_env(fh.read())
+    except OSError:
+        return {}
+
+
+# None when obsidian.json is missing or unreadable.
+def read_obsidian_vaults():
+    config = os.path.expanduser("~/Library/Application Support/obsidian/obsidian.json")
+    try:
+        with open(config) as fh:
+            vaults = json.load(fh).get("vaults") or {}
+        return [
+            v["path"]
+            for v in vaults.values()
+            if isinstance(v, dict) and isinstance(v.get("path"), str)
+        ]
+    except (OSError, json.JSONDecodeError, AttributeError):
+        return None
+
+
+def vault_path(env, vaults):
+    explicit = env.get("TASKFLOW_OBSIDIAN_VAULT_PATH")
+    if explicit:
+        return explicit if explicit.startswith("/") else None
+
+    name = env.get("TASKFLOW_OBSIDIAN_VAULT")
+    if not name or vaults is None:
+        return None
+
+    matches = [path for path in vaults if basename(path) == name]
+    return matches[0] if len(matches) == 1 else None
+
+
+# Mirrors resolvePlanDir in panel/domain/plan-dir.ts. With Obsidian as the
+# source a problem yields None (the hook stays silent), never a repo fallback.
+def resolve_plan_dir(cwd):
+    env = read_workflow_env(cwd)
+    if env.get("TASKFLOW_PLANS_SOURCE") != "obsidian":
+        projects_dir = read_projects_dir(cwd) or DEFAULT_PROJECTS_DIR
+        return os.path.join(cwd, projects_dir), projects_dir
+
+    inner = env.get("TASKFLOW_OBSIDIAN_PATH", "").rstrip("/")
+    if inner.startswith("/") or ".." in inner.split("/"):
+        return None
+
+    explicit = env.get("TASKFLOW_OBSIDIAN_VAULT_PATH")
+    root = vault_path(env, None if explicit else read_obsidian_vaults())
+    if root is None:
+        return None
+
+    root = root.rstrip("/")
+    shown = basename(root) + "/" + inner if inner else basename(root)
+    return (root + "/" + inner if inner else root), "Obsidian · " + shown
 
 
 def in_progress_files(cwd):
+    resolved = resolve_plan_dir(cwd)
+    if resolved is None:
+        return []
+
+    base, label = resolved
     found = []
-    for base in projects_dirs(cwd):
-        pattern = os.path.join(cwd, base, "*", "PROGRESS.md")
-        for path in glob.glob(pattern):
-            try:
-                with open(path) as fh:
-                    if "🔄" in fh.read():
-                        found.append(os.path.relpath(path, cwd))
-            except OSError:
-                continue
+    for path in glob.glob(os.path.join(base, "*", "PROGRESS.md")):
+        try:
+            with open(path) as fh:
+                if "🔄" in fh.read():
+                    found.append("%s/%s/PROGRESS.md" % (label, basename(os.path.dirname(path))))
+        except OSError:
+            continue
     return found
 
 
