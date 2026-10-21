@@ -26,12 +26,12 @@ test('every mood frame is the same full-cell grid', () => {
   const moods = ['idle', 'working', 'blocked', 'asking', 'done'] as const
   for (const mood of moods) {
     const rows = mascotFrame(mood, 0)
-    expect(rows.length).toBe(7)
-    for (const cells of rows) expect(cells.length).toBe(20)
+    expect(rows.length).toBe(5)
+    for (const cells of rows) expect(cells.length).toBe(15)
   }
 })
 
-test('the spinner arc moves one pixel per step and wraps after a full turn', () => {
+test('the spinner arc moves one pixel per step and wraps after a full turn of 8', () => {
   const heads = (step: number) =>
     mascotSpinner(step).flatMap((cells, row) =>
       cells.flatMap((cell, column) => [
@@ -39,10 +39,10 @@ test('the spinner arc moves one pixel per step and wraps after a full turn', () 
         ...(cell.bottom === '#FFBF36' ? [`${row * 2 + 1}:${column}`] : []),
       ]),
     )
-  expect(heads(0)).toEqual(['6:8'])
-  expect(heads(1)).toEqual(['6:9'])
-  expect(heads(12)).toEqual(heads(0))
-  expect(mascotSpinner(0).length).toBe(7)
+  expect(heads(0)).toEqual(['4:7'])
+  expect(heads(1)).toEqual(['5:8'])
+  expect(heads(8)).toEqual(heads(0))
+  expect(mascotSpinner(0).length).toBe(5)
 })
 
 test('each mood animates: some later step draws a different frame', () => {

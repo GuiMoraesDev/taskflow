@@ -22,7 +22,7 @@ const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
 const trashEntries = atom({ plugin: 'taskflow', key: 'trashEntries' } as const, null)
 const pendingClear = atom({ plugin: 'taskflow', key: 'pendingClear' } as const, false)
 
-async function repoRoot($: EngineInterface) {
+export async function repoRoot($: EngineInterface) {
   const toplevel = await $.process.run(['git', 'rev-parse', '--show-toplevel'])
 
   return toplevel.exitCode === 0 ? toplevel.stdout.trim() : await $.session.cwd()
@@ -38,14 +38,14 @@ async function readProjectsDir($: EngineInterface, root: string) {
   }
 }
 
-async function readWorkflowEnv($: EngineInterface, root: string) {
+export async function readWorkflowEnv($: EngineInterface, root: string) {
   const path = `${root}/.claude/workflow.env`
 
   return parseWorkflowEnv((await $.fs.exists(path)) ? await $.fs.read(path) : '')
 }
 
 // null when obsidian.json is missing or unreadable, so the resolver can name that as the problem.
-async function readObsidianVaults($: EngineInterface) {
+export async function readObsidianVaults($: EngineInterface) {
   const home = await $.process.run(['printenv', 'HOME'])
   if (home.exitCode !== 0) return null
   try {
@@ -64,7 +64,7 @@ async function readObsidianVaults($: EngineInterface) {
   }
 }
 
-async function readPlanDir($: EngineInterface, root: string) {
+export async function readPlanDir($: EngineInterface, root: string) {
   const env = await readWorkflowEnv($, root)
   const needsVaults = env.TASKFLOW_PLANS_SOURCE === 'obsidian' && !env.TASKFLOW_OBSIDIAN_VAULT_PATH
 
@@ -110,6 +110,24 @@ export async function loadBoard($: EngineInterface) {
   if (!projects.some(project => project.name === current)) {
     await update($, selected, () => null)
   }
+}
+
+// A cheap fingerprint of what the board shows: the resolved plan dir and every PROGRESS.md's mtime.
+export async function boardSignature($: EngineInterface) {
+  const root = await repoRoot($)
+  const resolved = await readPlanDir($, root)
+  if ('error' in resolved) return `error:${resolved.error}`
+  if (!(await $.fs.exists(resolved.base))) return `missing:${resolved.base}`
+
+  const stamps: string[] = [resolved.base]
+  for (const entry of await $.fs.list(resolved.base)) {
+    if (entry.kind !== 'dir') continue
+    const progressPath = `${resolved.base}/${entry.name}/PROGRESS.md`
+    if (!(await $.fs.exists(progressPath))) continue
+    stamps.push(`${entry.name}:${(await $.fs.stat(progressPath)).mtimeMs}`)
+  }
+
+  return stamps.join('|')
 }
 
 async function realPath($: EngineInterface, path: string) {
