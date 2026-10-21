@@ -11,6 +11,9 @@ import os
 import re
 import sys
 
+# A ledger row whose status cell is in progress - not the legend line that also shows the symbol.
+IN_PROGRESS_ROW = re.compile(r"^\|\s*🔄")
+
 DEFAULT_PROJECTS_DIR = "docs/projects"
 ENV_KEYS = (
     "TASKFLOW_PLANS_SOURCE",
@@ -115,7 +118,7 @@ def in_progress_files(cwd):
     for path in glob.glob(os.path.join(base, "*", "PROGRESS.md")):
         try:
             with open(path) as fh:
-                if "🔄" in fh.read():
+                if any(IN_PROGRESS_ROW.match(line) for line in fh):
                     found.append("%s/%s/PROGRESS.md" % (label, basename(os.path.dirname(path))))
         except OSError:
             continue
