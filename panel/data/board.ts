@@ -10,7 +10,7 @@ const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
 const pendingDelete = atom({ plugin: 'taskflow', key: 'pendingDelete' } as const, null)
 const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
 
-async function repoRoot($: EngineInterface) {
+export async function repoRoot($: EngineInterface) {
   const toplevel = await $.process.run(['git', 'rev-parse', '--show-toplevel'])
 
   return toplevel.exitCode === 0 ? toplevel.stdout.trim() : await $.session.cwd()
@@ -26,14 +26,14 @@ async function readProjectsDir($: EngineInterface, root: string) {
   }
 }
 
-async function readWorkflowEnv($: EngineInterface, root: string) {
+export async function readWorkflowEnv($: EngineInterface, root: string) {
   const path = `${root}/.claude/workflow.env`
 
   return parseWorkflowEnv((await $.fs.exists(path)) ? await $.fs.read(path) : '')
 }
 
 // null when obsidian.json is missing or unreadable, so the resolver can name that as the problem.
-async function readObsidianVaults($: EngineInterface) {
+export async function readObsidianVaults($: EngineInterface) {
   const home = await $.process.run(['printenv', 'HOME'])
   if (home.exitCode !== 0) return null
   try {
@@ -52,7 +52,7 @@ async function readObsidianVaults($: EngineInterface) {
   }
 }
 
-async function readPlanDir($: EngineInterface, root: string) {
+export async function readPlanDir($: EngineInterface, root: string) {
   const env = await readWorkflowEnv($, root)
   const needsVaults = env.TASKFLOW_PLANS_SOURCE === 'obsidian' && !env.TASKFLOW_OBSIDIAN_VAULT_PATH
 
