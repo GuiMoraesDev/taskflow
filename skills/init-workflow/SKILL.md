@@ -9,11 +9,11 @@ Every other skill in this plugin reads `.claude/workflow.json`. This skill write
 
 ## 0. If the config already exists, this is a re-run
 
-Read `.claude/workflow.json` before anything else. When it is there, the owner
+Read `.claude/workflow.json` and `.claude/workflow.env` before anything else. When either is there, the owner
 has already answered - **never re-ask from scratch and never silently
 overwrite.**
 
-Run the detection in step 1 anyway, then report the file's current values beside
+Run the detection in step 1 anyway, then report both files' current values beside
 what you found, and ask a single question: keep the config as it stands, or
 change it.
 
@@ -21,7 +21,7 @@ change it.
 | -------------- | ---------- |
 | Detection agrees with the file | Say so and stop. A re-run that changes nothing is the expected outcome |
 | Detection found drift - a renamed script, a doc that no longer exists, a new diagram folder | List each difference as `current -> found` and ask which to keep, per field |
-| The owner wants a tier, the diagram decision or a pull-request convention changed | Re-ask **only** those questions, carrying the current value as the first option, labelled `(current)` |
+| The owner wants a tier, the diagram decision, the plan source or a pull-request convention changed | Re-ask **only** those questions, carrying the current value as the first option, labelled `(current)` |
 
 Preserve every field you were not asked to change, including any the owner hand
 edited after the last run. Write the file only once the answers are in.
@@ -30,7 +30,7 @@ edited after the last run. Write the file only once the answers are in.
 
 | Field             | How to fill it                                                                                                                                                                                                          |
 | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `projectsDir`     | An existing plan folder if the repo has one (`docs/projects`, `.planning`, or wherever plans already live); otherwise `docs/projects`                                                                                   |
+| `projectsDir`     | An existing plan folder if the repo has one (`docs/projects`, `.planning`, or wherever plans already live); otherwise `docs/projects`. Whether plans live there or in an Obsidian vault is **asked - see below**        |
 | `gates`           | Read `package.json` scripts, or the `Makefile`, `justfile`, `Cargo.toml`, `pyproject.toml`. Map lint / types / unit / e2e to the **script names that exist**. Omit a gate the repo has no script for - never invent one |
 | `e2eTriggerPaths` | The paths whose changes need the slow suite. Ask if it is not obvious                                                                                                                                                   |
 | `docsChecklist`   | One row per doc that must stay true, each with what it owns. Read the repo's docs before writing rows                                                                                                                   |
@@ -62,6 +62,36 @@ Record what you find and omit what you do not. Creating an ADR folder for a repo
 that does not keep one is a practice decision, and it belongs to the owner - say
 in your report that the key is unset and what that costs: a hard decision made
 during a plan lives only in the gitignored plan folder and is lost with it.
+
+### Where plans live - ask
+
+The rule is in plan-start's [Where plans live](../plan-start/SKILL.md#where-plans-live).
+The repo folder stays the default source of truth; a vault is the owner's choice.
+List the vaults this machine knows:
+
+```bash
+jq -r '.vaults[].path' "$HOME/Library/Application Support/obsidian/obsidian.json"
+```
+
+Ask with its own `AskUserQuestion` call, one option each:
+
+- the repo folder - `projectsDir` from above - labelled `(Recommended)`;
+- each vault found - label the folder basename, description the path. With no
+  `obsidian.json`, offer none;
+- an absolute vault path, typed through Other.
+
+On a vault, a follow-up asks the path inside it, default `taskflow/<repo-name>`.
+
+Then tell the owner how the Obsidian setup works, in a few lines:
+
+- `.claude/workflow.env` holds the machine-specific keys and is never committed;
+  `projectsDir` in `workflow.json` keeps the repo folder.
+- `TASKFLOW_PLANS_SOURCE` picks the source of truth - `repo` unless it says
+  `obsidian`. Only that source is read.
+- The Taskflow panel shows these settings and edits them.
+- Plan files in the vault are written by absolute path, which prompts every
+  time. Adding the vault to `permissions.additionalDirectories` in
+  `.claude/settings.local.json` stops that - offer to do it.
 
 ## 2. Ask which model takes each tier
 
@@ -210,11 +240,20 @@ Codex model id when a tier runs on Codex:
 "models": { "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }
 ```
 
+Leave `projectsDir` as step 1 found it, whatever the plan source.
+
+On a vault choice, write `.claude/workflow.env` with only the keys plan-start
+allows: `TASKFLOW_PLANS_SOURCE=obsidian`, `TASKFLOW_OBSIDIAN_VAULT=<basename>`
+for a listed vault or `TASKFLOW_OBSIDIAN_VAULT_PATH=<path>` for a typed one, and
+`TASKFLOW_OBSIDIAN_PATH=<inner path>`. On a re-run, change only the keys asked
+about. Make sure `.claude/.gitignore` exists and lists `workflow.env`.
+
 Write `"aiSignature": false` unless the owner asked for AI attribution in
 commits. It is the switch for every `Co-Authored-By` trailer and "Generated
 with" line the workflow writes, and a missing key means `false`.
 
-Gitignore the per-project plan folders. Plans are working documents: committing
+Gitignore the per-project plan folders - skip this for a vault source, which is
+outside the repo. Plans are working documents: committing
 them invites code and commit messages to cite them, and a citation to a
 gitignored file points at nothing.
 
@@ -269,4 +308,4 @@ A prose invariant rots the first time someone edits without reading it.
   force is needed. Confirm they are active with `/hooks`.
 
 Report the tier mapping, the diagram decision and the pull-request conventions that were chosen, which gates
-were detected, which were missing, and what you gitignored.
+were detected, which were missing, where plans live, and what you gitignored.
