@@ -11,7 +11,7 @@ No code is touched until these four files exist.
 
 `.claude/workflow.json` gives `projectsDir` and the tier-to-model mapping. If it is missing, run `init-workflow` first - do not guess a mapping, it is the repo owner's call.
 
-Target: `<projectsDir>/<project-name>/` holding `SCOPE.md`, `TASKS.md`, `QUESTIONS.md` and `PROGRESS.md`. Kebab-case the project name from the user's words. If the folder already exists, read it and continue that plan instead of overwriting it.
+Target: `<plan dir>/<project-name>/` - see [Where plans live](#where-plans-live) holding `SCOPE.md`, `TASKS.md`, `QUESTIONS.md` and `PROGRESS.md`. Kebab-case the project name from the user's words. If the folder already exists, read it and continue that plan instead of overwriting it.
 
 Four files, one job each:
 
@@ -21,6 +21,21 @@ Four files, one job each:
 | `TASKS.md`     | the pull requests, their acceptance criteria, and each task's detail |
 | `QUESTIONS.md` | every open decision, its options, its consequences, a recommendation |
 | `PROGRESS.md`  | the ledger - tasks and questions interleaved in order, plus the log  |
+
+### Where plans live
+
+`.claude/workflow.json` `projectsDir` (default `docs/projects`) is the repo plan folder. The untracked `.claude/workflow.env` may override it with these keys, and no others:
+
+| Key                            | Meaning                                                              |
+| ------------------------------ | -------------------------------------------------------------------- |
+| `TASKFLOW_PLANS_SOURCE`        | `repo` or `obsidian`; missing or anything else means `repo`          |
+| `TASKFLOW_OBSIDIAN_VAULT`      | vault folder name, matched against the basenames of `vaults.*.path` in `~/Library/Application Support/obsidian/obsidian.json` |
+| `TASKFLOW_OBSIDIAN_VAULT_PATH` | absolute vault path; wins over the name                              |
+| `TASKFLOW_OBSIDIAN_PATH`       | path inside the vault - no `..`, no leading `/`                      |
+
+When the source is `obsidian`, the plan dir is `<vault>/<TASKFLOW_OBSIDIAN_PATH>`; otherwise it is `<repo>/<projectsDir>`. If neither vault key is set, the vault name matches no vault or several, or the inner path is invalid, stop and tell the user - never fall back to the repo silently.
+
+Plan files in a vault are read and written by absolute path. That prompts for permission unless the vault is listed in `permissions.additionalDirectories`.
 
 ## 2. Understand before planning
 
