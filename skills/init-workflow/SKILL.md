@@ -244,9 +244,11 @@ Leave `projectsDir` as step 1 found it, whatever the plan source.
 
 On a vault choice, write `.claude/workflow.env` with only the keys plan-start
 allows: `TASKFLOW_PLANS_SOURCE=obsidian`, `TASKFLOW_OBSIDIAN_VAULT=<basename>`
-for a listed vault or `TASKFLOW_OBSIDIAN_VAULT_PATH=<path>` for a typed one, and
+for a listed vault whose basename no other vault shares, or
+`TASKFLOW_OBSIDIAN_VAULT_PATH=<path>` for a typed one or a shared basename, and
 `TASKFLOW_OBSIDIAN_PATH=<inner path>`. On a re-run, change only the keys asked
-about. Make sure `.claude/.gitignore` exists and lists `workflow.env`.
+about; moving back to the repo sets `TASKFLOW_PLANS_SOURCE=repo` and keeps the
+vault keys. Make sure `.claude/.gitignore` exists and lists `workflow.env`.
 
 Write `"aiSignature": false` unless the owner asked for AI attribution in
 commits. It is the switch for every `Co-Authored-By` trailer and "Generated
