@@ -8,6 +8,7 @@ import {
   TRASH_DIR,
   clearTargets,
   isDirectChild,
+  isPlanFolder,
   parseTrashEntry,
   recoverDecision,
   trashEntryName,
@@ -17,6 +18,9 @@ const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
 const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
 const pendingDelete = atom({ plugin: 'taskflow', key: 'pendingDelete' } as const, null)
 const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
+// null while the trash view is closed, so loadBoard only lists the trash when someone is looking at it.
+const trashEntries = atom({ plugin: 'taskflow', key: 'trashEntries' } as const, null)
+const pendingClear = atom({ plugin: 'taskflow', key: 'pendingClear' } as const, false)
 
 async function repoRoot($: EngineInterface) {
   const toplevel = await $.process.run(['git', 'rev-parse', '--show-toplevel'])
@@ -84,7 +88,7 @@ export async function loadBoard($: EngineInterface) {
   const projects: PlanProject[] = []
   if (planDir !== null && (await $.fs.exists(planDir.base))) {
     for (const entry of await $.fs.list(planDir.base)) {
-      if (entry.kind !== 'dir' || entry.name === TRASH_DIR) continue
+      if (entry.kind !== 'dir' || !isPlanFolder(entry.name)) continue
       const progressPath = `${planDir.base}/${entry.name}/PROGRESS.md`
       if (!(await $.fs.exists(progressPath))) continue
       const { title, rows } = parseProgress(await $.fs.read(progressPath))
@@ -97,6 +101,10 @@ export async function loadBoard($: EngineInterface) {
   const planDirError = 'error' in resolved ? resolved.error : null
   const next: PlanBoard = { planDir, planDirError, repoUrl, worktrees, projects }
   await update($, board, () => next)
+  if ((await read($, trashEntries)) !== null) {
+    const listed = planDir === null ? [] : await listTrash($, planDir)
+    await update($, trashEntries, () => listed)
+  }
 
   const current = await read($, selected)
   if (!projects.some(project => project.name === current)) {
@@ -118,6 +126,7 @@ async function isContained($: EngineInterface, base: string, target: string) {
 }
 
 async function finish($: EngineInterface, message: string) {
+  await update($, pendingClear, () => false)
   await update($, notice, () => message)
   await loadBoard($)
 }
@@ -205,4 +214,15 @@ export async function clearTrash($: EngineInterface) {
   if (targets.length === 0) return finish($, 'The trash is empty.')
   const removal = await $.process.run(['rm', '-rf', '--', ...targets])
   await finish($, removal.exitCode === 0 ? 'Cleared the trash.' : `Clear failed: ${removal.stderr.trim()}`)
+}
+
+export async function openTrash($: EngineInterface) {
+  await update($, notice, () => null)
+  await update($, trashEntries, () => [])
+  await loadBoard($)
+}
+
+export async function closeTrash($: EngineInterface) {
+  await update($, pendingClear, () => false)
+  await update($, trashEntries, () => null)
 }

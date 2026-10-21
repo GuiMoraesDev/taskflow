@@ -43,6 +43,8 @@ declare module 'claude-code' {
       selected: string | null
       pendingDelete: string | null
       notice: string | null
+      trashEntries: TrashEntry[] | null
+      pendingClear: boolean
       animationStep: number
       isMenuOpen: boolean
     }

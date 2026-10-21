@@ -1,6 +1,6 @@
 import { expect, test } from 'claude-code/testing'
 
-import { clearTargets, isDirectChild, parseTrashEntry, recoverDecision, trashEntryName } from './trash'
+import { clearTargets, isDirectChild, isPlanFolder, parseTrashEntry, recoverDecision, trashEntryName } from './trash'
 
 const BASE = '/vault/plans'
 
@@ -41,4 +41,9 @@ test('scopes clear to the .trash folder', () => {
     '/vault/plans/.trash/q',
   ])
   expect(clearTargets(BASE, ['..', '.', '', 'a/b'])).toEqual([])
+})
+
+test('never lists .trash as a plan', () => {
+  expect(isPlanFolder('.trash')).toBe(false)
+  expect(isPlanFolder('my-plan')).toBe(true)
 })

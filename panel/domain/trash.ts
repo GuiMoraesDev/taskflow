@@ -49,3 +49,7 @@ export function recoverDecision(entry: string, existingPlans: string[]): { name:
 export function clearTargets(base: string, entries: string[]) {
   return entries.filter(isSafeProjectName).map(entry => `${trimSlashes(base)}/${TRASH_DIR}/${entry}`)
 }
+
+export function isPlanFolder(name: string) {
+  return name !== TRASH_DIR
+}
