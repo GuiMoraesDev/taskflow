@@ -30,6 +30,29 @@ export type PlanBoard = {
   projects: PlanProject[]
 }
 
+export type PlanSettings = {
+  source: 'repo' | 'obsidian'
+  vault: string | undefined
+  vaultPath: string | undefined
+  path: string | undefined
+  vaults: { name: string; path: string }[]
+  error: string | null
+  repoName: string
+}
+
+export type SettingsDraft = {
+  source: 'repo' | 'obsidian'
+  vault: string
+  vaultPath: string
+  path: string
+}
+
+export type SettingsView = {
+  current: PlanSettings
+  draft: SettingsDraft
+  saveError: string | null
+}
+
 declare module 'claude-code' {
   interface PluginState {
     'taskflow': {
@@ -39,6 +62,7 @@ declare module 'claude-code' {
       notice: string | null
       animationStep: number
       isMenuOpen: boolean
+      settings: SettingsView | null
     }
   }
 }

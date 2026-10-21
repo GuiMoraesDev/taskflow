@@ -1,11 +1,15 @@
+import { atom, update } from 'claude-code'
 import type { EngineInterface } from 'claude-code'
 
+import type { PlanSettings, SettingsView } from '../../types'
 import { basename } from '../domain/plan-dir'
 import { updateWorkflowEnv } from '../domain/workflow-env'
 import type { PlanSourceSettings } from '../domain/workflow-env'
 import { loadBoard, readObsidianVaults, readPlanDir, readWorkflowEnv, repoRoot } from './board'
 
-export async function loadSettings($: EngineInterface) {
+const settings = atom({ plugin: 'taskflow', key: 'settings' } as const, null)
+
+export async function loadSettings($: EngineInterface): Promise<PlanSettings> {
   const root = await repoRoot($)
   const env = await readWorkflowEnv($, root)
   const resolved = await readPlanDir($, root)
@@ -18,7 +22,8 @@ export async function loadSettings($: EngineInterface) {
     path: env.TASKFLOW_OBSIDIAN_PATH,
     vaults,
     error: 'error' in resolved ? resolved.error : null,
-  } as const
+    repoName: basename(root),
+  }
 }
 
 // workflow.env holds machine paths, so .claude/.gitignore must list it before the file is written.
@@ -40,4 +45,31 @@ export async function saveSettings($: EngineInterface, settings: PlanSourceSetti
   await loadBoard($)
 
   return { error: null }
+}
+
+export async function openSettings($: EngineInterface) {
+  const current = await loadSettings($)
+  const view: SettingsView = {
+    current,
+    draft: {
+      source: current.source,
+      vault: current.vault ?? '',
+      vaultPath: current.vaultPath ?? '',
+      path: current.path ?? `taskflow/${current.repoName}`,
+    },
+    saveError: null,
+  }
+  await update($, settings, () => view)
+}
+
+export const closeSettings = ($: EngineInterface) => update($, settings, () => null)
+
+export const editSettings = ($: EngineInterface, change: Partial<SettingsView['draft']>) =>
+  update($, settings, view => (view === null ? view : { ...view, draft: { ...view.draft, ...change } }))
+
+export async function submitSettings($: EngineInterface, draft: SettingsView['draft']) {
+  const saved = await saveSettings($, draft)
+  if (saved.error === null) return closeSettings($)
+
+  return update($, settings, view => (view === null ? view : { ...view, saveError: saved.error }))
 }
