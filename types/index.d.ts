@@ -22,6 +22,12 @@ export type PlanDir = {
   label: string
 }
 
+export type TrashEntry = {
+  entry: string
+  name: string
+  deletedAt: number
+}
+
 export type PlanBoard = {
   planDir: PlanDir | null
   planDirError: string | null

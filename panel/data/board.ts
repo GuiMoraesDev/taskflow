@@ -1,9 +1,17 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface } from 'claude-code'
 
-import type { PlanBoard, PlanProject } from '../../types'
+import type { PlanBoard, PlanDir, PlanProject, TrashEntry } from '../../types'
 import { isSafeProjectName, parseProgress, parseWorktrees, repoWebUrl } from '../domain/parse'
 import { parseWorkflowEnv, resolvePlanDir } from '../domain/plan-dir'
+import {
+  TRASH_DIR,
+  clearTargets,
+  isDirectChild,
+  parseTrashEntry,
+  recoverDecision,
+  trashEntryName,
+} from '../domain/trash'
 
 const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
 const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
@@ -76,7 +84,7 @@ export async function loadBoard($: EngineInterface) {
   const projects: PlanProject[] = []
   if (planDir !== null && (await $.fs.exists(planDir.base))) {
     for (const entry of await $.fs.list(planDir.base)) {
-      if (entry.kind !== 'dir') continue
+      if (entry.kind !== 'dir' || entry.name === TRASH_DIR) continue
       const progressPath = `${planDir.base}/${entry.name}/PROGRESS.md`
       if (!(await $.fs.exists(progressPath))) continue
       const { title, rows } = parseProgress(await $.fs.read(progressPath))
@@ -96,21 +104,105 @@ export async function loadBoard($: EngineInterface) {
   }
 }
 
+async function realPath($: EngineInterface, path: string) {
+  const resolved = await $.process.run(['realpath', '--', path])
+
+  return resolved.exitCode === 0 ? resolved.stdout.trim() : null
+}
+
+// Both sides resolved, so a symlinked plan or base cannot point a move or removal outside the base.
+async function isContained($: EngineInterface, base: string, target: string) {
+  const [realBase, realTarget] = [await realPath($, base), await realPath($, target)]
+
+  return realBase !== null && realTarget !== null && isDirectChild(realBase, realTarget)
+}
+
+async function finish($: EngineInterface, message: string) {
+  await update($, notice, () => message)
+  await loadBoard($)
+}
+
+async function currentPlanDir($: EngineInterface) {
+  return (await read($, board))?.planDir ?? null
+}
+
 export async function deleteProject($: EngineInterface, name: string) {
   const current = await read($, board)
   const isKnown = current?.projects.some(project => project.name === name) ?? false
   const planDir = current?.planDir ?? null
+  await update($, pendingDelete, () => null)
   if (planDir === null || !isKnown || !isSafeProjectName(name)) {
     await update($, notice, () => `Refused to delete "${name}".`)
     return
   }
 
   const target = `${planDir.base}/${name}`
-  const removal = await $.process.run(['rm', '-rf', '--', target])
-  await update($, pendingDelete, () => null)
-  await update($, notice, () =>
-    removal.exitCode === 0 ? `Deleted ${planDir.label}/${name}` : `Delete failed: ${removal.stderr.trim()}`,
-  )
+  if (!(await isContained($, planDir.base, target))) {
+    await update($, notice, () => `Refused to delete "${name}": it is not a plan folder inside ${planDir.label}.`)
+    return
+  }
+
+  const trash = `${planDir.base}/${TRASH_DIR}`
+  const made = await $.process.run(['mkdir', '-p', '--', trash])
+  const destination = `${trash}/${trashEntryName(name, new Date())}`
+  // -n: never overwrite an entry trashed in the same second.
+  const moved =
+    made.exitCode === 0 && !(await $.fs.exists(destination))
+      ? await $.process.run(['mv', '-n', '--', target, destination])
+      : null
   await update($, selected, () => null)
-  await loadBoard($)
+  await finish(
+    $,
+    moved?.exitCode === 0
+      ? `Moved ${planDir.label}/${name} to the trash`
+      : `Delete failed: ${moved?.stderr.trim() || made.stderr.trim() || 'the trash entry already exists'}`,
+  )
+}
+
+export async function listTrash($: EngineInterface, planDir: PlanDir): Promise<TrashEntry[]> {
+  const trash = `${planDir.base}/${TRASH_DIR}`
+  if (!(await $.fs.exists(trash))) return []
+  const entries = (await $.fs.list(trash)).flatMap(entry => {
+    const parsed = entry.kind === 'dir' ? parseTrashEntry(entry.name) : null
+
+    return parsed === null ? [] : [parsed]
+  })
+
+  return entries.sort((first, second) => second.deletedAt - first.deletedAt)
+}
+
+export async function recoverPlan($: EngineInterface, entry: string) {
+  const planDir = await currentPlanDir($)
+  if (planDir === null) return finish($, `Refused to recover "${entry}".`)
+  const trash = `${planDir.base}/${TRASH_DIR}`
+  const existing = (await $.fs.list(planDir.base)).map(item => item.name)
+  const decision = recoverDecision(entry, existing)
+  if ('error' in decision) return finish($, decision.error)
+
+  const source = `${trash}/${entry}`
+  if (!(await isContained($, trash, source))) return finish($, `Refused to recover "${entry}".`)
+  const moved = await $.process.run(['mv', '-n', '--', source, `${planDir.base}/${decision.name}`])
+  await finish(
+    $,
+    moved.exitCode === 0 && !(await $.fs.exists(source))
+      ? `Recovered ${planDir.label}/${decision.name}`
+      : `Recover failed: ${moved.stderr.trim() || `"${decision.name}" already exists`}`,
+  )
+}
+
+// The only permanent delete left: each child of .trash is checked on its real path before removal.
+export async function clearTrash($: EngineInterface) {
+  const planDir = await currentPlanDir($)
+  const trash = planDir === null ? null : `${planDir.base}/${TRASH_DIR}`
+  if (planDir === null || trash === null || !(await $.fs.exists(trash))) return finish($, 'The trash is empty.')
+  if (!(await isContained($, planDir.base, trash))) return finish($, 'Refused to clear the trash.')
+
+  const names = (await $.fs.list(trash)).map(item => item.name)
+  const targets: string[] = []
+  for (const target of clearTargets(planDir.base, names)) {
+    if (await isContained($, trash, target)) targets.push(target)
+  }
+  if (targets.length === 0) return finish($, 'The trash is empty.')
+  const removal = await $.process.run(['rm', '-rf', '--', ...targets])
+  await finish($, removal.exitCode === 0 ? 'Cleared the trash.' : `Clear failed: ${removal.stderr.trim()}`)
 }
