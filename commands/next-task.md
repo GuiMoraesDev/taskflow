@@ -4,6 +4,8 @@ argument-hint: "[TASK-ID]"
 allowed-tools: Read, Edit, Glob, Grep, Bash
 ---
 
+Locate the plan as the `plan-start` skill's **Where plans live** section says.
+
 Take the task named by `$1`. Without an argument, take the first ⬜ task row in
 `PROGRESS.md` whose blockers are all settled and whose pull request's acceptance
 criteria are agreed - and if the frontier holds more
