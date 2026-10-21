@@ -16,7 +16,7 @@ async function openPane($: EngineInterface, focus = false) {
 
 export const register: Register = on => {
   on('session.start', async ($, e, next) => {
-    await $.command.register({ name: 'taskflow', description: 'Open the Taskflow pane: plans, tasks, PRs' })
+    await $.command.register({ name: 'open-mod', description: 'Open the Taskflow pane: plans, tasks, PRs' })
     void loadBoard($)
     void openPane($)
     $.clock.every(100, () => void update($, animationStep, step => step + 1))
@@ -33,7 +33,7 @@ export const register: Register = on => {
     return next(e)
   })
 
-  on('command.run', { command: 'taskflow' }, async $ => {
+  on('command.run', { command: 'open-mod' }, async $ => {
     await loadBoard($)
     await openPane($, true)
 

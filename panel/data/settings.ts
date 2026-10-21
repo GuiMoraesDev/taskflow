@@ -62,10 +62,13 @@ export async function openSettings($: EngineInterface) {
   await update($, settings, () => view)
 }
 
-export const closeSettings = ($: EngineInterface) => update($, settings, () => null)
+export function closeSettings($: EngineInterface) {
+  return update($, settings, () => null)
+}
 
-export const editSettings = ($: EngineInterface, change: Partial<SettingsView['draft']>) =>
-  update($, settings, view => (view === null ? view : { ...view, draft: { ...view.draft, ...change } }))
+export function editSettings($: EngineInterface, change: Partial<SettingsView['draft']>) {
+  return update($, settings, view => (view === null ? view : { ...view, draft: { ...view.draft, ...change } }))
+}
 
 export async function submitSettings($: EngineInterface, draft: SettingsView['draft']) {
   const saved = await saveSettings($, draft)
