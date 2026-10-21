@@ -23,18 +23,18 @@ test('mascot mood follows the plan', () => {
   expect(mascotMood([row('task', '⬜ pending')])).toBe('idle')
 })
 
-test('every mood frame and the spinner draw 3 rows of 12 cells at every step', () => {
+test('every mood frame and the spinner draw 4 rows of 12 cells at every step', () => {
   const moods = ['idle', 'working', 'blocked', 'asking', 'done'] as const
   for (const mood of moods) {
     for (let step = 0; step < 47; step++) {
       const rows = mascotFrame(mood, step)
-      expect(rows.length).toBe(3)
+      expect(rows.length).toBe(4)
       for (const cells of rows) expect(cells.length).toBe(12)
     }
   }
   for (let step = 0; step < 8; step++) {
     const rows = mascotSpinner(step)
-    expect(rows.length).toBe(3)
+    expect(rows.length).toBe(4)
     for (const cells of rows) expect(cells.length).toBe(12)
   }
 })
@@ -47,10 +47,10 @@ test('the spinner arc moves one pixel per step and wraps after a full turn of 8'
         ...(cell.bottom === '#FFBF36' ? [`${row * 2 + 1}:${column}`] : []),
       ]),
     )
-  expect(heads(0)).toEqual(['2:6'])
-  expect(heads(1)).toEqual(['3:7'])
+  expect(heads(0)).toEqual(['3:6'])
+  expect(heads(1)).toEqual(['4:7'])
   expect(heads(8)).toEqual(heads(0))
-  expect(mascotSpinner(0).length).toBe(3)
+  expect(mascotSpinner(0).length).toBe(4)
 })
 
 test('each mood animates: some later step draws a different frame', () => {
