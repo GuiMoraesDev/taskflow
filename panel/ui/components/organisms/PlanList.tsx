@@ -9,9 +9,10 @@ type PlanListProps = {
   onOpen: (name: string) => void
   onRefresh: () => void
   onSettings: () => void
+  onOpenTrash: () => void
 }
 
-export function PlanList({ ui, projects, message, onOpen, onRefresh, onSettings }: PlanListProps) {
+export function PlanList({ ui, projects, message, onOpen, onRefresh, onSettings, onOpenTrash }: PlanListProps) {
   const { Box, Text, Button } = ui
 
   return (
@@ -22,6 +23,7 @@ export function PlanList({ ui, projects, message, onOpen, onRefresh, onSettings 
         </Text>
         <Box gap={1}>
           <Button key="settings" hotkey="s" label="⚙" onPress={onSettings} />
+          <Button key="trash" hotkey="t" label="🗑️ Trash (t)" onPress={onOpenTrash} />
           <Button key="refresh" hotkey="r" label="🔄" onPress={onRefresh} />
         </Box>
       </Box>

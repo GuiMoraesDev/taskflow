@@ -13,6 +13,10 @@ then one task per **independent** pull request may run at once - see
 [Parallel pull requests](#parallel-pull-requests). Still one task each, and
 still reviewed one at a time.
 
+The plan's `TASKS.md`, `QUESTIONS.md` and `PROGRESS.md` live under the plan dir
+the `plan-start` skill's **Where plans live** section locates - possibly an
+Obsidian vault outside the repo.
+
 ## The cycle
 
 ```
@@ -116,7 +120,7 @@ shape changed.
 
 ### When a decision should outlive the plan
 
-The plan folder is gitignored. A decision that meets all three of hard to
+The plan folder is gitignored or outside the repo. A decision that meets all three of hard to
 reverse, surprising without context, and a genuine trade-off belongs in the
 repository, not in a file that dies with the project folder.
 

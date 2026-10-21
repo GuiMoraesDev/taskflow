@@ -1,8 +1,8 @@
 import { atom, read, update } from 'claude-code'
 import type { EngineInterface, RenderInput } from 'claude-code'
 
-import type { PlanBoard, PlanProject } from '../../types'
-import { deleteProject, loadBoard } from '../data/board'
+import type { PlanBoard, PlanProject, TrashEntry } from '../../types'
+import { clearTrash, closeTrash, deleteProject, loadBoard, openTrash, recoverPlan } from '../data/board'
 import { closeSettings, editSettings, openSettings, submitSettings } from '../data/settings'
 import { boardStatus, planStatus } from '../domain/status'
 import { Loading } from './components/molecules/Loading'
@@ -10,12 +10,15 @@ import { Mascot } from './components/molecules/Mascot'
 import { ObsidianSettings } from './components/organisms/ObsidianSettings'
 import { PlanDetail } from './components/organisms/PlanDetail'
 import { PlanList } from './components/organisms/PlanList'
+import { TrashView } from './components/organisms/TrashView'
 import type { Ui } from './components/ui'
 
 const board = atom({ plugin: 'taskflow', key: 'board' } as const, null)
 const selected = atom({ plugin: 'taskflow', key: 'selected' } as const, null)
 const pendingDelete = atom({ plugin: 'taskflow', key: 'pendingDelete' } as const, null)
 const notice = atom({ plugin: 'taskflow', key: 'notice' } as const, null)
+const trashEntries = atom({ plugin: 'taskflow', key: 'trashEntries' } as const, null)
+const pendingClear = atom({ plugin: 'taskflow', key: 'pendingClear' } as const, false)
 const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 const isMenuOpen = atom({ plugin: 'taskflow', key: 'isMenuOpen' } as const, false)
 const settings = atom({ plugin: 'taskflow', key: 'settings' } as const, null)
@@ -58,6 +61,8 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         board={state}
         project={project}
         deleting={deleting}
+        trash={await read($, trashEntries)}
+        isClearing={await read($, pendingClear)}
         isMenuOpen={await read($, isMenuOpen)}
         message={message}
         actions={{
@@ -79,6 +84,12 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
           },
           confirmDelete: name => deleteProject($, name),
           cancelDelete: () => update($, pendingDelete, () => null),
+          openTrash: () => openTrash($),
+          closeTrash: () => closeTrash($),
+          recover: entry => recoverPlan($, entry),
+          askClear: () => update($, pendingClear, () => true),
+          confirmClear: () => clearTrash($),
+          cancelClear: () => update($, pendingClear, () => false),
         }}
       />
     </Box>
@@ -95,6 +106,12 @@ type PaneActions = {
   askDelete: (name: string) => void
   confirmDelete: (name: string) => void
   cancelDelete: () => void
+  openTrash: () => void
+  closeTrash: () => void
+  recover: (entry: string) => void
+  askClear: () => void
+  confirmClear: () => void
+  cancelClear: () => void
 }
 
 type PaneContentProps = {
@@ -102,15 +119,39 @@ type PaneContentProps = {
   board: PlanBoard
   project: PlanProject | undefined
   deleting: string | null
+  trash: TrashEntry[] | null
+  isClearing: boolean
   isMenuOpen: boolean
   message: string | null
   actions: PaneActions
 }
 
-const PaneContent = ({ ui, board: state, project, deleting, isMenuOpen, message, actions }: PaneContentProps) => {
+const PaneContent = ({
+  ui,
+  board: state,
+  project,
+  deleting,
+  trash,
+  isClearing,
+  isMenuOpen,
+  message,
+  actions,
+}: PaneContentProps) => {
   const { Box, Text, Button } = ui
 
-  return state.projects.length === 0 ? (
+  return trash !== null ? (
+    <TrashView
+      ui={ui}
+      entries={trash}
+      isClearing={isClearing}
+      message={message}
+      onBack={actions.closeTrash}
+      onRecover={actions.recover}
+      onAskClear={actions.askClear}
+      onConfirmClear={actions.confirmClear}
+      onCancelClear={actions.cancelClear}
+    />
+  ) : state.projects.length === 0 ? (
     <Box flexDirection="column">
       {state.planDir === null ? (
         <Text color="error">{state.planDirError}</Text>
@@ -119,6 +160,7 @@ const PaneContent = ({ ui, board: state, project, deleting, isMenuOpen, message,
       )}
       {message && <Text color="warning">{message}</Text>}
       <Button key="settings" hotkey="s" label="⚙ Settings (s)" onPress={actions.openSettings} />
+      {state.planDir !== null && <Button key="trash" hotkey="t" label="🗑️ Trash (t)" onPress={actions.openTrash} />}
     </Box>
   ) : project === undefined ? (
     <PlanList
@@ -128,6 +170,7 @@ const PaneContent = ({ ui, board: state, project, deleting, isMenuOpen, message,
       onOpen={actions.open}
       onRefresh={actions.refresh}
       onSettings={actions.openSettings}
+      onOpenTrash={actions.openTrash}
     />
   ) : (
     <PlanDetail
