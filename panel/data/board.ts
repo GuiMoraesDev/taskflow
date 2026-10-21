@@ -112,6 +112,24 @@ export async function loadBoard($: EngineInterface) {
   }
 }
 
+// A cheap fingerprint of what the board shows: the resolved plan dir and every PROGRESS.md's mtime.
+export async function boardSignature($: EngineInterface) {
+  const root = await repoRoot($)
+  const resolved = await readPlanDir($, root)
+  if ('error' in resolved) return `error:${resolved.error}`
+  if (!(await $.fs.exists(resolved.base))) return `missing:${resolved.base}`
+
+  const stamps: string[] = [resolved.base]
+  for (const entry of await $.fs.list(resolved.base)) {
+    if (entry.kind !== 'dir') continue
+    const progressPath = `${resolved.base}/${entry.name}/PROGRESS.md`
+    if (!(await $.fs.exists(progressPath))) continue
+    stamps.push(`${entry.name}:${(await $.fs.stat(progressPath)).mtimeMs}`)
+  }
+
+  return stamps.join('|')
+}
+
 async function realPath($: EngineInterface, path: string) {
   const resolved = await $.process.run(['realpath', '--', path])
 
