@@ -22,6 +22,12 @@ export type PlanDir = {
   label: string
 }
 
+export type TrashEntry = {
+  entry: string
+  name: string
+  deletedAt: number
+}
+
 export type PlanBoard = {
   planDir: PlanDir | null
   planDirError: string | null
@@ -37,6 +43,8 @@ declare module 'claude-code' {
       selected: string | null
       pendingDelete: string | null
       notice: string | null
+      trashEntries: TrashEntry[] | null
+      pendingClear: boolean
       animationStep: number
       isMenuOpen: boolean
     }

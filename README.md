@@ -65,7 +65,7 @@ columns or more.
 
 1. **Plan.** Ask for one, like _"plan the export feature"_. Claude grills you on the
    design until you both agree, then writes `SCOPE.md`, `TASKS.md`, `QUESTIONS.md`
-   and `PROGRESS.md` in your configured `projectsDir`.
+   and `PROGRESS.md` in your plan folder (see Where plans live).
 2. **Agree the criteria.** Settle each pull request's acceptance criteria before its
    first task starts.
 3. **Run a task.** `/next-task` picks the first task that isn't blocked (or use
@@ -117,6 +117,32 @@ columns or more.
 | `progress-reminder` | After a commit, reminds you to close the task in `PROGRESS.md` |
 | `version-bump` | In a repo that ships `.claude-plugin/plugin.json`, bumps the patch version on a branch's first commit and blocks a push that didn't bump it |
 
+## Where plans live 🗂️
+
+Plans are written to one of two places:
+
+- **The repo** (default, and the source of truth). `projectsDir` in `workflow.json`,
+  `docs/projects` unless you change it.
+- **An Obsidian vault**, chosen per machine. Set it in `.claude/workflow.env`, which
+  is untracked: `.claude/.gitignore` keeps it out of git, so teammates keep the repo
+  folder.
+
+| Key in `.claude/workflow.env` | What it holds |
+| --- | --- |
+| `TASKFLOW_PLANS_SOURCE` | `repo` or `obsidian`. Anything else, or missing, means `repo` |
+| `TASKFLOW_OBSIDIAN_VAULT` | The vault's folder name, looked up in Obsidian's vault list |
+| `TASKFLOW_OBSIDIAN_VAULT_PATH` | The vault's absolute path instead; it wins over the name |
+| `TASKFLOW_OBSIDIAN_PATH` | The folder inside the vault, e.g. `taskflow/my-repo` |
+
+See [`examples/workflow.env.example`](examples/workflow.env.example). `/init-workflow`
+and the Taskflow panel both set it for you. With Obsidian on, plans are read and
+written in the vault only, and a bad vault setting stops with a message instead of
+falling back to the repo.
+
+> 💡 Plan files in a vault are written by absolute path, which asks permission every
+> time. Add the vault to `permissions.additionalDirectories` in
+> `.claude/settings.local.json` to stop the prompts.
+
 ## Configuration ⚙️
 
 Everything specific to your repo lives in one file you own: `.claude/workflow.json`.
@@ -125,7 +151,7 @@ Everything specific to your repo lives in one file you own: `.claude/workflow.js
 
 | Key | What it holds |
 | --- | --- |
-| `projectsDir` | Where plan folders live |
+| `projectsDir` | Where plan folders live in the repo (see Where plans live above) |
 | `gates` | Your lint, types, unit and e2e commands |
 | `e2eTriggerPaths` | File patterns whose changes make the e2e suite run |
 | `docsChecklist` | Each doc and what it covers, checked before a behaviour change is done |
