@@ -4,8 +4,8 @@ argument-hint: "[project-name]"
 allowed-tools: Read, Glob, Bash
 ---
 
-Find the active plan under the `projectsDir` from `.claude/workflow.json`. With
-an argument, use `<projectsDir>/$1/`. Without one, use the folder whose
+Find the active plan under the plan dir, located as the `plan-start` skill's
+**Where plans live** section says. With an argument, use `<plan dir>/$1/`. Without one, use the folder whose
 `PROGRESS.md` was modified most recently; if several are close, list them and ask.
 
 Read `PROGRESS.md` for state and `QUESTIONS.md` for the questions themselves.

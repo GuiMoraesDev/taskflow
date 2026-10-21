@@ -4,7 +4,8 @@ argument-hint: "<what turned out differently>"
 allowed-tools: Read, Edit, Glob, Bash
 ---
 
-Append a session-log entry to the active `PROGRESS.md` recording: `$1`
+Append a session-log entry to the active `PROGRESS.md` - under the plan dir the
+`plan-start` skill's **Where plans live** section locates - recording: `$1`
 
 Shape it as: today's date, the task ID, the commit hash if one has landed, then
 **Deviation:** what the plan called for, what turned out to be true, and what was

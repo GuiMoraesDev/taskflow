@@ -69,10 +69,10 @@ export function PlanDetail(props: PlanDetailProps) {
         {isDeleting ? (
           <Box flexDirection="column">
             <Text color="error" weight="bold">
-              Delete {board.projectsDir}/{project.name}? This cannot be undone.
+              Move {board.planDir?.label}/{project.name} to the trash? You can recover it from the trash.
             </Text>
             <Box gap={2}>
-              <Button key="confirm-delete" hotkey="y" label="Yes, delete (y)" onPress={props.onConfirmDelete} />
+              <Button key="confirm-delete" hotkey="y" label="Yes, move to trash (y)" onPress={props.onConfirmDelete} />
               <Button key="cancel-delete" hotkey="n" label="Cancel (n)" onPress={props.onCancelDelete} />
             </Box>
           </Box>
@@ -91,7 +91,13 @@ export function PlanDetail(props: PlanDetailProps) {
           ui={ui}
           items={[
             { key: 'refresh', icon: '🔄', label: 'Refresh (r)', hotkey: 'r', onPress: props.onRefresh },
-            { key: 'delete', icon: '🗑️', label: 'Delete workspace (x)', hotkey: 'x', onPress: props.onAskDelete },
+            {
+              key: 'delete',
+              icon: '🗑️',
+              label: 'Move workspace to trash (x)',
+              hotkey: 'x',
+              onPress: props.onAskDelete,
+            },
           ]}
         />
       )}
