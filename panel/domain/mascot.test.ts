@@ -2,6 +2,7 @@ import { expect, test } from 'claude-code/testing'
 
 import type { PlanRow } from '../../types'
 import { mascotFrame, mascotMood, mascotSpinner } from './mascot'
+import { MASCOT_ANIMATIONS } from './mascot-frames'
 
 const row = (kind: PlanRow['kind'], status: string): PlanRow => ({
   id: 'X',
@@ -22,12 +23,19 @@ test('mascot mood follows the plan', () => {
   expect(mascotMood([row('task', '⬜ pending')])).toBe('idle')
 })
 
-test('every mood frame is the same full-cell grid', () => {
+test('every mood frame and the spinner draw 3 rows of 12 cells at every step', () => {
   const moods = ['idle', 'working', 'blocked', 'asking', 'done'] as const
   for (const mood of moods) {
-    const rows = mascotFrame(mood, 0)
-    expect(rows.length).toBe(5)
-    for (const cells of rows) expect(cells.length).toBe(15)
+    for (let step = 0; step < 47; step++) {
+      const rows = mascotFrame(mood, step)
+      expect(rows.length).toBe(3)
+      for (const cells of rows) expect(cells.length).toBe(12)
+    }
+  }
+  for (let step = 0; step < 8; step++) {
+    const rows = mascotSpinner(step)
+    expect(rows.length).toBe(3)
+    for (const cells of rows) expect(cells.length).toBe(12)
   }
 })
 
@@ -39,19 +47,30 @@ test('the spinner arc moves one pixel per step and wraps after a full turn of 8'
         ...(cell.bottom === '#FFBF36' ? [`${row * 2 + 1}:${column}`] : []),
       ]),
     )
-  expect(heads(0)).toEqual(['4:7'])
-  expect(heads(1)).toEqual(['5:8'])
+  expect(heads(0)).toEqual(['2:6'])
+  expect(heads(1)).toEqual(['3:7'])
   expect(heads(8)).toEqual(heads(0))
-  expect(mascotSpinner(0).length).toBe(5)
+  expect(mascotSpinner(0).length).toBe(3)
 })
 
 test('each mood animates: some later step draws a different frame', () => {
   const moods = ['idle', 'working', 'blocked', 'asking', 'done'] as const
   for (const mood of moods) {
     const first = JSON.stringify(mascotFrame(mood, 0))
-    const changes = Array.from({ length: 40 }, (_, step) => JSON.stringify(mascotFrame(mood, step))).some(
+    const changes = Array.from({ length: 47 }, (_, step) => JSON.stringify(mascotFrame(mood, step))).some(
       frame => frame !== first,
     )
     expect(changes).toBe(true)
   }
+})
+
+test('each animation loops for its agreed number of steps', () => {
+  const loop = (mood: keyof typeof MASCOT_ANIMATIONS) =>
+    MASCOT_ANIMATIONS[mood].reduce((total, { steps }) => total + steps, 0)
+  expect(loop('idle')).toBe(47)
+  expect(loop('working')).toBe(8)
+  expect(loop('blocked')).toBe(8)
+  expect(loop('asking')).toBe(24)
+  expect(loop('done')).toBe(16)
+  expect(loop('loading')).toBe(8)
 })
