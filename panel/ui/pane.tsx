@@ -66,11 +66,13 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         status={project ? planStatus(project) : boardStatus(state.projects)}
         step={step}
         waiting={wait.dialog || wait.permission || wait.lastTurnAsked}
+        card={project === undefined && state.projects.length > 0}
       />
 
       <PaneContent
         ui={ui}
         board={state}
+        columns={e.props.bodyColumns}
         project={project}
         deleting={deleting}
         trash={await read($, trashEntries)}
@@ -129,6 +131,7 @@ type PaneActions = {
 type PaneContentProps = {
   ui: Ui
   board: PlanBoard
+  columns: number
   project: PlanProject | undefined
   deleting: string | null
   trash: TrashEntry[] | null
@@ -141,6 +144,7 @@ type PaneContentProps = {
 const PaneContent = ({
   ui,
   board: state,
+  columns,
   project,
   deleting,
   trash,
@@ -178,6 +182,7 @@ const PaneContent = ({
     <PlanList
       ui={ui}
       projects={state.projects}
+      columns={columns}
       message={message}
       onOpen={actions.open}
       onRefresh={actions.refresh}

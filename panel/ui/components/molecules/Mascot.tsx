@@ -3,19 +3,26 @@ import { mascotFrame, mascotMood } from '../../../domain/mascot'
 import type { FloStatus } from '../../../domain/status'
 import { MascotSprite } from '../atoms/MascotSprite'
 import { ProgressBar } from '../atoms/ProgressBar'
+import { palette } from '../palette'
 import type { Ui } from '../ui'
 
-type MascotProps = { ui: Ui; rows: PlanRow[]; status: FloStatus; step: number; waiting: boolean }
+type MascotProps = { ui: Ui; rows: PlanRow[]; status: FloStatus; step: number; waiting: boolean; card?: boolean }
 
-export function Mascot({ ui, rows, status, step, waiting }: MascotProps) {
+export function Mascot({ ui, rows, status, step, waiting, card = false }: MascotProps) {
   const { Box, Text } = ui
   const { progress } = status
 
   return (
-    <Box flexDirection="column" alignItems="center">
+    <Box
+      flexDirection="column"
+      alignItems="center"
+      {...(card && { borderStyle: 'round', borderColor: palette.cardBorder, backgroundColor: palette.card })}
+    >
       <MascotSprite ui={ui} cells={mascotFrame(mascotMood(rows, { waiting }), step)} />
-      <Text weight="bold">{status.headline}</Text>
-      {progress && (
+      <Text weight="bold" color={card ? palette.muted : undefined}>
+        {status.headline}
+      </Text>
+      {!card && progress && (
         <Text>
           <Text dimColor>
             {progress.done}/{progress.total} tasks done ·{' '}
@@ -30,11 +37,12 @@ export function Mascot({ ui, rows, status, step, waiting }: MascotProps) {
           )}
         </Text>
       )}
-      {status.details.map(line => (
-        <Text key={`status-${line}`} dimColor>
-          {line}
-        </Text>
-      ))}
+      {!card &&
+        status.details.map(line => (
+          <Text key={`status-${line}`} dimColor>
+            {line}
+          </Text>
+        ))}
     </Box>
   )
 }
