@@ -72,6 +72,7 @@ declare module 'claude-code' {
       pendingClear: boolean
       animationStep: number
       isMenuOpen: boolean
+      tab: 'plans' | 'needs-you'
       settings: SettingsView | null
       waiting: SessionWait
     }
