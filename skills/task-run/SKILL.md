@@ -1,12 +1,20 @@
 ---
 name: task-run
-description: Apply exactly one task from TASKS.md through the full cycle - question and acceptance-criteria gate, the pull request's branch, mark in progress, tests written and watched red, implementation to green in a subagent on the task's model, the owner grilled over the tests and the critical logic, review, gates, size check, commit, draft or ready pull request, session log - then stop. Use when the user says "do TASK-3", "next task", "continue the plan", or approves a task for implementation.
+description: Apply exactly one task from TASKS.md through the full cycle - question and acceptance-criteria gate, the pull request's branch, mark in progress, tests written and watched red, implementation to green in a subagent on the task's model, the owner grilled over the tests and the critical logic, review, gates, size check, commit, draft or ready pull request, session log - then carries on to the next frontier task, stopping only when the owner is needed. Use when the user says "do TASK-3", "next task", "continue the plan", or approves a task for implementation.
 ---
 
 # task-run
 
-One task. Then stop. Batching several tasks into one review is the failure this
+One task at a time. Batching several tasks into one review is the failure this
 whole cycle exists to prevent.
+
+**Don't stop until the owner is needed.** When a task is logged, take the next
+frontier task and run its cycle in the same turn. Stop only at a checkpoint
+that needs the owner - an unanswered question, criteria still 📋, the tests to
+approve, the grill, the diff, the commit message, a size over budget, a failing
+gate you cannot fix, a 🙋 row, a merge - or when the frontier is empty. Say in a
+line which task you are starting; never end a turn on "should I start the
+next one?".
 
 The one exception is `pullRequests.parallel: true` in `.claude/workflow.json`:
 then one task per **independent** pull request may run at once - see
@@ -371,8 +379,9 @@ task lands, consolidate the agreed behaviour into the pull request's **source of
 truth**: one list, no duplicates, the system's behaviour as the pull request
 leaves it.
 
-Merging is the repo owner's call. Stop there; do not start the next task in the
-same turn.
+Merging is the repo owner's call. When the last task of a pull request lands,
+the next pull request waits on that merge only if it depends on it; otherwise
+carry on with the frontier.
 
 ## Parallel pull requests
 
