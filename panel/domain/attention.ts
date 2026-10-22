@@ -12,16 +12,23 @@ export type NeedsYouItem = {
 
 export type PlanBadge = { kind: 'blocked' } | { kind: 'attention'; count: number } | { kind: 'none' }
 
+export function isNeedsYou(row: PlanRow): boolean {
+  if (row.kind === 'question') return isQuestionOpen(row.status)
+
+  return row.kind === 'pr' && (row.status.startsWith('👀') || row.status.startsWith('📋'))
+}
+
 function toItem(project: PlanProject, row: PlanRow): NeedsYouItem | null {
+  if (!isNeedsYou(row)) return null
   const base = { id: row.id, plan: project.title, project: project.name, unblocks: null, prNumber: null }
 
-  if (row.kind === 'question' && isQuestionOpen(row.status)) {
+  if (row.kind === 'question') {
     return { ...base, kind: 'question', unblocks: /blocks (TASK-\d+)/.exec(row.summary)?.[1] ?? null }
   }
-  if (row.kind === 'pr' && row.status.startsWith('👀')) return { ...base, kind: 'review', prNumber: row.prNumber }
-  if (row.kind === 'pr' && row.status.startsWith('📋')) return { ...base, kind: 'criteria' }
 
-  return null
+  return row.status.startsWith('👀')
+    ? { ...base, kind: 'review', prNumber: row.prNumber }
+    : { ...base, kind: 'criteria' }
 }
 
 export function needsYou(project: PlanProject): NeedsYouItem[] {

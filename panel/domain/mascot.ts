@@ -1,7 +1,8 @@
 import type { PlanRow } from '../../types'
 
 import { MASCOT_ANIMATIONS, type MascotKeyframe } from './mascot-frames'
-import { openQuestions, taskTotals } from './parse'
+import { isNeedsYou } from './attention'
+import { taskTotals } from './parse'
 
 export type MascotMood = 'idle' | 'working' | 'blocked' | 'asking' | 'done'
 
@@ -34,16 +35,21 @@ function keyframeAt(keyframes: MascotKeyframe[], step: number): string[] {
 
 export type MascotCell = { top?: string; bottom?: string }
 
-export function mascotMood(rows: PlanRow[]): MascotMood {
+export type MascotContext = { waiting?: boolean }
+
+export function mascotMood(rows: PlanRow[], { waiting = false }: MascotContext = {}): MascotMood {
   const { done, total } = taskTotals(rows)
   const tasks = rows.filter(row => row.kind === 'task')
-  if (total === 0) return 'idle'
-  if (done === total) return 'done'
   if (tasks.some(row => row.status.startsWith('🚧'))) return 'blocked'
-  if (openQuestions(rows).length > 0) return 'asking'
+  if (waiting || rows.some(isNeedsYou)) return 'asking'
   if (tasks.some(row => row.status.startsWith('🔄'))) return 'working'
+  if (total > 0 && done === total) return 'done'
 
   return 'idle'
+}
+
+export function endsOnQuestion(text: string): boolean {
+  return /\?[\s*_`)"']*$/.test(text)
 }
 
 export function mascotFrame(mood: MascotMood, step: number): MascotCell[][] {

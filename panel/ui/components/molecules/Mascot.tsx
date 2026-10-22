@@ -5,15 +5,15 @@ import { MascotSprite } from '../atoms/MascotSprite'
 import { ProgressBar } from '../atoms/ProgressBar'
 import type { Ui } from '../ui'
 
-type MascotProps = { ui: Ui; rows: PlanRow[]; status: FloStatus; step: number }
+type MascotProps = { ui: Ui; rows: PlanRow[]; status: FloStatus; step: number; waiting: boolean }
 
-export function Mascot({ ui, rows, status, step }: MascotProps) {
+export function Mascot({ ui, rows, status, step, waiting }: MascotProps) {
   const { Box, Text } = ui
   const { progress } = status
 
   return (
     <Box flexDirection="column" alignItems="center">
-      <MascotSprite ui={ui} cells={mascotFrame(mascotMood(rows), step)} />
+      <MascotSprite ui={ui} cells={mascotFrame(mascotMood(rows, { waiting }), step)} />
       <Text weight="bold">{status.headline}</Text>
       {progress && (
         <Text>

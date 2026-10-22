@@ -21,6 +21,11 @@ const trashEntries = atom({ plugin: 'taskflow', key: 'trashEntries' } as const, 
 const pendingClear = atom({ plugin: 'taskflow', key: 'pendingClear' } as const, false)
 const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 const isMenuOpen = atom({ plugin: 'taskflow', key: 'isMenuOpen' } as const, false)
+const waiting = atom({ plugin: 'taskflow', key: 'waiting' } as const, {
+  dialog: false,
+  permission: false,
+  lastTurnAsked: false,
+})
 const settings = atom({ plugin: 'taskflow', key: 'settings' } as const, null)
 
 export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
@@ -50,11 +55,18 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
   }
 
   const project = state.projects.find(candidate => candidate.name === selectedName)
+  const wait = await read($, waiting)
   const rows = project?.rows ?? state.projects.flatMap(candidate => candidate.rows)
 
   return (
     <Box flexDirection="column" gap={1} minHeight={e.props.scroll.bodyRows}>
-      <Mascot ui={ui} rows={rows} status={project ? planStatus(project) : boardStatus(state.projects)} step={step} />
+      <Mascot
+        ui={ui}
+        rows={rows}
+        status={project ? planStatus(project) : boardStatus(state.projects)}
+        step={step}
+        waiting={wait.dialog || wait.permission || wait.lastTurnAsked}
+      />
 
       <PaneContent
         ui={ui}

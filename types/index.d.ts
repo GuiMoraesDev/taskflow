@@ -53,6 +53,8 @@ export type SettingsDraft = {
   path: string
 }
 
+export type SessionWait = { dialog: boolean; permission: boolean; lastTurnAsked: boolean }
+
 export type SettingsView = {
   current: PlanSettings
   draft: SettingsDraft
@@ -71,6 +73,7 @@ declare module 'claude-code' {
       animationStep: number
       isMenuOpen: boolean
       settings: SettingsView | null
+      waiting: SessionWait
     }
   }
 }
