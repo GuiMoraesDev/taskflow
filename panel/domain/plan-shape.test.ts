@@ -1,7 +1,7 @@
 import { expect, test } from 'claude-code/testing'
 
 import type { PlanRow } from '../../types'
-import { groupByPullRequest, prSegments } from './plan-shape'
+import { groupByPullRequest, nextTask, prSegments } from './plan-shape'
 
 const row = (kind: PlanRow['kind'], id: string, status: string): PlanRow => ({
   id,
@@ -51,4 +51,35 @@ test('tasks before the first PR form a leading segment', () => {
   expect(groups[0]?.tasks.map(task => task.id)).toEqual(['TASK-0', 'TASK-0b'])
   expect(prSegments(leading)[0]).toEqual(['done', 'pending'])
   expect(groups).toHaveLength(3)
+})
+
+const agreed = row('pr', 'PR-3', '✅ agreed')
+
+test('skips a ⬜ task under a 📋 PR', () => {
+  const discussed = row('pr', 'PR-1', '📋 criteria in discussion')
+  const skipped = row('task', 'TASK-2', '⬜ pending')
+  const next = row('task', 'TASK-7', '⬜ pending')
+
+  expect(nextTask([discussed, skipped, agreed, next])).toBe(next)
+  expect(nextTask([discussed, skipped])).toBeNull()
+})
+
+test('skips a ⬜ task under an unanswered question, but not under an answered one', () => {
+  const blocked = row('task', 'TASK-4', '⬜ pending')
+  const afterAnswered = row('task', 'TASK-5', '⬜ pending')
+  const free = row('task', 'TASK-6', '⬜ pending')
+  const unanswered = [agreed, row('question', 'Q1', '⬜ unanswered'), blocked, free]
+  const answered = [agreed, row('question', 'Q2', '✅ answered'), afterAnswered, free]
+  const mixed = [agreed, row('question', 'Q3', '✅ answered'), row('question', 'Q4', '🚧 asked'), blocked, free]
+
+  expect(nextTask(unanswered)).toBe(free)
+  expect(nextTask(answered)).toBe(afterAnswered)
+  expect(nextTask(mixed)).toBe(free)
+})
+
+test('none when every task is ✅', () => {
+  const done = [agreed, row('task', 'TASK-1', '✅ done'), row('task', 'TASK-2', '✅ done')]
+
+  expect(nextTask(done)).toBeNull()
+  expect(nextTask([...done, row('task', 'TASK-3', '🔄 in progress')])).toBeNull()
 })

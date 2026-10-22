@@ -1,5 +1,7 @@
 import type { PlanRow } from '../../types'
 
+import { isQuestionOpen } from './parse'
+
 export type PullRequestGroup = { pr: PlanRow | null; tasks: PlanRow[]; done: number; total: number }
 export type Segment = 'merged' | 'done' | 'progress' | 'pending'
 
@@ -32,3 +34,25 @@ export const prSegments = (rows: PlanRow[]): Segment[][] =>
   groupByPullRequest(rows).map(group =>
     group.tasks.map(task => (group.pr?.status.startsWith('✅') ? 'merged' : segment(task))),
   )
+
+const blockedByQuestion = (rows: PlanRow[], index: number): boolean => {
+  for (let i = index - 1; i >= 0 && rows[i]?.kind === 'question'; i -= 1) {
+    if (isQuestionOpen(rows[i]?.status ?? '')) return true
+  }
+
+  return false
+}
+
+export function nextTask(rows: PlanRow[]): PlanRow | null {
+  let pr: PlanRow | null = null
+
+  for (const [index, row] of rows.entries()) {
+    if (row.kind === 'pr') pr = row
+    if (row.kind !== 'task' || !row.status.startsWith('⬜')) continue
+    if (pr?.status.startsWith('📋') || blockedByQuestion(rows, index)) continue
+
+    return row
+  }
+
+  return null
+}
