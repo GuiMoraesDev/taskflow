@@ -1,4 +1,5 @@
 import type { Ui } from '../ui'
+import { palette } from '../palette'
 
 type ProgressBarProps = { ui: Ui; done: number; total: number; width: number }
 
@@ -7,8 +8,8 @@ export function ProgressBar({ ui: { Text }, done, total, width }: ProgressBarPro
 
   return (
     <Text>
-      <Text color="success">{'█'.repeat(filled)}</Text>
-      <Text dimColor>{'░'.repeat(width - filled)}</Text>
+      <Text color={palette.green}>{'█'.repeat(filled)}</Text>
+      <Text color={palette.faint}>{'░'.repeat(width - filled)}</Text>
     </Text>
   )
 }
