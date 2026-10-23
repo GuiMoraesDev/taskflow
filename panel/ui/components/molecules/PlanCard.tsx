@@ -20,33 +20,31 @@ export function PlanCard({ ui, project, hotkey, columns, onOpen }: PlanCardProps
 
   return (
     <Box flexDirection="column" borderStyle="round" borderColor={palette.cardBorder} paddingX={1}>
-      <Button key={`open-${project.name}`} plain hotkey={hotkey} onPress={onOpen}>
-        <Box flexDirection="column">
-          <Box justifyContent="space-between">
-            <Text weight="bold" color={palette.text}>
-              {project.title}
-            </Text>
-            {badge.kind === 'attention' && <Text color={palette.amber}>▲ {badge.count}</Text>}
-            {badge.kind === 'blocked' && <Text color={palette.red}>■ blocked</Text>}
-          </Box>
-          <Text>
-            <SegmentedBar
-              ui={ui}
-              segments={prSegments(project.rows)}
-              width={Math.max(columns - cardChrome - count.length, 4)}
-            />
-            <Text color={palette.muted}>{count}</Text>
+      <Box justifyContent="space-between">
+        <Button key={`open-${project.name}`} plain hotkey={hotkey} onPress={onOpen}>
+          <Text weight="bold" color={palette.text}>
+            {project.title}
           </Text>
-          {current && (
-            <Text wrap="truncate-end">
-              <Text color={blocked ? palette.red : palette.amber}>
-                {blocked ? '🚧' : '🔄'} {current.id}
-              </Text>
-              <Text color={palette.muted}> {current.summary}</Text>
-            </Text>
-          )}
-        </Box>
-      </Button>
+        </Button>
+        {badge.kind === 'attention' && <Text color={palette.amber}>▲ {badge.count}</Text>}
+        {badge.kind === 'blocked' && <Text color={palette.red}>■ blocked</Text>}
+      </Box>
+      <Text>
+        <SegmentedBar
+          ui={ui}
+          segments={prSegments(project.rows)}
+          width={Math.max(columns - cardChrome - count.length, 4)}
+        />
+        <Text color={palette.muted}>{count}</Text>
+      </Text>
+      {current && (
+        <Text wrap="truncate-end">
+          <Text color={blocked ? palette.red : palette.amber}>
+            {blocked ? '🚧' : '🔄'} {current.id}
+          </Text>
+          <Text color={palette.muted}> {current.summary}</Text>
+        </Text>
+      )}
     </Box>
   )
 }

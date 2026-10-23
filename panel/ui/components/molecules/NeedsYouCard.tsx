@@ -37,17 +37,17 @@ export function NeedsYouCard({ ui, items, columns, onOpen }: NeedsYouCardProps) 
       {items.map((item, index) => (
         <Box key={`need-${item.project}-${item.id}`} flexDirection="column">
           {index > 0 && <Text color={palette.amberDivider}>{'─'.repeat(columns)}</Text>}
-          <Button plain onPress={() => onOpen(item.project)}>
-            <Box justifyContent="space-between" width="100%">
-              <Box flexDirection="column">
+          <Box justifyContent="space-between" width="100%">
+            <Box flexDirection="column">
+              <Button key={`open-${item.project}-${item.id}`} plain onPress={() => onOpen(item.project)}>
                 <Text color={palette.text}>{titleOf(item)}</Text>
-                <Text color={palette.muted} wrap="truncate-end">
-                  {subOf(item)}
-                </Text>
-              </Box>
-              <Text color={palette.amber}>›</Text>
+              </Button>
+              <Text color={palette.muted} wrap="truncate-end">
+                {subOf(item)}
+              </Text>
             </Box>
-          </Button>
+            <Text color={palette.amber}>›</Text>
+          </Box>
         </Box>
       ))}
     </Box>
