@@ -4,9 +4,12 @@ import type { EngineInterface, RenderInput } from 'claude-code'
 import type { PlanBoard, PlanProject, TrashEntry } from '../../types'
 import { clearTrash, closeTrash, deleteProject, loadBoard, openTrash, recoverPlan } from '../data/board'
 import { closeSettings, editSettings, openSettings, submitSettings } from '../data/settings'
+import { boardNeedsYou } from '../domain/attention'
 import { boardStatus, planStatus } from '../domain/status'
 import { Loading } from './components/molecules/Loading'
 import { Mascot } from './components/molecules/Mascot'
+import { NeedsYouCard } from './components/molecules/NeedsYouCard'
+import { TabBar, type Tab } from './components/molecules/TabBar'
 import { ObsidianSettings } from './components/organisms/ObsidianSettings'
 import { PlanDetail } from './components/organisms/PlanDetail'
 import { PlanList } from './components/organisms/PlanList'
@@ -21,6 +24,12 @@ const trashEntries = atom({ plugin: 'taskflow', key: 'trashEntries' } as const, 
 const pendingClear = atom({ plugin: 'taskflow', key: 'pendingClear' } as const, false)
 const animationStep = atom({ plugin: 'taskflow', key: 'animationStep' } as const, 0)
 const isMenuOpen = atom({ plugin: 'taskflow', key: 'isMenuOpen' } as const, false)
+const waiting = atom({ plugin: 'taskflow', key: 'waiting' } as const, {
+  dialog: false,
+  permission: false,
+  lastTurnAsked: false,
+})
+const tab = atom({ plugin: 'taskflow', key: 'tab' } as const, 'plans')
 const settings = atom({ plugin: 'taskflow', key: 'settings' } as const, null)
 
 export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
@@ -49,28 +58,47 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
     )
   }
 
-  const project = state.projects.find(candidate => candidate.name === selectedName)
+  const activeTab = await read($, tab)
+  const found = state.projects.find(candidate => candidate.name === selectedName)
+  const project = activeTab === 'needs-you' ? undefined : found
+  const trashList = await read($, trashEntries)
+  const hasBar = trashList === null && state.projects.length > 0
+  const back = () => {
+    void update($, isMenuOpen, () => false)
+    void update($, tab, () => 'plans')
+    void update($, selected, () => null)
+  }
+  const wait = await read($, waiting)
   const rows = project?.rows ?? state.projects.flatMap(candidate => candidate.rows)
 
   return (
     <Box flexDirection="column" gap={1} minHeight={e.props.scroll.bodyRows}>
-      <Mascot ui={ui} rows={rows} status={project ? planStatus(project) : boardStatus(state.projects)} step={step} />
+      <Mascot
+        ui={ui}
+        rows={rows}
+        status={project ? planStatus(project) : boardStatus(state.projects)}
+        step={step}
+        waiting={wait.dialog || wait.permission || wait.lastTurnAsked}
+        card={project === undefined && state.projects.length > 0}
+      />
 
       <PaneContent
         ui={ui}
         board={state}
+        columns={e.props.bodyColumns}
         project={project}
         deleting={deleting}
-        trash={await read($, trashEntries)}
+        trash={trashList}
+        tab={activeTab}
         isClearing={await read($, pendingClear)}
         isMenuOpen={await read($, isMenuOpen)}
         message={message}
         actions={{
-          open: name => update($, selected, () => name),
-          back: () => {
-            void update($, isMenuOpen, () => false)
-            void update($, selected, () => null)
+          open: name => {
+            void update($, tab, () => 'plans')
+            void update($, selected, () => name)
           },
+          back,
           toggleMenu: () => update($, isMenuOpen, open => !open),
           nextTask: () => void $.prompt.submit({ text: '/taskflow:next-task' }),
           openSettings: () => void openSettings($),
@@ -92,6 +120,19 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
           cancelClear: () => update($, pendingClear, () => false),
         }}
       />
+
+      {hasBar && (
+        <>
+          <Box flexGrow={1} />
+          <TabBar
+            ui={ui}
+            active={activeTab}
+            onPlans={back}
+            onNeedsYou={() => void update($, tab, () => 'needs-you')}
+            onNextTask={() => void $.prompt.submit({ text: '/taskflow:next-task' })}
+          />
+        </>
+      )}
     </Box>
   )
 }
@@ -117,9 +158,11 @@ type PaneActions = {
 type PaneContentProps = {
   ui: Ui
   board: PlanBoard
+  columns: number
   project: PlanProject | undefined
   deleting: string | null
   trash: TrashEntry[] | null
+  tab: Tab
   isClearing: boolean
   isMenuOpen: boolean
   message: string | null
@@ -129,9 +172,11 @@ type PaneContentProps = {
 const PaneContent = ({
   ui,
   board: state,
+  columns,
   project,
   deleting,
   trash,
+  tab: activeTab,
   isClearing,
   isMenuOpen,
   message,
@@ -162,10 +207,13 @@ const PaneContent = ({
       <Button key="settings" hotkey="s" label="⚙ Settings (s)" onPress={actions.openSettings} />
       {state.planDir !== null && <Button key="trash" hotkey="t" label="🗑️ Trash (t)" onPress={actions.openTrash} />}
     </Box>
+  ) : activeTab === 'needs-you' ? (
+    <NeedsYouCard ui={ui} items={boardNeedsYou(state.projects)} columns={columns - 4} onOpen={actions.open} />
   ) : project === undefined ? (
     <PlanList
       ui={ui}
       projects={state.projects}
+      columns={columns}
       message={message}
       onOpen={actions.open}
       onRefresh={actions.refresh}

@@ -1,36 +1,52 @@
 import type { PlanProject } from '../../../../types'
-import { openQuestions, taskTotals } from '../../../domain/parse'
-import { ProgressBar } from '../atoms/ProgressBar'
+import { currentTask, planBadge } from '../../../domain/attention'
+import { taskTotals } from '../../../domain/parse'
+import { prSegments } from '../../../domain/plan-shape'
+import { SegmentedBar } from '../atoms/SegmentedBar'
+import { palette } from '../palette'
 import type { Ui } from '../ui'
 
-type PlanCardProps = { ui: Ui; project: PlanProject; hotkey: string; onOpen: () => void }
+type PlanCardProps = { ui: Ui; project: PlanProject; hotkey: string; columns: number; onOpen: () => void }
 
-export function PlanCard({ ui, project, hotkey, onOpen }: PlanCardProps) {
+const cardChrome = 4
+
+export function PlanCard({ ui, project, hotkey, columns, onOpen }: PlanCardProps) {
   const { Box, Text, Button } = ui
   const { done, total } = taskTotals(project.rows)
-  const working = project.rows.find(row => row.kind === 'task' && /^(🔄|🚧)/.test(row.status))
-  const questions = openQuestions(project.rows).length
-  const pullRequests = project.rows.filter(row => row.kind === 'pr')
-  const opened = pullRequests.filter(row => row.prNumber !== null).length
+  const badge = planBadge(project)
+  const current = currentTask(project.rows)
+  const count = ` ${done}/${total}`
+  const blocked = current?.status.startsWith('🚧') ?? false
 
   return (
-    <Box flexDirection="column" borderStyle="round" paddingX={1}>
+    <Box flexDirection="column" borderStyle="round" borderColor={palette.cardBorder} paddingX={1}>
       <Button key={`open-${project.name}`} plain hotkey={hotkey} onPress={onOpen}>
-        <Text weight="bold">{project.title}</Text>
+        <Box flexDirection="column">
+          <Box justifyContent="space-between">
+            <Text weight="bold" color={palette.text}>
+              {project.title}
+            </Text>
+            {badge.kind === 'attention' && <Text color={palette.amber}>▲ {badge.count}</Text>}
+            {badge.kind === 'blocked' && <Text color={palette.red}>■ blocked</Text>}
+          </Box>
+          <Text>
+            <SegmentedBar
+              ui={ui}
+              segments={prSegments(project.rows)}
+              width={Math.max(columns - cardChrome - count.length, 4)}
+            />
+            <Text color={palette.muted}>{count}</Text>
+          </Text>
+          {current && (
+            <Text wrap="truncate-end">
+              <Text color={blocked ? palette.red : palette.amber}>
+                {blocked ? '🚧' : '🔄'} {current.id}
+              </Text>
+              <Text color={palette.muted}> {current.summary}</Text>
+            </Text>
+          )}
+        </Box>
       </Button>
-      <Text>
-        <ProgressBar ui={ui} done={done} total={total} width={12} />{' '}
-        <Text dimColor>
-          {done}/{total} tasks
-        </Text>
-      </Text>
-      <Text dimColor wrap="truncate-end">
-        {working ? `${working.id} ${working.summary}` : done === total ? 'All tasks done' : 'Nothing in progress'}
-      </Text>
-      <Text dimColor>
-        {opened}/{pullRequests.length} PRs opened
-        {questions > 0 && <Text color="warning"> · {questions} open question(s)</Text>}
-      </Text>
     </Box>
   )
 }
