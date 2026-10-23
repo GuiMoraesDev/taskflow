@@ -17,7 +17,7 @@ gives Claude a disciplined way to ship work, the way a careful senior dev would:
 - 🗺️ **Plan first.** Work is planned as the pull requests you will review, each one about one topic and under a line budget.
 - ✅ **Agree what "done" means.** Each pull request gets acceptance criteria you sign off on before any code is written.
 - 🔴🟢 **Red before green.** You see the tests fail for the right reason before Claude writes the implementation.
-- 📦 **One task, one commit.** Claude does a single task end to end, then stops.
+- 📦 **One task, one commit.** Claude does a single task end to end, then moves to the next, stopping only when it needs you.
 - 🚦 **Gates before every commit.** Lint, type check, unit tests, and e2e when the change needs them.
 - 📚 **Docs stay true.** The docs, and the diagrams if your repo has them, are checked before a change counts as done.
 
@@ -94,7 +94,7 @@ columns or more.
 | --- | --- |
 | `init-workflow` | Reads your repo's scripts and layout, asks what it can't figure out (models, diagrams, pull-request conventions), then writes `.claude/workflow.json` and the workflow section of `CLAUDE.md`. Running it again asks only about what changed |
 | `plan-start` | Grills you on the design, then writes the four plan docs: the scope, the pull requests, their acceptance criteria, one-commit tasks with their tests, and the open questions, each with a recommendation |
-| `task-run` | Runs one task through the full cycle, from the failing tests to the commit and pull request, then stops |
+| `task-run` | Runs one task through the full cycle, from the failing tests to the commit and pull request, then carries on to the next until it needs you |
 | `bug-red-test` | Proves a regression test fails against the old behaviour before the fix ships |
 | `docs-sync` | Goes through your docs checklist, plus the glossary and diagrams if your repo has them |
 | `standards-review` | Checks a diff against the standards in your `CLAUDE.md`, and warns you when a test was bent to pass instead of updated with the behaviour |
