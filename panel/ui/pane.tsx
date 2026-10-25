@@ -79,7 +79,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         status={project ? planStatus(project) : boardStatus(state.projects)}
         step={step}
         waiting={wait.dialog || wait.permission || wait.lastTurnAsked}
-        card={project === undefined && state.projects.length > 0}
+        card={state.projects.length > 0}
       />
 
       <PaneContent
@@ -225,6 +225,7 @@ const PaneContent = ({
       ui={ui}
       board={state}
       project={project}
+      columns={columns}
       isDeleting={deleting === project.name}
       isMenuOpen={isMenuOpen}
       message={message}

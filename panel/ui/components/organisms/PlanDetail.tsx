@@ -1,13 +1,17 @@
 import type { PlanBoard, PlanProject } from '../../../../types'
-import { activeTasks, openQuestions } from '../../../domain/parse'
+import { currentTask, needsYou } from '../../../domain/attention'
+import { groupByPullRequest } from '../../../domain/plan-shape'
 import { ActionMenu } from '../molecules/ActionMenu'
+import { CurrentTaskCard } from '../molecules/CurrentTaskCard'
+import { NeedsYouCard } from '../molecules/NeedsYouCard'
 import { PullRequestItem } from '../molecules/PullRequestItem'
-import { TaskItem } from '../molecules/TaskItem'
+import { palette } from '../palette'
 import type { Ui } from '../ui'
 
 type PlanDetailProps = {
   ui: Ui
   board: PlanBoard
+  columns: number
   project: PlanProject
   isDeleting: boolean
   isMenuOpen: boolean
@@ -24,43 +28,38 @@ type PlanDetailProps = {
 export function PlanDetail(props: PlanDetailProps) {
   const { ui, board, project, isDeleting, isMenuOpen, message } = props
   const { Box, Text, Button } = ui
-  const active = activeTasks(project.rows)
-  const pullRequests = project.rows.filter(row => row.kind === 'pr')
-  const opened = pullRequests.filter(row => row.prNumber !== null).length
-  const questions = openQuestions(project.rows)
+  const groups = groupByPullRequest(project.rows).filter(group => group.pr !== null)
+  const opened = groups.filter(group => group.pr?.prNumber !== null).length
+  const current = currentTask(project.rows)
 
   return (
     <Box flexDirection="column" gap={1} flexGrow={1} position="relative">
       <Box justifyContent="space-between">
-        <Button key="back" hotkey="b" label="← Plans (b)" onPress={props.onBack} />
-        <Button key="menu" hotkey="m" label={isMenuOpen ? '✕ Close (m)' : '☰ Menu (m)'} onPress={props.onToggleMenu} />
+        <Box gap={1}>
+          <Button key="back" hotkey="b" label="←" onPress={props.onBack} />
+          <Text weight="bold" color={palette.text}>
+            {project.title}
+          </Text>
+        </Box>
+        <Button key="menu" hotkey="m" label={isMenuOpen ? '✕' : '☰'} onPress={props.onToggleMenu} />
       </Box>
 
-      <Box flexDirection="column" flexGrow={1} flexShrink={1} overflow="hidden">
-        <Text weight="bold">Active tasks</Text>
-        {active.length === 0 && <Text color="success">Nothing left to do.</Text>}
-        {active.map(row => (
-          <TaskItem key={`task-${row.id}`} ui={ui} row={row} />
-        ))}
-        {questions.length > 0 && (
-          <Text color="warning">
-            {questions.length} open question(s): {questions.map(row => row.id).join(', ')}
-          </Text>
-        )}
-      </Box>
+      <NeedsYouCard ui={ui} items={needsYou(project)} columns={props.columns - 4} onOpen={() => undefined} />
+
+      {current && <CurrentTaskCard ui={ui} task={current} />}
 
       <Box flexDirection="column">
         <Text weight="bold">
           Pull requests <Text color="suggestion">{opened}</Text>
-          <Text dimColor> created of {pullRequests.length}</Text>
+          <Text dimColor> created of {groups.length}</Text>
         </Text>
-        {pullRequests.map(row => (
+        {groups.map(group => (
           <PullRequestItem
-            key={`pr-${row.id}`}
+            key={`pr-${group.pr?.id}`}
             ui={ui}
-            row={row}
+            group={group}
             repoUrl={board.repoUrl}
-            worktree={row.branch === null ? undefined : board.worktrees[row.branch]}
+            worktree={group.pr?.branch ? board.worktrees[group.pr.branch] : undefined}
           />
         ))}
       </Box>
