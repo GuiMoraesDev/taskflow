@@ -1,6 +1,6 @@
 import type { PlanBoard, PlanProject } from '../../../../types'
 import { currentTask, needsYou } from '../../../domain/attention'
-import { groupByPullRequest } from '../../../domain/plan-shape'
+import { groupByPullRequest, nextTask } from '../../../domain/plan-shape'
 import { ActionMenu } from '../molecules/ActionMenu'
 import { CurrentTaskCard } from '../molecules/CurrentTaskCard'
 import { NeedsYouCard } from '../molecules/NeedsYouCard'
@@ -31,6 +31,7 @@ export function PlanDetail(props: PlanDetailProps) {
   const groups = groupByPullRequest(project.rows).filter(group => group.pr !== null)
   const opened = groups.filter(group => group.pr?.prNumber !== null).length
   const current = currentTask(project.rows)
+  const next = nextTask(project.rows)
 
   return (
     <Box flexDirection="column" gap={1} flexGrow={1} position="relative">
@@ -76,9 +77,13 @@ export function PlanDetail(props: PlanDetailProps) {
             </Box>
           </Box>
         ) : (
-          <Box gap={2}>
-            <Button key="next-task" hotkey="t" label="Next task (t)" onPress={props.onNextTask} />
-          </Box>
+          next && (
+            <Button key="next-task" plain hotkey="t" onPress={props.onNextTask}>
+              <Text weight="bold" color={palette.green} wrap="truncate-end">
+                ▶ Next: {next.id} {next.summary}
+              </Text>
+            </Button>
+          )
         )}
         {message && <Text dimColor>{message}</Text>}
       </Box>
