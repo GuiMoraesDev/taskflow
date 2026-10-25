@@ -22,7 +22,7 @@ export function Mascot({ ui, rows, status, step, waiting, card = false }: Mascot
       <Text weight="bold" color={card ? palette.muted : undefined}>
         {status.headline}
       </Text>
-      {!card && progress && (
+      {progress && (
         <Text>
           <Text dimColor>
             {progress.done}/{progress.total} tasks done ·{' '}

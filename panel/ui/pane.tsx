@@ -8,6 +8,7 @@ import { boardNeedsYou } from '../domain/attention'
 import { boardStatus, planStatus } from '../domain/status'
 import { Loading } from './components/molecules/Loading'
 import { Mascot } from './components/molecules/Mascot'
+import { MenuSheet } from './components/molecules/MenuSheet'
 import { NeedsYouCard } from './components/molecules/NeedsYouCard'
 import { TabBar, type Tab } from './components/molecules/TabBar'
 import { ObsidianSettings } from './components/organisms/ObsidianSettings'
@@ -68,6 +69,8 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
     void update($, tab, () => 'plans')
     void update($, selected, () => null)
   }
+  const menuOpen = await read($, isMenuOpen)
+  const hasSheet = menuOpen && hasBar && activeTab === 'plans'
   const wait = await read($, waiting)
   const rows = project?.rows ?? state.projects.flatMap(candidate => candidate.rows)
 
@@ -79,7 +82,7 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         status={project ? planStatus(project) : boardStatus(state.projects)}
         step={step}
         waiting={wait.dialog || wait.permission || wait.lastTurnAsked}
-        card={project === undefined && state.projects.length > 0}
+        card={state.projects.length > 0}
       />
 
       <PaneContent
@@ -91,10 +94,11 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
         trash={trashList}
         tab={activeTab}
         isClearing={await read($, pendingClear)}
-        isMenuOpen={await read($, isMenuOpen)}
+        isMenuOpen={menuOpen}
         message={message}
         actions={{
           open: name => {
+            void update($, isMenuOpen, () => false)
             void update($, tab, () => 'plans')
             void update($, selected, () => name)
           },
@@ -102,14 +106,6 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
           toggleMenu: () => update($, isMenuOpen, open => !open),
           nextTask: () => void $.prompt.submit({ text: '/taskflow:next-task' }),
           openSettings: () => void openSettings($),
-          refresh: () => {
-            void update($, isMenuOpen, () => false)
-            void loadBoard($)
-          },
-          askDelete: name => {
-            void update($, isMenuOpen, () => false)
-            void update($, pendingDelete, () => name)
-          },
           confirmDelete: name => deleteProject($, name),
           cancelDelete: () => update($, pendingDelete, () => null),
           openTrash: () => openTrash($),
@@ -124,14 +120,36 @@ export async function renderPane($: EngineInterface, e: RenderInput<'Pane'>) {
       {hasBar && (
         <>
           <Box flexGrow={1} />
-          <TabBar
-            ui={ui}
-            active={activeTab}
-            onPlans={back}
-            onNeedsYou={() => void update($, tab, () => 'needs-you')}
-            onNextTask={() => void $.prompt.submit({ text: '/taskflow:next-task' })}
-          />
+          <TabBar ui={ui} active={activeTab} onPlans={back} onNeedsYou={() => void update($, tab, () => 'needs-you')} />
         </>
+      )}
+
+      {hasSheet && (
+        <MenuSheet
+          ui={ui}
+          plan={
+            project && {
+              onNextTask: () => void $.prompt.submit({ text: '/taskflow:next-task' }),
+              onPlanStatus: () => void $.prompt.submit({ text: '/taskflow:plan-status' }),
+              onAskDelete: () => {
+                void update($, isMenuOpen, () => false)
+                void update($, pendingDelete, () => project.name)
+              },
+            }
+          }
+          onRefresh={() => {
+            void update($, isMenuOpen, () => false)
+            void loadBoard($)
+          }}
+          onSettings={() => {
+            void update($, isMenuOpen, () => false)
+            void openSettings($)
+          }}
+          onOpenTrash={() => {
+            void update($, isMenuOpen, () => false)
+            void openTrash($)
+          }}
+        />
       )}
     </Box>
   )
@@ -143,8 +161,6 @@ type PaneActions = {
   toggleMenu: () => void
   nextTask: () => void
   openSettings: () => void
-  refresh: () => void
-  askDelete: (name: string) => void
   confirmDelete: (name: string) => void
   cancelDelete: () => void
   openTrash: () => void
@@ -215,24 +231,24 @@ const PaneContent = ({
       projects={state.projects}
       columns={columns}
       message={message}
+      isMenuOpen={isMenuOpen}
+      dim={isMenuOpen}
       onOpen={actions.open}
-      onRefresh={actions.refresh}
-      onSettings={actions.openSettings}
-      onOpenTrash={actions.openTrash}
+      onToggleMenu={actions.toggleMenu}
     />
   ) : (
     <PlanDetail
       ui={ui}
       board={state}
       project={project}
+      columns={columns}
       isDeleting={deleting === project.name}
       isMenuOpen={isMenuOpen}
+      dim={isMenuOpen}
       message={message}
       onBack={actions.back}
       onToggleMenu={actions.toggleMenu}
       onNextTask={actions.nextTask}
-      onRefresh={actions.refresh}
-      onAskDelete={() => actions.askDelete(project.name)}
       onConfirmDelete={() => actions.confirmDelete(project.name)}
       onCancelDelete={actions.cancelDelete}
     />
