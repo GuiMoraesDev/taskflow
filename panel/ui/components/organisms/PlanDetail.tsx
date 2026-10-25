@@ -1,7 +1,6 @@
 import type { PlanBoard, PlanProject } from '../../../../types'
 import { currentTask, needsYou } from '../../../domain/attention'
 import { groupByPullRequest, nextTask } from '../../../domain/plan-shape'
-import { ActionMenu } from '../molecules/ActionMenu'
 import { CurrentTaskCard } from '../molecules/CurrentTaskCard'
 import { NeedsYouCard } from '../molecules/NeedsYouCard'
 import { PullRequestItem } from '../molecules/PullRequestItem'
@@ -15,18 +14,17 @@ type PlanDetailProps = {
   project: PlanProject
   isDeleting: boolean
   isMenuOpen: boolean
+  dim: boolean
   message: string | null
   onBack: () => void
   onToggleMenu: () => void
   onNextTask: () => void
-  onRefresh: () => void
-  onAskDelete: () => void
   onConfirmDelete: () => void
   onCancelDelete: () => void
 }
 
 export function PlanDetail(props: PlanDetailProps) {
-  const { ui, board, project, isDeleting, isMenuOpen, message } = props
+  const { ui, board, project, isDeleting, isMenuOpen, dim, message } = props
   const { Box, Text, Button } = ui
   const groups = groupByPullRequest(project.rows).filter(group => group.pr !== null)
   const opened = groups.filter(group => group.pr?.prNumber !== null).length
@@ -34,11 +32,11 @@ export function PlanDetail(props: PlanDetailProps) {
   const next = nextTask(project.rows)
 
   return (
-    <Box flexDirection="column" gap={1} flexGrow={1} position="relative">
+    <Box flexDirection="column" gap={1} flexGrow={1}>
       <Box justifyContent="space-between">
         <Box gap={1}>
           <Button key="back" hotkey="b" label="←" onPress={props.onBack} />
-          <Text weight="bold" color={palette.text}>
+          <Text weight="bold" color={dim ? palette.faint : palette.text}>
             {project.title}
           </Text>
         </Box>
@@ -50,7 +48,7 @@ export function PlanDetail(props: PlanDetailProps) {
       {current && <CurrentTaskCard ui={ui} task={current} />}
 
       <Box flexDirection="column">
-        <Text weight="bold">
+        <Text weight="bold" dimColor={dim}>
           Pull requests <Text color="suggestion">{opened}</Text>
           <Text dimColor> created of {groups.length}</Text>
         </Text>
@@ -79,7 +77,7 @@ export function PlanDetail(props: PlanDetailProps) {
         ) : (
           next && (
             <Button key="next-task" plain hotkey="t" onPress={props.onNextTask}>
-              <Text weight="bold" color={palette.green} wrap="truncate-end">
+              <Text weight="bold" color={dim ? palette.faint : palette.green} wrap="truncate-end">
                 ▶ Next: {next.id} {next.summary}
               </Text>
             </Button>
@@ -87,24 +85,6 @@ export function PlanDetail(props: PlanDetailProps) {
         )}
         {message && <Text dimColor>{message}</Text>}
       </Box>
-
-      {isMenuOpen && (
-        <ActionMenu
-          top={1}
-          right={0}
-          ui={ui}
-          items={[
-            { key: 'refresh', icon: '🔄', label: 'Refresh (r)', hotkey: 'r', onPress: props.onRefresh },
-            {
-              key: 'delete',
-              icon: '🗑️',
-              label: 'Move workspace to trash (x)',
-              hotkey: 'x',
-              onPress: props.onAskDelete,
-            },
-          ]}
-        />
-      )}
     </Box>
   )
 }

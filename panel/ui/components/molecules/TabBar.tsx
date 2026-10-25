@@ -3,9 +3,9 @@ import type { Ui } from '../ui'
 
 export type Tab = 'plans' | 'needs-you'
 
-type TabBarProps = { ui: Ui; active: Tab; onPlans: () => void; onNeedsYou: () => void; onNextTask: () => void }
+type TabBarProps = { ui: Ui; active: Tab; onPlans: () => void; onNeedsYou: () => void }
 
-export function TabBar({ ui, active, onPlans, onNeedsYou, onNextTask }: TabBarProps) {
+export function TabBar({ ui, active, onPlans, onNeedsYou }: TabBarProps) {
   const { Box, Text, Button } = ui
   const tone = (tab: Tab) => (active === tab ? palette.purple : palette.muted)
 
@@ -18,9 +18,6 @@ export function TabBar({ ui, active, onPlans, onNeedsYou, onNextTask }: TabBarPr
         <Text color={tone('needs-you')}>
           <Text color={palette.amber}>▲</Text> Needs you
         </Text>
-      </Button>
-      <Button key="tab-next-task" plain hotkey="g" onPress={onNextTask}>
-        <Text color={palette.muted}>▶ Next task</Text>
       </Button>
     </Box>
   )
