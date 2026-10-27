@@ -51,12 +51,6 @@ Then, in the repo you want to use it on:
 
 > 💡 To install from a local checkout instead, pass its path to `/plugin marketplace add`.
 
-The plugin also adds a side pane. `/open-mod`
-opens it: every plan's progress, its active tasks and open questions, the pull requests
-with their links, a key for `/next-task`, and a delete button for a plan folder that
-asks before it removes anything. It opens by itself at session start on terminals of 144
-columns or more.
-
 ## How a piece of work flows 🔁
 
 ```
@@ -135,9 +129,8 @@ Plans are written to one of two places:
 | `TASKFLOW_OBSIDIAN_PATH` | The folder inside the vault, e.g. `taskflow/my-repo` |
 
 See [`examples/workflow.env.example`](examples/workflow.env.example). `/init-workflow`
-and the Taskflow panel both set it for you. With Obsidian on, plans are read and
-written in the vault only, and a bad vault setting stops with a message instead of
-falling back to the repo.
+sets it for you. With Obsidian on, plans are read and written in the vault only, and
+a bad vault setting stops with a message instead of falling back to the repo.
 
 > 💡 Plan files in a vault are written by absolute path, which asks permission every
 > time. Add the vault to `permissions.additionalDirectories` in

@@ -30,8 +30,5 @@
         ]
       }
     ]
-  },
-  "modules": [
-    "../panel/register.tsx"
-  ]
+  }
 }

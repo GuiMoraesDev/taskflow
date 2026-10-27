@@ -1,4 +1,1 @@
-npm run --silent lint
-npm run --silent typecheck
-npm run --silent format:check
 npm run --silent version:check

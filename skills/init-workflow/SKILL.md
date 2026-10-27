@@ -88,7 +88,6 @@ Then tell the owner how the Obsidian setup works, in a few lines:
   `projectsDir` in `workflow.json` keeps the repo folder.
 - `TASKFLOW_PLANS_SOURCE` picks the source of truth - `repo` unless it says
   `obsidian`. Only that source is read.
-- The Taskflow panel shows these settings and edits them.
 - Plan files in the vault are written by absolute path, which prompts every
   time. Adding the vault to `permissions.additionalDirectories` in
   `.claude/settings.local.json` stops that - offer to do it.

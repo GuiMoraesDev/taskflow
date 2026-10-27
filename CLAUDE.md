@@ -32,9 +32,8 @@ The tier binds the subagent that makes the change, and the mapping lives in
 `.claude/workflow.json`. A task applied on the wrong model is a deviation for the
 session log even when the diff is fine.
 
-Gates before every commit: `npm run lint`, `npm run format:check`,
-`npm run typecheck`. There is no unit or e2e suite. The pre-commit hook runs
-lint, typecheck, format check and `version:check`.
+Gates before every commit: `npm run version:check`. There is no lint, type
+check, unit or e2e suite. The pre-commit hook runs `version:check`.
 
 Commit messages and pull requests carry no AI signature - no `Co-Authored-By`
 trailer for an AI, no "Generated with Claude Code" line - unless
@@ -62,12 +61,8 @@ carrying a security consequence - leads with what the wrong answer costs.
 ## Commands
 
 ```bash
-npm run lint           # eslint panel types
-npm run format         # prettier --write
-npm run format:check   # prettier --check
-npm run typecheck      # tsc --noEmit
 npm run version:check  # plugin.json version bumped
-npm run check          # all of the above
+npm run check          # the pre-commit gates
 ```
 
 ## Which doc owns what
