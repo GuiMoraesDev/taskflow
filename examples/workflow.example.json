@@ -38,9 +38,9 @@
   },
   "pullRequests": {
     "maxLines": 400,
+    "maxTotalLines": 600,
+    "codeExcludes": ["**/*.test.*", "**/*.spec.*", "README.md", "docs/**"],
     "excludeFromCount": [
-      "**/*.test.*",
-      "**/*.spec.*",
       "**/__snapshots__/**",
       "package-lock.json",
       "pnpm-lock.yaml",

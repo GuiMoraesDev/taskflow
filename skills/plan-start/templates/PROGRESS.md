@@ -12,14 +12,14 @@ the order of the table is the order things are needed.
 
 | Status                     | ID     | Category    | Owner     | Summary                                                     |
 | -------------------------- | ------ | ----------- | --------- | ----------------------------------------------------------- |
-| 📝 draft #12                | PR-1   | 🔀 PR        | —         | feat: rate-limit login · `feat/login-rate-limit` · ~310/400 |
+| 📝 draft #12                | PR-1   | 🔀 PR        | —         | feat: rate-limit login · `feat/login-rate-limit` · ~310 / 400 code · ~450 / 600 total |
 | ✅ done                     | TASK-1 | 🔴 Bug       | 🧠 Opus    | Short description                                           |
 | ⬜ unanswered               | Q1     | ❓ 🟦         | 🙋 Owner   | Short question — blocks TASK-2                              |
 | 🚧 blocked on Q1            | TASK-2 | 🟡 Refactor  | ⚙️ Sonnet | Short description                                           |
-| 📋 criteria in discussion   | PR-2   | 🔀 PR        | —         | fix: <title> · `fix/<slug>` · ~120/400                      |
+| 📋 criteria in discussion   | PR-2   | 🔀 PR        | —         | fix: <title> · `fix/<slug>` · ~120 / 400 code · ~180 / 600 total |
 | 🚧 blocking TASK-5          | Q2     | ❓ ⚠️        | 🙋 Owner   | Short question — blocks TASK-5                              |
 | 🚧 blocked on Q2            | TASK-5 | 🟡 Refactor  | ⚙️ Sonnet | Short description                                           |
-| ⬜ not opened               | PR-3   | 🔀 PR        | —         | chore: <title> · `chore/<slug>` · ~20/400                   |
+| ⬜ not opened               | PR-3   | 🔀 PR        | —         | chore: <title> · `chore/<slug>` · ~20 / 400 code · ~20 / 600 total |
 | ✅ answered: **B**          | Q3     | ❓ 🟦         | 🙋 Owner   | Short question — blocks TASK-7                              |
 | ⬜ pending                  | TASK-7 | 🟢 Chore     | 🙋 Owner   | A step only the owner can do                                |
 
@@ -83,7 +83,7 @@ changed in the discussion - a criterion dropped, split, or added.
 reasoning. Note here when a decision was graduated to the repo's decision record,
 and where it landed.
 
-**YYYY-MM-DD** — TASK-1 applied (`abc1234`, PR-1 draft #12, 140/400 lines). What
+**YYYY-MM-DD** — TASK-1 applied (`abc1234`, PR-1 draft #12, 140 / 400 code · 210 / 600 total). What
 changed, in a sentence or two. Tests: 2 added, red before the implementation for
 the stated reason, green after. For a bug: what the defect actually was.
 42 unit / 7 e2e green.

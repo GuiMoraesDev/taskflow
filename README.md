@@ -150,7 +150,7 @@ Everything specific to your repo lives in one file you own: `.claude/workflow.js
 | `docsChecklist` | Each doc and what it covers, checked before a behaviour change is done |
 | `decisions` | Where your decision records and glossary live |
 | `diagrams` | Whether you keep diagrams, where, in what format and who edits them |
-| `pullRequests` | Line budget and the paths it skips, branch and title prefixes, labels, assignee, stacking and whether independent pull requests run in parallel |
+| `pullRequests` | Line budgets - `maxLines` for code (400), `maxTotalLines` for code plus `codeExcludes` (600), `codeExcludes` the test and doc paths counted only in the total (`**/*.test.*`, `**/*.spec.*`), `excludeFromCount` the paths counted in neither (lockfiles, generated files) - branch and title prefixes, labels, assignee, stacking and whether independent pull requests run in parallel |
 | `aiSignature` | Whether commits and pull requests may carry an AI signature |
 | `commitTypes` | The allowed conventional-commit types |
 | `models` | Which model each tier uses, e.g. `{ "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }` |
@@ -163,7 +163,7 @@ Prose rules go stale; lint rules don't.
 ## The rules it follows 📏
 
 1. **No code before the plan.** `SCOPE.md` says what may change and what may not, `TASKS.md` holds the work, `QUESTIONS.md` holds the open decisions and `PROGRESS.md` tracks progress.
-2. **Plans are pull requests.** Each one has one topic and stays under the line budget (400 changed lines by default, tests not counted). Its title, branch, commits and files are written down before any of them exist.
+2. **Plans are pull requests.** Each one has one topic and stays under two line budgets: 400 changed lines of code and 600 in total, tests and listed docs counting only toward the total. Its title, branch, commits and files are written down before any of them exist.
 3. **Criteria come first.** Each pull request's acceptance criteria are agreed with you before its tasks start.
 4. **One task, one commit.** Each task makes something visibly true and lists its category, model tier, files and tests. A wide mechanical change is done as expand, migrate, contract.
 5. **Only real decisions become questions.** Claude reads the repo for anything it can answer itself. Each question comes with a recommendation, examples, cost and how to undo it. It is asked at the task that needs it, and it blocks only that task.

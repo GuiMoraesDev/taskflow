@@ -7,12 +7,13 @@ Before touching code, create `SCOPE.md`, `TASKS.md`, `QUESTIONS.md` and
 <project-name>` to scaffold them.
 
 The plan is split into pull requests - one topic each, under 400 changed lines
-not counting the lockfile - and each pull request carries acceptance criteria
-agreed with the repo owner before any of its tasks start. A pull request has one
-branch; its first task opens it as a draft, its last marks it ready, and it
-reaches the default branch only when the repo owner reviews and merges it. Its
-branch prefix, title prefix, labels, assignee and stacking follow
-`pullRequests` in `.claude/workflow.json`.
+of code and 600 in total counting tests and docs, the lockfile excluded - and
+each pull request carries acceptance criteria agreed with the repo owner before
+any of its tasks start. A pull request has one branch; its first task opens it
+as a draft, its last marks it ready, and it reaches the default branch only when
+the repo owner reviews and merges it. Its branch prefix, title prefix, labels,
+assignee and stacking follow `pullRequests` in
+`.claude/workflow.json`.
 
 One task per commit, applied and reviewed one at a time. Every task declares the
 model that must take it, and its change is made by a subagent spawned on that

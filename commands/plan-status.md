@@ -16,8 +16,9 @@ Report, and nothing else:
    their positions, with a count line:
    `n done · n in progress · n pending · n blocked`, and one for the pull
    requests: `n merged · n ready · n draft · n not opened · n in discussion`.
-   Give each opened pull request its number and its size against the budget, and
-   flag any over it.
+   Give each opened pull request its number and its size against both budgets
+   (`N / 400 code · M / 600 total`), and flag any
+   over either.
 2. Any **unanswered** (⬜) or **partly answered** (🚧) question: its ID, its
    mark, the task it blocks, and its recommendation with the deciding reason in
    one line. Every one of them is holding its task, so say
