@@ -62,7 +62,7 @@ carrying a security consequence - leads with what the wrong answer costs.
 
 ```bash
 npm run version:check  # plugin.json version bumped
-npm run check          # all of the above
+npm run check          # the pre-commit gates
 ```
 
 ## Which doc owns what

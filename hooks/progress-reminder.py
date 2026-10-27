@@ -86,8 +86,8 @@ def vault_path(env, vaults):
     return matches[0] if len(matches) == 1 else None
 
 
-# Mirrors resolvePlanDir in panel/domain/plan-dir.ts. With Obsidian as the
-# source a problem yields None (the hook stays silent), never a repo fallback.
+# With Obsidian as the source a problem yields None (the hook stays silent),
+# never a repo fallback.
 def resolve_plan_dir(cwd):
     env = read_workflow_env(cwd)
     if env.get("TASKFLOW_PLANS_SOURCE") != "obsidian":
