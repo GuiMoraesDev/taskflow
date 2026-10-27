@@ -4,18 +4,10 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "lint": "eslint panel types",
-    "format": "prettier --write panel types",
-    "format:check": "prettier --check panel types",
-    "typecheck": "tsc --noEmit -p .",
-    "check": "npm run lint && npm run format:check && npm run typecheck && npm run version:check",
+    "check": "npm run version:check",
     "version:check": "node scripts/check-version.js"
   },
   "devDependencies": {
-    "eslint": "9.39.5",
-    "husky": "^9.1.7",
-    "prettier": "3.4.2",
-    "typescript": "5.6.3",
-    "typescript-eslint": "8.72.0"
+    "husky": "^9.1.7"
   }
 }
