@@ -15,12 +15,13 @@ the repo owner reviews and merges it. Its branch prefix, title prefix, labels,
 assignee and stacking follow `pullRequests` in
 `.claude/workflow.json`.
 
-One task per commit, applied and reviewed one at a time. Every task declares the
-model that must take it, and its change is made by a subagent spawned on that
-model. Tests come first: the task's tests are derived from the criteria, shown
-to the repo owner with why each matters, and watched failing for the right
-reason before the implementation is written to make them pass. A task that
-changes no behaviour says so and why.
+One task per commit, applied one at a time. Every task declares the model that
+must take it, and its change is made by a subagent spawned on that model. Tests
+come first: each task's tests are derived from the criteria and watched failing
+for the right reason before the implementation is written to make them pass.
+The repo owner sees all of a pull request's tests once, up front, with why each
+matters, and each pull request is reviewed by an independent opus agent before
+it is marked ready. A task that changes no behaviour says so and why.
 
 | Symbol | Model  | Scope                                                                                                                                         |
 | ------ | ------ | --------------------------------------------------------------------------------------------------------------------------------------------- |

@@ -63,9 +63,10 @@ Then, in the repo you want to use it on:
 2. **Agree the criteria.** Settle each pull request's acceptance criteria before its
    first task starts.
 3. **Run a task.** `/next-task` picks the first task that isn't blocked (or use
-   `/next-task TASK-3` to pick one). Claude runs the full cycle: branch, failing tests,
-   implementation, a review of the logic with you, gates, size check, commit, push and
-   log. Then it stops.
+   `/next-task TASK-3` to pick one). At a pull request's first task you sit once:
+   its open questions, then every task's tests. After that Claude runs each task
+   through: branch, failing tests, implementation, a self-check, gates, size check,
+   commit, push and log, stopping only when it needs you.
 4. **Repeat.** The first task of a pull request opens it as a draft, and the last task
    marks it ready for review, after a senior review whose blockers are fixed first.
 5. **Check in.** `/plan-status` shows where you are, the open questions and what they
@@ -88,7 +89,7 @@ Then, in the repo you want to use it on:
 | --- | --- |
 | `init-workflow` | Reads your repo's scripts and layout, asks what it can't figure out (models, diagrams, pull-request conventions), then writes `.claude/workflow.json` and the workflow section of `CLAUDE.md`. Running it again asks only about what changed |
 | `plan-start` | Grills you on the design, then writes the four plan docs: the scope, the pull requests, their acceptance criteria, one-commit tasks with their tests, and the open questions, each with a recommendation |
-| `task-run` | Runs one task through the full cycle, from the failing tests to the commit and pull request, then carries on to the next until it needs you |
+| `task-run` | Holds one sitting with you per pull request, up front - its questions, then every task's tests - then runs each task from the failing tests to the commit and pull request, carrying on until it needs you |
 | `bug-red-test` | Proves a regression test fails against the old behaviour before the fix ships |
 | `docs-sync` | Goes through your docs checklist, plus the glossary and diagrams if your repo has them |
 | `standards-review` | Checks a diff against the standards in your `CLAUDE.md`, and warns you when a test was bent to pass instead of updated with the behaviour |

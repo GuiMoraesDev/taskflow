@@ -219,8 +219,8 @@ ticket, and a pull request without one gets a question at its first task. A
 prefix that is the same on every pull request is written literally.
 
 Say what the parallel answer costs in its option. The subagents' work runs at
-once, but every checkpoint the owner holds - the tests, the grill, the diff, the
-commit - stays in the main session, one pull request at a time. It saves wall
+once, but every owner stop - the sitting and the hard stops after it - stays in
+the main session, one pull request at a time. It saves wall
 time on the writing and the gates, not attention.
 
 On a re-run, ask only the conventions being changed, the current value first
