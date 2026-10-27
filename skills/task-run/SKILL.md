@@ -370,16 +370,17 @@ included. Then the conventions:
   report. Never drop a label silently.
 - **Assignee** - `--assignee @me` when `assignOwner` is `true`.
 
-The body says what the pull
-request changes, lists its acceptance criteria as a checklist with the test that
-proves each one, carries the **Agreed behaviour** from each task's grill, and
-says how it was verified - in the register of the commit
-message: no plan-file references, no task IDs, no conversation, and no AI
-signature unless `aiSignature` is `true`. Update the checklist as each task
-lands, so a reviewer opening the draft sees what is proven so far. When the last
-task lands, consolidate the agreed behaviour into the pull request's **source of
-truth**: one list, no duplicates, the system's behaviour as the pull request
-leaves it.
+The body follows `templates/PR-body.md` in this skill's folder: **Intent**,
+**Proven by** - one line per criterion to the test that proves it, or "No new
+test" and why - and **Where to look**, then the **Agreed behaviour** collapsed
+in `<details>`. Ten lines or fewer outside `<details>` when the pull request has
+three criteria or fewer. Write it in the register of the commit message: no
+plan-file references, no task IDs, no conversation, and no AI signature unless
+`aiSignature` is `true`. Tick each Proven by line as its task lands. When the
+last task lands, fill Where to look with the one to three spots most worth the
+reviewer's attention, and consolidate each grill's agreed behaviour into the
+source of truth in `<details>`: one list, no duplicates, the system's behaviour
+as the pull request leaves it.
 
 Merging is the repo owner's call. When the last task of a pull request lands,
 the next pull request waits on that merge only if it depends on it; otherwise
