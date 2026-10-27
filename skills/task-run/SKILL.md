@@ -9,12 +9,12 @@ One task at a time. Batching several tasks into one review is the failure this
 whole cycle exists to prevent.
 
 **Don't stop until the owner is needed.** When a task is logged, take the next
-frontier task and run its cycle in the same turn. Stop only at a checkpoint
-that needs the owner - an unanswered question, criteria still 📋, the tests to
+frontier task and run its cycle in the same turn. Stop only at a checkpoint that
+needs the owner - an unanswered question, criteria still 📋, the tests to
 approve, the grill, the diff, the commit message, a size over budget, a failing
-gate you cannot fix, a 🙋 row, a merge - or when the frontier is empty. Say in a
-line which task you are starting; never end a turn on "should I start the
-next one?".
+gate you cannot fix, an unresolved reviewer blocker, a 🙋 row, a merge - or when
+the frontier is empty. Say in a line which task you are starting; never end a
+turn on "should I start the next one?".
 
 The one exception is `pullRequests.parallel: true` in `.claude/workflow.json`:
 then one task per **independent** pull request may run at once - see
@@ -42,6 +42,7 @@ Obsidian vault outside the repo.
 7. Stage, check the pull request's size ──► over budget? stop, raise the split
 8. Draft the commit message, present it ──► approved? commit
 9. Push. The first task opens the pull request as a draft; the last marks it ready
+   after the review ──► blocking? fix as a task commit, review once more
 10. Mark ✅ and append a session-log entry naming the hash and the pull request
 ```
 
@@ -356,6 +357,16 @@ request:
 | The last | Mark it ready for review (`gh pr ready`) and update the body |
 | Alone in its pull request | Open it ready for review |
 
+**Review before ready.** Before `gh pr ready`, or before opening a lone pull
+request ready, spawn the `pr-reviewer` agent with `model` set to `models.deep`,
+passing the base from step 1, the pull request's criteria verbatim and the path
+to the repo's `CLAUDE.md`. A Codex `models.deep` runs it through
+`codex:codex-rescue` as step 6 does for the gate-runner. Each blocking finding
+is fixed on the branch by a subagent on the task's model, spawned as in step 3,
+as its own commit through steps 6 to 8; then the reviewer runs once more.
+Anything still blocking stops the run for the owner before the pull request is
+marked ready. Non-blocking findings go in the session log.
+
 On a stack, the tool submits instead of `gh pr create` - `gt submit --stack
 --draft`, `git town propose` - and the labels and the assignee are set on the
 pull request it opened with `gh pr edit`.
@@ -384,8 +395,8 @@ as the pull request leaves it.
 
 When the last task marks the pull request ready, also post up to three inline
 review comments on the spots the owner should check most. Take them from the
-critical-logic sites flagged during the task, and from the reviewer's top
-findings once that step exists. Each comment is one sentence, e.g. "Look here:
+reviewer's top three non-blocking findings first, then from the critical-logic
+sites flagged during the task. Each comment is one sentence, e.g. "Look here:
 the 429 threshold is the business rule; agreed 5/minute.", and carries no AI
 signature. A pointer whose line is not in the diff goes into Where to look
 instead. A failed post never fails the step: report it and move on.

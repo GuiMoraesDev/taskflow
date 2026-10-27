@@ -67,7 +67,7 @@ Then, in the repo you want to use it on:
    implementation, a review of the logic with you, gates, size check, commit, push and
    log. Then it stops.
 4. **Repeat.** The first task of a pull request opens it as a draft, and the last task
-   marks it ready for review.
+   marks it ready for review, after a senior review whose blockers are fixed first.
 5. **Check in.** `/plan-status` shows where you are, the open questions and what they
    block. `/deviation` writes down anything that didn't go as planned.
 
@@ -99,6 +99,7 @@ Then, in the repo you want to use it on:
 | --- | --- | --- |
 | `plan-architect` | deep | Surveys the code and returns the task breakdown a plan needs |
 | `standards-reviewer` | deep | Audits a diff against the standards without changing anything |
+| `pr-reviewer` | deep | Reviews a pull request against its criteria and flags ranked issues before it is marked ready |
 | `docs-diagram-auditor` | surface | Looks for outdated claims in the docs and diagram labels |
 | `gate-runner` | mechanical | Runs lint, types, unit and e2e tests and reports only the failures |
 
