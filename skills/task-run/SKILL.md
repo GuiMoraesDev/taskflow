@@ -178,6 +178,12 @@ the tool opens the branch on top of the one below it - `gt create`,
 
 One pull request, one branch, one commit per task.
 
+Before a pull request's first task, check each 👀 row in `PROGRESS.md` for
+owner comments or reviews `/review-feedback` has not logged yet - one
+`gh api` GET per pull request; the workflow's own "Look here:" pointers do not
+count. If any, name the pull request and offer `/review-feedback <pr>` first.
+It is an offer: if the owner declines, carry on.
+
 ## Step 3 - red: the tests, in a subagent
 
 Spawn a `general-purpose` subagent with `model` set to the tier's value from

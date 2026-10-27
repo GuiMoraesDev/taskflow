@@ -82,6 +82,7 @@ Then, in the repo you want to use it on:
 | `/plan-status [project]` | Shows the task list, open questions, latest log entries and the next task you can do |
 | `/next-task [TASK-ID]` | Picks the next task, or the one you name, and runs the cycle on it |
 | `/deviation <what changed>` | Logs a change from the plan |
+| `/review-feedback <pr>` | Judges a pull request's review comments, logs each one and suggests a process change |
 
 ### Skills
 
