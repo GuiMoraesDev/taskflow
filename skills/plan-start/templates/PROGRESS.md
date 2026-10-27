@@ -91,3 +91,7 @@ the stated reason, green after. For a bug: what the defect actually was.
 **YYYY-MM-DD** — TASK-2 applied (`def5678`). **Deviation:** the plan called for
 X, but Y turned out to be true, so this does Z instead. Deviations belong here
 whether they made the task bigger or smaller.
+
+**YYYY-MM-DD** — Review feedback on PR-1 (#12):
+[comment](https://github.com/owner/repo/pull/12#discussion_r1) **valid**, cause
+test gap - the empty-input case was agreed but never tested. Fix: TASK-9.
