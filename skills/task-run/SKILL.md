@@ -290,26 +290,28 @@ before calling the task done.
 
 Stage the task's files with an explicit pathspec, then measure the pull
 request as GitHub will count it - everything on the branch since its base, plus
-what is staged - against `pullRequests.maxLines` (400 when unset), excluding
-`pullRequests.excludeFromCount`:
+what is staged - from the repo root:
 
 ```bash
-git diff --cached --numstat <base> -- . ':(glob,exclude)**/*.test.*' ':(glob,exclude)**/*.spec.*' \
-  | awk '$1 != "-" { n += $1 + $2 } END { print n + 0 }'
+node "${CLAUDE_PLUGIN_ROOT}/scripts/pr-size.js" <base>
 ```
 
-Use one `':(glob,exclude)<pattern>'` per entry in `excludeFromCount`; the two
-above are what an unset config means, with lockfiles. `<base>` is the merge base
-with the branch the pull request targets.
+`<base>` is the merge base with the branch the pull request targets. Code is
+held to `pullRequests.maxLines` (400 when unset); the total, which adds the
+`codeExcludes` paths - tests by default, plus any docs listed - is held to
+`maxTotalLines` (600 when unset) once either key is set. `excludeFromCount`
+counts toward neither. Exit 2 is a usage error or an unparsable config: fix it
+and measure again.
 
-Over the budget: **stop before committing.** Say the count, which files carry
-it, and propose where the pull request splits - by topic or by file group, never
-through the middle of a behaviour. Splitting changes the plan, so the owner
-decides, and the new shape goes into `TASKS.md` and `PROGRESS.md` before any
-commit is made. Never trim a test or squeeze code to get under the line.
+Exit 1 is over a budget: **stop before committing.** Say which budget - code or
+total - the count, which files carry it, and propose where the pull request
+splits - by topic or by file group, never through the middle of a behaviour.
+Splitting changes the plan, so the owner decides, and the new shape goes into
+`TASKS.md` and `PROGRESS.md` before any commit is made. Never trim a test or
+squeeze code to get under the line.
 
-Report the count against the budget either way - the owner sees it on GitHub,
-so they should see it here first.
+Either way, report the script's line with both counts against their budgets -
+the owner sees it on GitHub, so they should see it here first.
 
 ## Step 8 - the commit
 
