@@ -36,7 +36,7 @@ edited after the last run. Write the file only once the answers are in.
 | `docsChecklist`   | One row per doc that must stay true, each with what it owns. Read the repo's docs before writing rows                                                                                                                   |
 | `decisions`       | Where the repo keeps decision records and its glossary, if it keeps either. **Detect, do not create - see below**                                                                                                       |
 | `diagrams`        | **Not yours to decide. Ask - step 3.** Find the candidates first, excluding copies: see the command below                                                                                                               |
-| `pullRequests`    | The conventions - prefixes, labels, assignee, stack, parallel runs - are **asked in step 4**, from what the history shows. `maxLines` 400 unless the owner names another budget. `excludeFromCount`: the repo's real test globs (read the test runner's config), its lockfile, and any snapshot or generated folder - tests are excluded so the budget measures the code a reviewer reasons about |
+| `pullRequests`    | The conventions - prefixes, labels, assignee, stack, parallel runs - are **asked in step 4**, from what the history shows. `maxLines` 400 (the code budget) and `maxTotalLines` 600 (code plus `codeExcludes`) unless the owner names others. `codeExcludes`: the repo's real test globs (read the test runner's config) and its doc paths - listed paths, never all `*.md`, since a plugin's skills are markdown and count as code; default `**/*.test.*`, `**/*.spec.*`. `excludeFromCount`: its lockfile and any snapshot or generated folder, counted toward neither budget - so the code budget measures what a reviewer reasons about |
 | `commitTypes`     | Conventional-commit types the repo already uses - check `git log --format=%s -n 40`                                                                                                                                     |
 | `models`          | **Not detectable. Ask - step 2.**                                                                                                                                                                                       |
 
@@ -219,8 +219,8 @@ ticket, and a pull request without one gets a question at its first task. A
 prefix that is the same on every pull request is written literally.
 
 Say what the parallel answer costs in its option. The subagents' work runs at
-once, but every checkpoint the owner holds - the tests, the grill, the diff, the
-commit - stays in the main session, one pull request at a time. It saves wall
+once, but every owner stop - the sitting and the hard stops after it - stays in
+the main session, one pull request at a time. It saves wall
 time on the writing and the gates, not attention.
 
 On a re-run, ask only the conventions being changed, the current value first

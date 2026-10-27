@@ -1,6 +1,6 @@
 ---
 name: plan-start
-description: Scaffold the plan docs - SCOPE.md, TASKS.md, QUESTIONS.md and PROGRESS.md - for a new piece of work before any code is touched. Scope, the work split into pull requests of one topic and under 400 lines each, acceptance criteria agreed with the owner per pull request, one task per commit carrying a category and the model that must take it, the tests each task proves red first, and every open question carrying a recommendation. Use when starting a feature, refactor or bug batch, or when the user says "plan this", "start a project", or names a project folder that does not exist yet.
+description: Scaffold the plan docs - SCOPE.md, TASKS.md, QUESTIONS.md and PROGRESS.md - for a new piece of work before any code is touched. Scope, the work split into pull requests of one topic and under 400 lines of code and 600 in total each, acceptance criteria agreed with the owner per pull request, one task per commit carrying a category and the model that must take it, the tests each task proves red first, and every open question carrying a recommendation. Use when starting a feature, refactor or bug batch, or when the user says "plan this", "start a project", or names a project folder that does not exist yet.
 ---
 
 # plan-start
@@ -77,9 +77,11 @@ tasks that land on its branch.
 
 A pull request is one **topic** - a feature, a fix, a refactor of one area, a
 set of files that belong together. Two topics are two pull requests, however
-small. Each stays under `pullRequests.maxLines` from the config (400 when unset),
-counting additions plus deletions and excluding the paths in
-`pullRequests.excludeFromCount` - tests, lockfiles, snapshots, generated files.
+small. Each stays under two budgets, counting additions plus deletions: code
+under `pullRequests.maxLines` (400 when unset), and the total - code plus the
+`pullRequests.codeExcludes` paths, tests and listed docs - under `maxTotalLines`
+(600 when unset). `pullRequests.excludeFromCount` - lockfiles, snapshots,
+generated files - counts toward neither.
 Estimate from the files the survey named; when an estimate is over, split by
 topic or by file group, never by cutting a behaviour in half.
 
@@ -92,7 +94,7 @@ it exists:
 | Branch                        | `<type>/<slug>` after `pullRequests.branchPrefix`, and its base - the default branch, or the branch of the pull request it depends on |
 | Ticket                        | Only when a prefix holds `{ticket}`: the ticket the pull request answers to. Unknown → a 🟦 question blocking its first task |
 | Labels                        | Its labels, from `pullRequests.labels` - `always`, plus `byType` for its type. Omit when none apply |
-| Size                          | The estimate against the budget, `~310 / 400`                                              |
+| Size                          | The estimate against both budgets, `~310 / 400 code · ~450 / 600 total`; under only when both hold |
 | Tasks                         | The task IDs that land on it, in order. Each is one commit                                 |
 | What you will see on GitHub   | The commits in order, the files, and what the reviewer checks                              |
 | Acceptance criteria           | Step 7                                                                                     |

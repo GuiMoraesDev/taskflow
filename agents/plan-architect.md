@@ -47,10 +47,11 @@ priority, a trade-off, an intent. Everything else you go and find.
    migrate call sites in batches sized so each stays green on its own, each batch
    its own task; delete the old form last, in a task blocked by every batch.
 4. **Group the tasks into pull requests.** One topic per pull request - a
-   feature, a fix, one area's refactor - each under `pullRequests.maxLines` from
-   `.claude/workflow.json` (400 when unset), counting additions plus deletions
-   and excluding `pullRequests.excludeFromCount` (tests, lockfiles, generated
-   files). Estimate the size of each from the files you read, and split by topic
+   feature, a fix, one area's refactor - each under two budgets from
+   `.claude/workflow.json`, counting additions plus deletions: code under
+   `pullRequests.maxLines` (400 when unset), and code plus the `codeExcludes`
+   paths (tests, listed docs) under `maxTotalLines` (600 when unset);
+   `excludeFromCount` (lockfiles, generated files) counts toward neither. Estimate the size of each from the files you read, and split by topic
    or file group when one is over - never through the middle of a behaviour.
    Draft each pull request's **acceptance criteria**: observable outcomes in
    given/when/then form, specific enough for a test to fail against, numbered
@@ -78,8 +79,8 @@ Four sections, matching the four files the plan is written into.
 
 - **Scope** - in, and the tempting out. Constraints. What "done" means.
 - **Pull requests** - one block each: title, branch and base, estimated size
-  against the budget, the task IDs it holds, what the owner will see on GitHub,
-  and the draft acceptance criteria.
+  against both budgets (`~N / 400 code · ~M / 600 total`), the task IDs it holds,
+  what the owner will see on GitHub, and the draft acceptance criteria.
 - **Tasks** - a table: ID, pull request, title, category, model, files, blocking
   question IDs, criteria covered. Then a short paragraph per task with the
   approach and its tests - each with the criterion and why it matters - or No

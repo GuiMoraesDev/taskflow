@@ -5,7 +5,9 @@
   "scripts": {
     "prepare": "husky",
     "check": "npm run version:check",
-    "version:check": "node scripts/check-version.js"
+    "version:check": "node scripts/check-version.js",
+    "size:test": "bash scripts/pr-size.test.sh",
+    "guard:test": "bash hooks/guard-signature.test.sh"
   },
   "devDependencies": {
     "husky": "^9.1.7"

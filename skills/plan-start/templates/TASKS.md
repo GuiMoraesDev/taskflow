@@ -6,8 +6,10 @@ Scope lives in `SCOPE.md`. Open questions live in `QUESTIONS.md`. Status lives i
 The work is split into **pull requests**, and each pull request into **tasks**.
 
 - A **pull request** is what the owner reviews on GitHub: one topic, one branch,
-  at most `pullRequests.maxLines` changed lines (400 unless `workflow.json` says
-  otherwise) not counting tests and generated files. Its section says what the
+  at most `pullRequests.maxLines` changed lines of code (400 unless
+  `workflow.json` says otherwise) and `maxTotalLines` in total (600), tests and
+  docs in `codeExcludes` counting only toward the total, generated files toward
+  neither. Its section says what the
   owner will see there - the title, the branch, the commits in order, the files,
   and the acceptance criteria it proves.
 - A **task** is one commit on that branch, applied on its own and reviewed before
@@ -36,7 +38,7 @@ says **No new test** and why.
 
 ## PR-1 · feat: <title exactly as it will appear on GitHub>
 
-**Branch:** `feat/<slug>` → `main` · **Size:** ~310 / 400 lines (tests excluded)
+**Branch:** `feat/<slug>` → `main` · **Size:** ~310 / 400 code · ~450 / 600 total
 · **Tasks:** TASK-1, TASK-2 · **Depends on:** — · **Stack:** — · **Labels:** —
 
 **What you will see on GitHub:** a draft opened by TASK-1, one commit per task
@@ -91,7 +93,7 @@ or be re-pointed.
 
 ## PR-2 · chore: <title>
 
-**Branch:** `chore/<slug>` → `main` · **Size:** ~20 / 400 lines · **Tasks:**
+**Branch:** `chore/<slug>` → `main` · **Size:** ~20 / 400 code · ~20 / 600 total · **Tasks:**
 TASK-3 · **Depends on:** — · **Stack:** — · **Labels:** —
 
 **What you will see on GitHub:** ...

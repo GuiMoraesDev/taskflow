@@ -16,8 +16,9 @@ before anything else.
 
 Then follow the `task-run` skill from step 0, which is the gate: one task, on
 its pull request's branch, tests written and shown red before a subagent on its
-model implements them green, presented for review, gated, size-checked,
-committed, pushed to its draft or ready pull request, logged. Stop after it. Do not begin
+model implements them green, self-checked against the tests the sitting
+approved, gated, size-checked, committed, pushed to its draft or ready pull
+request, logged. Stop after it. Do not begin
 the next row in the same turn.
 
 When `.claude/workflow.json` sets `pullRequests.parallel: true` and no `$1` is

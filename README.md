@@ -63,11 +63,12 @@ Then, in the repo you want to use it on:
 2. **Agree the criteria.** Settle each pull request's acceptance criteria before its
    first task starts.
 3. **Run a task.** `/next-task` picks the first task that isn't blocked (or use
-   `/next-task TASK-3` to pick one). Claude runs the full cycle: branch, failing tests,
-   implementation, a review of the logic with you, gates, size check, commit, push and
-   log. Then it stops.
+   `/next-task TASK-3` to pick one). At a pull request's first task you sit once:
+   its open questions, then every task's tests. After that Claude runs each task
+   through: branch, failing tests, implementation, a self-check, gates, size check,
+   commit, push and log, stopping only when it needs you.
 4. **Repeat.** The first task of a pull request opens it as a draft, and the last task
-   marks it ready for review.
+   marks it ready for review, after a senior review whose blockers are fixed first.
 5. **Check in.** `/plan-status` shows where you are, the open questions and what they
    block. `/deviation` writes down anything that didn't go as planned.
 
@@ -81,6 +82,7 @@ Then, in the repo you want to use it on:
 | `/plan-status [project]` | Shows the task list, open questions, latest log entries and the next task you can do |
 | `/next-task [TASK-ID]` | Picks the next task, or the one you name, and runs the cycle on it |
 | `/deviation <what changed>` | Logs a change from the plan |
+| `/review-feedback <pr>` | Judges a pull request's review comments, logs each one and suggests a process change |
 
 ### Skills
 
@@ -88,7 +90,7 @@ Then, in the repo you want to use it on:
 | --- | --- |
 | `init-workflow` | Reads your repo's scripts and layout, asks what it can't figure out (models, diagrams, pull-request conventions), then writes `.claude/workflow.json` and the workflow section of `CLAUDE.md`. Running it again asks only about what changed |
 | `plan-start` | Grills you on the design, then writes the four plan docs: the scope, the pull requests, their acceptance criteria, one-commit tasks with their tests, and the open questions, each with a recommendation |
-| `task-run` | Runs one task through the full cycle, from the failing tests to the commit and pull request, then carries on to the next until it needs you |
+| `task-run` | Holds one sitting with you per pull request, up front - its questions, then every task's tests - then runs each task from the failing tests to the commit and pull request, carrying on until it needs you |
 | `bug-red-test` | Proves a regression test fails against the old behaviour before the fix ships |
 | `docs-sync` | Goes through your docs checklist, plus the glossary and diagrams if your repo has them |
 | `standards-review` | Checks a diff against the standards in your `CLAUDE.md`, and warns you when a test was bent to pass instead of updated with the behaviour |
@@ -99,6 +101,7 @@ Then, in the repo you want to use it on:
 | --- | --- | --- |
 | `plan-architect` | deep | Surveys the code and returns the task breakdown a plan needs |
 | `standards-reviewer` | deep | Audits a diff against the standards without changing anything |
+| `pr-reviewer` | deep | Reviews a pull request against its criteria and flags ranked issues before it is marked ready |
 | `docs-diagram-auditor` | surface | Looks for outdated claims in the docs and diagram labels |
 | `gate-runner` | mechanical | Runs lint, types, unit and e2e tests and reports only the failures |
 
@@ -150,7 +153,7 @@ Everything specific to your repo lives in one file you own: `.claude/workflow.js
 | `docsChecklist` | Each doc and what it covers, checked before a behaviour change is done |
 | `decisions` | Where your decision records and glossary live |
 | `diagrams` | Whether you keep diagrams, where, in what format and who edits them |
-| `pullRequests` | Line budget and the paths it skips, branch and title prefixes, labels, assignee, stacking and whether independent pull requests run in parallel |
+| `pullRequests` | Line budgets - `maxLines` for code (400), `maxTotalLines` for code plus `codeExcludes` (600), `codeExcludes` the test and doc paths counted only in the total (`**/*.test.*`, `**/*.spec.*`), `excludeFromCount` the paths counted in neither (lockfiles, generated files) - branch and title prefixes, labels, assignee, stacking and whether independent pull requests run in parallel |
 | `aiSignature` | Whether commits and pull requests may carry an AI signature |
 | `commitTypes` | The allowed conventional-commit types |
 | `models` | Which model each tier uses, e.g. `{ "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }` |
@@ -163,7 +166,7 @@ Prose rules go stale; lint rules don't.
 ## The rules it follows 📏
 
 1. **No code before the plan.** `SCOPE.md` says what may change and what may not, `TASKS.md` holds the work, `QUESTIONS.md` holds the open decisions and `PROGRESS.md` tracks progress.
-2. **Plans are pull requests.** Each one has one topic and stays under the line budget (400 changed lines by default, tests not counted). Its title, branch, commits and files are written down before any of them exist.
+2. **Plans are pull requests.** Each one has one topic and stays under two line budgets: 400 changed lines of code and 600 in total, tests and listed docs counting only toward the total. Its title, branch, commits and files are written down before any of them exist.
 3. **Criteria come first.** Each pull request's acceptance criteria are agreed with you before its tasks start.
 4. **One task, one commit.** Each task makes something visibly true and lists its category, model tier, files and tests. A wide mechanical change is done as expand, migrate, contract.
 5. **Only real decisions become questions.** Claude reads the repo for anything it can answer itself. Each question comes with a recommendation, examples, cost and how to undo it. It is asked at the task that needs it, and it blocks only that task.
