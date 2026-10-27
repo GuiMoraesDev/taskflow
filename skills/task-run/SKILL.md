@@ -382,6 +382,15 @@ reviewer's attention, and consolidate each grill's agreed behaviour into the
 source of truth in `<details>`: one list, no duplicates, the system's behaviour
 as the pull request leaves it.
 
+When the last task marks the pull request ready, also post up to three inline
+review comments on the spots the owner should check most. Take them from the
+critical-logic sites flagged during the task, and from the reviewer's top
+findings once that step exists. Each comment is one sentence, e.g. "Look here:
+the 429 threshold is the business rule; agreed 5/minute.", and carries no AI
+signature. A pointer whose line is not in the diff goes into Where to look
+instead. A failed post never fails the step: report it and move on.
+`gh api repos/{owner}/{repo}/pulls/{n}/comments -f body=... -f commit_id=<head sha> -f path=... -F line=... -f side=RIGHT`
+
 Merging is the repo owner's call. When the last task of a pull request lands,
 the next pull request waits on that merge only if it depends on it; otherwise
 carry on with the frontier.

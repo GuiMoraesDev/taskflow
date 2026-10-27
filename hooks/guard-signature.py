@@ -4,9 +4,9 @@ repo opts in.
 
 `.claude/workflow.json` `aiSignature` controls it, and it defaults to false: a
 missing file or a missing key means no signature. When it is not true, a
-`git commit` or `gh pr create` carrying a Co-Authored-By trailer for an AI, an
-anthropic.com noreply address or a "Generated with Claude Code" line is denied,
-so the message is rewritten without it rather than merely flagged.
+`git commit`, `gh pr create`, `gh pr edit` or `gh api` call carrying a
+Co-Authored-By trailer for an AI, an anthropic.com noreply address or a
+"Generated with Claude Code" line is denied, so the message is rewritten without it rather than merely flagged.
 """
 
 import json
@@ -22,7 +22,7 @@ SIGNATURE = re.compile(
     re.IGNORECASE,
 )
 
-COMMANDS = re.compile(r"\bgit\s+commit\b|\bgh\s+pr\s+(create|edit)\b")
+COMMANDS = re.compile(r"\bgit\s+commit\b|\bgh\s+pr\s+(create|edit)\b|\bgh\s+api\b")
 
 REFUSAL = (
     "This message carries an AI signature ({found!r}), and "
@@ -42,7 +42,8 @@ def signature_enabled(cwd):
 
 
 def message_files(command, cwd):
-    """Text of any file passed as the message: git commit -F, gh --body-file."""
+    """Text of any file passed as the message: git commit -F, gh --body-file,
+    gh api -F <field>=@<path> and --input."""
     try:
         words = shlex.split(command)
     except ValueError:
@@ -50,9 +51,12 @@ def message_files(command, cwd):
     texts = []
     for i, word in enumerate(words):
         path = None
-        if word in ("-F", "--file", "--body-file") and i + 1 < len(words):
-            path = words[i + 1]
-        elif word.startswith(("--file=", "--body-file=")):
+        following = words[i + 1] if i + 1 < len(words) else ""
+        if word in ("-F", "--field") and "=@" in following:
+            path = following.split("=@", 1)[1]
+        elif word in ("-F", "--file", "--body-file", "--input") and following:
+            path = following
+        elif word.startswith(("--file=", "--body-file=", "--input=")):
             path = word.split("=", 1)[1]
         if not path or path == "-":
             continue
