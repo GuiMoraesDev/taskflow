@@ -1,7 +1,7 @@
 ---
 description: Judge a pull request's review comments, log each one, and suggest a process change
 argument-hint: "<pr number>"
-allowed-tools: Read, Edit, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep, Bash(gh repo view:*), Bash(gh api:*)
 ---
 
 Learn from the review of pull request `$1`. Read GitHub; write nothing to it.

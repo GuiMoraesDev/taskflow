@@ -1,7 +1,7 @@
 ---
 description: Show the current plan's task table, open questions and last session-log entries
 argument-hint: "[project-name]"
-allowed-tools: Read, Glob, Bash
+allowed-tools: Read, Glob
 ---
 
 Find the active plan under the plan dir, located as the `plan-start` skill's

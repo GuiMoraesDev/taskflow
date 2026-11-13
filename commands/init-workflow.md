@@ -1,7 +1,7 @@
 ---
 description: Set up or reconcile the plan-and-task workflow config for this repo
 argument-hint: ""
-allowed-tools: Read, Edit, Write, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep
 ---
 
 Follow the `init-workflow` skill end to end: detect the repo's real scripts and
