@@ -1,7 +1,7 @@
 ---
 description: Record a departure from the plan in the session log
 argument-hint: "<what turned out differently>"
-allowed-tools: Read, Edit, Glob, Bash
+allowed-tools: Read, Glob
 ---
 
 Append a session-log entry to the active `PROGRESS.md` - under the plan dir the

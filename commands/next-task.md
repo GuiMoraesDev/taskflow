@@ -1,7 +1,7 @@
 ---
 description: Pick up the next pending task from the plan and run the one-task cycle
 argument-hint: "[TASK-ID]"
-allowed-tools: Read, Edit, Glob, Grep, Bash
+allowed-tools: Read, Glob, Grep
 ---
 
 Locate the plan as the `plan-start` skill's **Where plans live** section says.
