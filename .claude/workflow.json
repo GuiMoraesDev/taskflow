@@ -1,6 +1,5 @@
 {
   "projectsDir": "docs/projects",
-  "planTemplates": "plugin",
   "gates": {},
   "e2eTriggerPaths": [],
   "docsChecklist": [

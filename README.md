@@ -4,15 +4,12 @@
 [![python](https://img.shields.io/badge/python-3-3776AB?logo=python)](https://www.python.org/downloads/)
 [![github cli](https://img.shields.io/badge/gh-cli-181717?logo=github)](https://cli.github.com/)
 [![license](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
-</br>
-<small>Every badge is a link to its docs</small>
 
-</br>
 
 ## Description of that project 📖
 
 Taskflow is a [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that
-gives Claude a disciplined way to ship work, the way a careful senior dev would:
+gives Claude a disciplined way to ship work:
 
 - 🗺️ **Plan first.** Work is planned as the pull requests you will review, each one about one topic and under a line budget.
 - ✅ **Agree what "done" means.** Each pull request gets acceptance criteria you sign off on before any code is written.
@@ -113,7 +110,7 @@ Each hook runs on Bash commands.
 | --- | --- | --- |
 | `guard-bash` | `PreToolUse` | Asks before `git commit --no-verify`, `git branch` delete or rename, `git add -A` or `git add .`, and `npx`-style runs of `eslint`, `tsc`, `vitest`, `playwright` or `jest`, printing why. Denies a git force flag unless the command's description says why force is needed |
 | `guard-signature` | `PreToolUse` | Denies `git commit`, `gh pr create`, `gh pr edit` and `gh api` calls carrying an AI `Co-Authored-By` trailer, an `anthropic.com` noreply address or a "Generated with Claude" line, unless `workflow.json` sets `aiSignature: true` (`false` by default) |
-| `version-bump` | `PreToolUse` | On `git commit`, bumps the patch version in `.claude-plugin/plugin.json` and stages it when it still matches the remote default branch, then tells you so. On `git push`, denies the push if the version is not above the remote's. Does nothing in a repo without that manifest |
+| `version-bump` | `PreToolUse` | On `git commit`, bumps the patch version in `.claude-plugin/plugin.json` and stages it when it is not above the version on the remote default branch, then tells you so. On `git push`, denies the push if the version is not above the remote's. Does nothing in a repo without that manifest |
 | `progress-reminder` | `PostToolUse` | After a `git commit`, if a plan's `PROGRESS.md` still has a 🔄 row, prints a reminder to flip it to ✅ (or ⚠️ / ❌) and add a session-log entry |
 
 ## Where plans live 🗂️
@@ -162,9 +159,6 @@ Everything specific to your repo lives in one file you own: `.claude/workflow.js
 
 > 💡 The `models` mapping covers both your plan's tasks and the plugin's own agents, so you set your cost and speed trade-off once.
 
-Rules about dependency direction belong in your repo's lint config, not in this file.
-Prose rules go stale; lint rules don't.
-
 ## The rules it follows 📏
 
 1. **No code before the plan.** `SCOPE.md` says what may change and what may not, `TASKS.md` holds the work, `QUESTIONS.md` holds the open decisions and `PROGRESS.md` tracks progress.
@@ -172,7 +166,7 @@ Prose rules go stale; lint rules don't.
 3. **Criteria come first.** Each pull request's acceptance criteria are agreed with you before its tasks start.
 4. **One task, one commit.** Each task makes something visibly true and lists its category, model tier, files and tests. A wide mechanical change is done as expand, migrate, contract.
 5. **Only real decisions become questions.** Claude reads the repo for anything it can answer itself. Each question comes with a recommendation, examples, cost and how to undo it. It is asked at the task that needs it, and it blocks only that task.
-6. **Tests before code.** You see the tests and why they matter, watch them fail, then Claude implements until they pass without touching them. Claude then walks you through the logic it wrote until you understand the code. Nothing reaches the default branch without a reviewed pull request.
+6. **Tests before code.** You see the tests and why they matter, watch them fail, then Claude implements until they pass without touching them. The pull request carries one-line "Look here:" comments on the critical logic it wrote. Nothing reaches the default branch without a reviewed pull request.
 7. **No test? Say why.** A task without a new test explains why: it changes no behaviour and the existing tests cover it. A bug fix's test targets how the bug happens.
 8. **Docs before done.** The docs checklist, and the diagrams if your repo keeps them, are checked before a behaviour change is called done.
 9. **Write down surprises.** Any change from the plan goes in the log. The plan shows what you expected, the log shows what happened.

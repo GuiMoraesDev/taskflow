@@ -1,6 +1,5 @@
 {
   "projectsDir": "docs/projects",
-  "planTemplates": "plugin",
   "gates": {
     "lint": "npm run lint:fix",
     "types": "npm run check-types",
