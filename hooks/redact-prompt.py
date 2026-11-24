@@ -22,7 +22,10 @@ from sensitive_data import load_config, redact  # noqa: E402
 NAME = "taskflow sensitive data guard"
 FLAG = "#allow-sensitive"
 RULE = "────────"
-PLACEHOLDER = re.compile(r"\[[a-z][a-z0-9_]*_\d+\]")
+TYPES = (
+    "private_key|aws_key|cloud_credential|api_token|jwt|db_url|env_secret|"
+    "auth_config|card|ssn|cpf|cnpj|iban|email|phone"
+)
 
 CONTEXT = (
     "Values in this prompt were redacted by the " + NAME + " and appear as "
@@ -50,8 +53,14 @@ def block(reason):
     )
 
 
+def has_placeholder(prompt, config):
+    names = [re.escape(n) for n, _ in (config or {}).get("extraPatterns", ())]
+    rx = r"\[(?:%s)_\d+\]" % "|".join(TYPES.split("|") + names)
+    return re.search(rx, prompt) is not None
+
+
 def check(prompt, config=None):
-    if prompt.startswith(FLAG):
+    if re.match(r"#allow-sensitive(\s|$)", prompt):
         return
     suggested, counts = redact(prompt, config)
     if counts:
@@ -64,7 +73,7 @@ def check(prompt, config=None):
             "(typed, not pasted)."
             % (NAME, found, RULE, suggested.replace(FLAG, ""), RULE, FLAG)
         )
-    elif PLACEHOLDER.search(prompt):
+    elif has_placeholder(prompt, config):
         emit(
             {
                 "hookSpecificOutput": {

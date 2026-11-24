@@ -74,6 +74,12 @@ assert d["hookSpecificOutput"]["hookEventName"] == "UserPromptSubmit"
 for w in ("taskflow sensitive data guard", "Never ask", "step-by-step", "UI or CLI", "CLI"):
     assert w in c, (w, c)'
 
+run "see [step_1] above and arr[idx_1]"
+check "AC-6 non-type bracket tokens are not placeholders" 'assert out == "", out'
+
+run "${FLAG}foo $CPF"
+check "AC-5 flag glued to more text blocks" "$BLOCKED"
+
 out=$(printf '%s' 'not json {' | python3 "$HOOK"); rc=$?
 check "AC-9 malformed stdin blocks" "$BLOCKED"
 

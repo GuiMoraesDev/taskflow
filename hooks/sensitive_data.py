@@ -182,6 +182,13 @@ def _env_secrets(text):
         value = m.group(g)
         if g == 4:
             value = value.rstrip(" \t\r;,")
+            # Prose is not a secret: a bare value is one token-shaped run,
+            # optionally followed by a `# comment`.
+            token = value.split(" ")[0].split("\t")[0]
+            tail = value[len(token) :].strip()
+            if len(token) < 6 or (tail and not tail.startswith("#")):
+                continue
+            value = token
             end = start + len(value)
             if "(" in value or "[" in value or _DOTTED.fullmatch(value):
                 continue

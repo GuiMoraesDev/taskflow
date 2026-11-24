@@ -221,6 +221,16 @@ for t in ['token = get_token()', 'password = self.password', 'api_key = os.envir
           'AUTHOR=jane']:
     same(t)
 "
+case_ AC-7 "prose after a secret-like name is not flagged" "
+for t in ['AUTH: please fix the login flow', 'api-key: required header',
+          'x-auth-token: missing in request', 'Password=Reset is broken on mobile',
+          'token: required for login']:
+    same(t)
+"
+case_ AC-7 "trailing comment after a token-shaped value redacts only the token" "
+out, counts = redact('password: hunter2xyz # old')
+assert out.endswith(' # old') and 'hunter2xyz' not in out and counts.get('env_secret') == 1, (out, counts)
+"
 
 # AC-8: the sensitiveData block in .claude/workflow.json shapes detection
 case_ AC-8 "enabled false is loaded" "
