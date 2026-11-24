@@ -135,10 +135,16 @@ def _private_keys(text):
 # run for a keyword would backtrack quadratically on "_KEY_KEY_KEY...".
 # The value is a quoted string, or a bare run to the end of the line.
 _ENV = re.compile(
-    r"(?<![A-Za-z0-9_])([A-Za-z0-9_]+)[\"']?[ \t]*[=:][ \t]*"
+    r"(?<![A-Za-z0-9_-])([A-Za-z0-9_-]+)[\"']?[ \t]*[=:][ \t]*"
     r"(?:\"((?:[^\"\\\n]|\\.)*)\"|'((?:[^'\\\n]|\\.)*)'|([^\n]*))"
 )
 _NAME_WORDS = ("password", "passwd", "secret", "token")
+# Uppercase whole segments of the name: AUTHOR is not AUTH, COMPASS is not PASS.
+_NAME_SEGMENTS = frozenset(("PASS", "PWD", "AUTH"))
+_SEGMENT_SPLIT = re.compile(r"[_-]")
+# A bare value that reads as a variable: snake_case or camelCase.
+_REF_SHAPE = re.compile(r"_|[a-z][A-Z]")
+_SPACED_EQ = re.compile(r"[ \t]=[ \t]")
 _KEY_SUFFIX = re.compile(r"(?:_|[a-z0-9]K|apik)(?:ey|EY)$|_key$|(?i:apikey)$")
 # A bare value that is code, not data: a call, an index (checked inline), or a
 # dotted reference.
@@ -147,6 +153,9 @@ _IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
 def _secret_name(name):
+    name = name.replace("-", "_")
+    if not _NAME_SEGMENTS.isdisjoint(_SEGMENT_SPLIT.split(name)):
+        return True
     if any(w in name for w in ENV_WORDS):
         return True
     low = name.lower()
@@ -174,11 +183,19 @@ def _env_secrets(text):
             if "(" in value or "[" in value or _DOTTED.fullmatch(value):
                 continue
             # `password = secret_var`: a variable reference in code. The
-            # uppercase .env rule and the `:` separator keep their values.
+            # uppercase .env rule and the `:` separator keep their values, and
+            # so does a config line (`Password=hunter22`: no indent, no spaces
+            # around `=`) unless the value is shaped like a variable.
+            sep = text[m.end(1) : start]
             if (
                 not _upper_name(m.group(1))
-                and "=" in text[m.end(1) : start]
+                and "=" in sep
                 and _IDENT.fullmatch(value)
+                and (
+                    _REF_SHAPE.search(value)
+                    or _SPACED_EQ.search(sep)
+                    or text[text.rfind("\n", 0, m.start(1)) + 1] in " \t"
+                )
             ):
                 continue
         if not _is_dummy(value):

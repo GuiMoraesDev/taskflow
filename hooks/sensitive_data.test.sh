@@ -124,6 +124,13 @@ for text, key, v in [
     ('SECRET=s3cr3tvalue', 'SECRET=', 's3cr3tvalue'),
     ('TOKEN=abcdef123', 'TOKEN=', 'abcdef123'),
     ('APIKEY=abcd1234ef', 'APIKEY=', 'abcd1234ef'),
+    ('Password=hunter22', 'Password=', 'hunter22'),
+    ('Secret=abc123xyz', 'Secret=', 'abc123xyz'),
+    ('DB_PASS=s3cretpass', 'DB_PASS=', 's3cretpass'),
+    ('PWD=hunter22x', 'PWD=', 'hunter22x'),
+    ('AUTH=abcd1234ef', 'AUTH=', 'abcd1234ef'),
+    ('api-key: abcdefgh123', 'api-key: ', 'abcdefgh123'),
+    ('x-api-token: abcd1234efgh', 'x-api-token: ', 'abcd1234efgh'),
     ('password=\"ab' + chr(92) + '\"cdefgh\"', 'password=\"', 'ab' + chr(92) + '\"cdefgh'),
 ]:
     out, counts = redact(text)
@@ -201,7 +208,8 @@ case_ AC-7 "email and phone off by default" "same('Mail jane.doe@example.com or 
 case_ AC-7 "code expressions are not flagged" "
 for t in ['token = get_token()', 'password = self.password', 'api_key = os.environ[\"API_KEY\"]',
           'secret: \${SECRET}', 'const apiKey = process.env.API_KEY',
-          'password = secret_var', 'api_key=apiKeyFromEnv', 'token = cfg_token;']:
+          'password = secret_var', 'api_key=apiKeyFromEnv', 'token = cfg_token;',
+          'AUTHOR=jane']:
     same(t)
 "
 
