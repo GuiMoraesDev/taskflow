@@ -51,6 +51,11 @@ Gates before every commit: `<LINT_FIX>`, `<CHECK_TYPES>`, `<TEST_UNIT>`, plus
 `<TEST_E2E>` when the change touches <E2E_TRIGGER_PATHS>. The pre-commit hook
 runs <HOOK_COMMANDS> and never a test, so running them is on you.
 
+Run a tool through the project's own script, even for a one-off: pass the
+extra flags or paths after `--` (`npm run test:unit -- src/foo.test.ts`). When
+no script fits, add one to `package.json` rather than calling the binary
+(`npx eslint`, `npx tsc`) directly.
+
 Commit messages and pull requests carry no AI signature - no `Co-Authored-By`
 trailer for an AI, no "Generated with Claude Code" line - unless
 `.claude/workflow.json` sets `aiSignature: true`.

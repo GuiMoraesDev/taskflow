@@ -34,8 +34,9 @@ The tier binds the subagent that makes the change, and the mapping lives in
 `.claude/workflow.json`. A task applied on the wrong model is a deviation for the
 session log even when the diff is fine.
 
-Gates before every commit: `npm run version:check`. There is no lint, type
-check, unit or e2e suite. The pre-commit hook runs `version:check`.
+Gates before every commit: `npm run version:check`, which the pre-commit hook
+runs. There is no lint, type check or e2e suite; the shell tests below cover the
+scripts and hooks.
 
 Commit messages and pull requests carry no AI signature - no `Co-Authored-By`
 trailer for an AI, no "Generated with Claude Code" line - unless
@@ -65,6 +66,9 @@ carrying a security consequence - leads with what the wrong answer costs.
 ```bash
 npm run version:check  # plugin.json version bumped
 npm run check          # the pre-commit gates
+npm run size:test      # scripts/pr-size.js
+npm run guard:test     # hooks/guard-signature.py
+npm run manifest:test  # command manifests against the directory rules
 ```
 
 ## Which doc owns what
