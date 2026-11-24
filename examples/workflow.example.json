@@ -57,6 +57,12 @@
     "parallel": false
   },
   "aiSignature": false,
+  "sensitiveData": {
+    "enabled": true,
+    "pii": { "contact": false },
+    "extraPatterns": [{ "name": "employee_id", "pattern": "EMP-\\d{6}" }],
+    "allowPaths": ["**/.env.example", "**/*.sample"]
+  },
   "commitTypes": ["fix", "feat", "refactor", "chore", "docs", "test"],
   "models": { "deep": "opus", "surface": "sonnet", "mechanical": "haiku" }
 }

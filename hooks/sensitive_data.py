@@ -11,7 +11,10 @@ Every pattern is linear: runs are anchored by a lookbehind or a literal, and
 nothing nests an unbounded quantifier, so a 1 MB hostile input stays fast.
 """
 
+import json
+import os
 import re
+import sys
 
 # Highest priority first. When two matches overlap, the earlier type keeps the
 # text, so a token inside an env assignment becomes api_token, not env_secret.
@@ -135,10 +138,17 @@ def _private_keys(text):
 # run for a keyword would backtrack quadratically on "_KEY_KEY_KEY...".
 # The value is a quoted string, or a bare run to the end of the line.
 _ENV = re.compile(
-    r"(?<![A-Za-z0-9_])([A-Za-z0-9_]+)[\"']?[ \t]*[=:][ \t]*"
+    r"(?<![A-Za-z0-9_-])([A-Za-z0-9_-]+)[\"']?[ \t]*[=:][ \t]*"
     r"(?:\"((?:[^\"\\\n]|\\.)*)\"|'((?:[^'\\\n]|\\.)*)'|([^\n]*))"
 )
 _NAME_WORDS = ("password", "passwd", "secret", "token")
+# Uppercase whole segments of the name: AUTHOR is not AUTH, COMPASS is not PASS.
+_NAME_SEGMENTS = frozenset(("PASS", "PWD", "AUTH"))
+_SEGMENT_SPLIT = re.compile(r"[_-]")
+# A bare value that reads as a variable: snake_case or camelCase.
+_REF_SHAPE = re.compile(r"_|[a-z][A-Z]")
+_BARE_TOKEN = re.compile(r"\S+")
+_SPACED_EQ = re.compile(r"[ \t]=[ \t]")
 _KEY_SUFFIX = re.compile(r"(?:_|[a-z0-9]K|apik)(?:ey|EY)$|_key$|(?i:apikey)$")
 # A bare value that is code, not data: a call, an index (checked inline), or a
 # dotted reference.
@@ -147,6 +157,9 @@ _IDENT = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
 def _secret_name(name):
+    name = name.replace("-", "_")
+    if not _NAME_SEGMENTS.isdisjoint(_SEGMENT_SPLIT.split(name)):
+        return True
     if any(w in name for w in ENV_WORDS):
         return True
     low = name.lower()
@@ -170,15 +183,45 @@ def _env_secrets(text):
         value = m.group(g)
         if g == 4:
             value = value.rstrip(" \t\r;,")
+            # Prose is not a secret: judge the first token of the bare value
+            # (the one after a Bearer/Basic scheme word). A token with a digit
+            # or symbol is a secret from 4 characters; an all-letters one only
+            # when it is the whole value (bar a `# comment`) and 6+ long.
+            toks = list(_BARE_TOKEN.finditer(value))
+            if not toks:
+                continue
+            i = 0
+            if toks[0].group().rstrip(",;.").lower() in ("bearer", "basic"):
+                i = 1
+                if len(toks) < 2:
+                    continue
+            tok = toks[i]
+            token = tok.group().rstrip(",;.")
+            rest = value[tok.end() :].strip()
+            if token.isalpha():
+                if len(token) < 6 or (rest and not rest.startswith("#")):
+                    continue
+            elif len(token) < 4:
+                continue
+            start += tok.start()
+            value = token
             end = start + len(value)
             if "(" in value or "[" in value or _DOTTED.fullmatch(value):
                 continue
             # `password = secret_var`: a variable reference in code. The
-            # uppercase .env rule and the `:` separator keep their values.
+            # uppercase .env rule and the `:` separator keep their values, and
+            # so does a config line (`Password=hunter22`: no indent, no spaces
+            # around `=`) unless the value is shaped like a variable.
+            sep = text[m.end(1) : start]
             if (
                 not _upper_name(m.group(1))
-                and "=" in text[m.end(1) : start]
+                and "=" in sep
                 and _IDENT.fullmatch(value)
+                and (
+                    _REF_SHAPE.search(value)
+                    or _SPACED_EQ.search(sep)
+                    or text[text.rfind("\n", 0, m.start(1)) + 1] in " \t"
+                )
             ):
                 continue
         if not _is_dummy(value):
@@ -335,10 +378,75 @@ def _wants_contact(config):
     return isinstance(pii, dict) and bool(pii.get("contact"))
 
 
+_EXTRA_NAME = re.compile(r"[a-z][a-z0-9_]*")
+
+
+def _warn(message):
+    sys.stderr.write("taskflow sensitive data guard: %s\n" % message)
+
+
+def _extra_patterns(entries):
+    # Compiled once here. A user pattern runs as written, so keeping it linear
+    # (no nested unbounded quantifiers) is the user's responsibility.
+    compiled = []
+    for entry in entries if isinstance(entries, list) else ():
+        name = entry.get("name") if isinstance(entry, dict) else None
+        pattern = entry.get("pattern") if isinstance(entry, dict) else None
+        if not isinstance(name, str) or not _EXTRA_NAME.fullmatch(name):
+            _warn("extraPatterns entry skipped, bad name: %r" % (name,))
+            continue
+        if not isinstance(pattern, str) or not pattern:
+            _warn("extraPatterns entry %r skipped, no pattern" % name)
+            continue
+        try:
+            compiled.append((name, re.compile(pattern)))
+        except (re.error, RecursionError, OverflowError) as e:
+            _warn("extraPatterns entry %r skipped, bad pattern: %s" % (name, e))
+    return compiled
+
+
+def load_config(project_dir):
+    """The sensitiveData block of <project_dir>/.claude/workflow.json over the
+    defaults. Anything missing, unreadable or of the wrong type is a default."""
+    block = {}
+    try:
+        path = os.path.join(project_dir or "", ".claude", "workflow.json")
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict) and isinstance(data.get("sensitiveData"), dict):
+            block = data["sensitiveData"]
+    except (OSError, ValueError, TypeError):
+        pass
+    enabled = block.get("enabled")
+    pii = block.get("pii") if isinstance(block.get("pii"), dict) else {}
+    contact = pii.get("contact")
+    allow = block.get("allowPaths")
+    return {
+        "enabled": enabled if isinstance(enabled, bool) else True,
+        "pii": {"contact": contact if isinstance(contact, bool) else False},
+        "extraPatterns": _extra_patterns(block.get("extraPatterns")),
+        "allowPaths": [p for p in allow if isinstance(p, str)]
+        if isinstance(allow, list)
+        else [],
+    }
+
+
+def _detectors(config):
+    extras = config.get("extraPatterns") if isinstance(config, dict) else None
+    # An empty match would insert a placeholder over nothing; it is skipped.
+    extra = [
+        (name, None, _scan(rx, check=bool)) for name, rx in (extras or ())
+    ]
+    return DETECTORS + extra
+
+
 def redact(text, config=None):
+    if isinstance(config, dict) and config.get("enabled") is False:
+        return text, {}
     contact = _wants_contact(config)
     found = []
-    for priority, (kind, gate, find) in enumerate(DETECTORS):
+    # Extra patterns rank below every built-in type on overlap.
+    for priority, (kind, gate, find) in enumerate(_detectors(config)):
         if kind in CONTACT_TYPES and not contact:
             continue
         if gate and not any(g in text for g in gate):
