@@ -121,6 +121,10 @@ for text, key, v in [
     ('password: hunter2xyz', 'password: ', 'hunter2xyz'),
     ('api_key = \"sk123realvalue\"', 'api_key = \"', 'sk123realvalue'),
     ('{\"clientSecret\": \"abcd1234efgh\"}', '\"clientSecret\": \"', 'abcd1234efgh'),
+    ('SECRET=s3cr3tvalue', 'SECRET=', 's3cr3tvalue'),
+    ('TOKEN=abcdef123', 'TOKEN=', 'abcdef123'),
+    ('APIKEY=abcd1234ef', 'APIKEY=', 'abcd1234ef'),
+    ('password=\"ab' + chr(92) + '\"cdefgh\"', 'password=\"', 'ab' + chr(92) + '\"cdefgh'),
 ]:
     out, counts = redact(text)
     assert v not in out, 'value not redacted: %r' % out

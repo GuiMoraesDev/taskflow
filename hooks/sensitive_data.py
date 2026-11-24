@@ -136,7 +136,7 @@ def _private_keys(text):
 # The value is a quoted string, or a bare run to the end of the line.
 _ENV = re.compile(
     r"(?<![A-Za-z0-9_])([A-Za-z0-9_]+)[\"']?[ \t]*[=:][ \t]*"
-    r"(?:\"([^\"\n]*)\"|'([^'\n]*)'|([^\n]*))"
+    r"(?:\"((?:[^\"\\\n]|\\.)*)\"|'((?:[^'\\\n]|\\.)*)'|([^\n]*))"
 )
 _NAME_WORDS = ("password", "passwd", "secret", "token")
 _KEY_SUFFIX = re.compile(r"(?:_|[a-z0-9]K|apik)(?:ey|EY)$|_key$|(?i:apikey)$")
@@ -156,7 +156,9 @@ def _secret_name(name):
 
 
 def _upper_name(name):
-    return any(w in name for w in ENV_WORDS)
+    return any(w in name for w in ENV_WORDS) or (
+        name == name.upper() and name != name.lower()
+    )
 
 
 def _env_secrets(text):
