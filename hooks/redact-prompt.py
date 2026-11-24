@@ -17,7 +17,7 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from sensitive_data import load_config, redact  # noqa: E402
+from sensitive_data import GUIDANCE, load_config, redact  # noqa: E402
 
 NAME = "taskflow sensitive data guard"
 FLAG = "#allow-sensitive"
@@ -27,13 +27,7 @@ TYPES = (
     "auth_config|card|ssn|cpf|cnpj|iban|email|phone"
 )
 
-CONTEXT = (
-    "Values in this prompt were redacted by the " + NAME + " and appear as "
-    "placeholders such as [cpf_1]. Never ask the user for them. When a redacted "
-    "value is needed to continue, say so, offer a step-by-step guide for the "
-    "user to do it themselves, and ask whether they prefer UI or CLI guidance, "
-    "defaulting to CLI if they do not say."
-)
+CONTEXT = GUIDANCE
 
 
 def emit(output):

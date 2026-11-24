@@ -249,10 +249,10 @@ case_ AC-8 "enabled false is loaded" "
 c = load_config(cfg({'enabled': False}))
 assert c.get('enabled') is False, c
 "
-case_ AC-8 "defaults: enabled, contact off, no extras, no allowPaths" "
+case_ AC-8 "defaults: enabled, contact off, no extras, default allowPaths" "
 c = load_config(cfg({}))
 assert c.get('enabled') is True and c.get('pii', {}).get('contact') is False, c
-assert c.get('extraPatterns') == [] and c.get('allowPaths') == [], c
+assert c.get('extraPatterns') == [] and c.get('allowPaths') == ['**/.env.example', '**/*.sample'], c
 "
 case_ AC-8 "pii.contact true flags email and phone" "
 out, counts = redact('mail ana@corp.io or 415-555-0134', load_config(cfg({'pii': {'contact': True}})))
@@ -282,7 +282,7 @@ d = {'missing-file': tempfile.mkdtemp(),
      'wrong-field-types': cfg({'enabled': 'no', 'pii': 'x', 'extraPatterns': {'a': 1}, 'allowPaths': 'x'})}['$bad']
 c = load_config(d)
 assert c.get('enabled') is True and c.get('pii', {}).get('contact') is False, c
-assert c.get('extraPatterns') == [] and c.get('allowPaths') == [], c
+assert c.get('extraPatterns') == [] and c.get('allowPaths') == ['**/.env.example', '**/*.sample'], c
 hit('cpf 529.982.247-25', 'cpf', ['529.982.247-25'])
 "
 done
