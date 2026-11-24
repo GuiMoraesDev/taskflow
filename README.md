@@ -165,8 +165,8 @@ prompt that carries only placeholders is sent as is.
 Start the prompt with `#allow-sensitive`, typed, as the very first characters and
 followed by a space or the end of the prompt. It applies to that one prompt only,
 and never to tool output. Pasted text or a mention anywhere else in the prompt is
-ignored and stripped from the suggested copy, so pasted content cannot switch the
-guard off.
+ignored and stripped from the suggested copy. Claude Code marks pasted text, and a
+prompt that opens with a paste does not count as starting with the flag.
 
 ### Configuration
 
@@ -218,6 +218,9 @@ complements the guard and does not replace it.
 ### Known gaps
 
 - Pasted images are not scanned.
+- `@file` mentions skip the guard unless `CLAUDE_CODE_DISABLE_FILE_MENTIONS=1`.
+- Where Claude Code does not mark pasted text, a paste that begins with
+  `#allow-sensitive` counts as the typed flag.
 - A blocked prompt can still be recorded in `history.jsonl` and the session
   transcript on disk, so a blocked secret may still exist locally.
 - If `redact-output` times out, Claude sees the raw output. A crash is caught and
