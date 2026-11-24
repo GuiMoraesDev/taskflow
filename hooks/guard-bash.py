@@ -18,7 +18,13 @@ import sys
 # a newline, optionally behind prefix words such as sudo or env.
 CMD = (
     r"(?:^|[|;&(`\n])\s*"
-    r"(?:(?:sudo|env|command|time|nohup|xargs|exec)(?:[ \t]+-\S+)*[ \t]+)*"
+    r"(?:\w+=\S*[ \t]+)*"
+    r"(?:"
+    # sudo/doas: a short flag may take a value (-u root), but only a non-flag one
+    r"(?:sudo|doas)(?:[ \t]+(?:-[A-Za-z][ \t]+[^-\s]\S*|-\S+|\w+=\S*))*[ \t]+"
+    r"|(?:env|command|time|nohup|xargs|exec|nice|timeout|stdbuf)"
+    r"(?:[ \t]+(?:-\S+|\w+=\S*|\d+[smhd]?))*[ \t]+"
+    r")*"
 )
 
 # Priority order, most important first; the force gate sits above all of these.
@@ -36,13 +42,13 @@ RULES = [
     (
         CMD + r"(?:"
         r"pbpaste|wl-paste"
-        r"|xclip\b[^|;&]*\s(?:-o|-out|--output)(?!\S)"
-        r"|xsel\b[^|;&]*\s(?:-[a-z]*o[a-z]*|--output)(?!\S)"
+        r"|xclip\b[^|;&\n]*\s(?:-o|-out|--output)(?!\S)"
+        r"|xsel\b[^|;&\n]*\s(?:-[a-z]*o[a-z]*|--output)(?!\S)"
         r"|security\s+(?:find-(?:generic|internet)-password|dump-keychain)"
         r"|pass\s+(?:show|otp|(?!(?:ls|list|init|git|insert|add|edit|generate|rm|delete|remove|mv|rename|cp|copy|find|search|grep|help|version)(?![\w./@-]))[\w][\w./@-]*)"
         r"|op\s+(?:read|item\s+get)"
         r"|bw\s+get"
-        r"|gpg2?\b[^|;&]*\s(?:-d|--decrypt)(?!\S)"
+        r"|gpg2?\b[^|;&\n]*\s(?:-d|--decrypt)(?!\S)"
         r"|osascript\b[^|;&]*\bclipboard"
         r")(?![\w-])",
         "This reads the clipboard, keychain or a password manager, so a secret "
