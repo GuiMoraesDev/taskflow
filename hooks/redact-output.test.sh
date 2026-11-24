@@ -125,6 +125,50 @@ assert "'"$RAW"'" not in out'
 done
 rm -rf "$T"
 
+run '{"tool_name":"mcp__x__get","tool_input":{},"cwd":"/n","tool_response":{"'"$RAW"'":1,"ok":"fine"}}'
+check "AC-12 MCP dict key redacted, structure kept" '
+u = d["hookSpecificOutput"]["updatedToolOutput"]
+assert "'"$RAW"'" not in out and len(u) == 2 and 1 in u.values() and u["ok"] == "fine", u'
+
+NB='{"tool_name":"Read","tool_input":{"file_path":"/x/a.ipynb"},"cwd":"/n","tool_response":{"type":"notebook","file":{"filePath":"/x/a.ipynb","cells":[{"cellType":"code","source":"%s","cell_id":"cell-0","language":"python"}]}}}'
+run "$(printf "$NB" "K = '$RAW'")"
+check "AC-21 notebook Read with a secret gets the full text notice" '
+u = d["hookSpecificOutput"]["updatedToolOutput"]
+assert u == {"type": "text", "file": {"filePath": "/x/a.ipynb", "content": "[redacted: unparseable output]", "numLines": 1, "startLine": 1, "totalLines": 1}}, u
+assert "'"$RAW"'" not in out'
+run "$(printf "$NB" "MARKER = 1")"
+check "AC-21 notebook Read without a hit prints nothing" 'assert out == "", out'
+
+run '{"tool_name":"Read","tool_input":{"file_path":"/x/big.txt"},"cwd":"/n","tool_response":{"type":"text","file":{"filePath":"/x/big.txt","content":"a\n'"$SECRET"'\nb","numLines":3,"startLine":10,"totalLines":99}}}'
+check "AC-10 partial Read keeps startLine and numLines" '
+f = d["hookSpecificOutput"]["updatedToolOutput"]["file"]
+assert "'"$RAW"'" not in out and (f["startLine"], f["numLines"], f["totalLines"]) == (10, 3, 99), f'
+
+# A parse failure after the tool name is known still gets the notice.
+STUB=$(mktemp -d)
+cat > "$STUB/run.py" <<PY
+import json, sys
+sys.path.insert(0, "$HERE")
+import importlib.util
+spec = importlib.util.spec_from_file_location("ro", "$HOOK")
+ro = importlib.util.module_from_spec(spec); spec.loader.exec_module(ro)
+class P(dict):
+    def get(self, k, d=None):
+        if k == "tool_response":
+            raise RuntimeError("boom")
+        return dict.get(self, k, d)
+json.load = lambda f: P(tool_name=sys.argv[1])
+ro.main()
+PY
+out=$(python3 "$STUB/run.py" mcp__a__b </dev/null); rc=$?
+check "AC-21 parse error with a known tool emits the notice" '
+assert d["hookSpecificOutput"]["updatedToolOutput"] == [{"type":"text","text":"[redacted: unparseable output]"}], d'
+out=$(python3 "$STUB/run.py" Grep </dev/null); rc=$?
+check "AC-21 parse error with an unrelated tool prints nothing" 'assert out == "", out'
+out=$(python3 -c 'print("["*100000)' | python3 "$HOOK"); rc=$?
+check "AC-21 unparseable stdin prints nothing" 'assert out == "", out'
+rm -rf "$STUB"
+
 check_hooks() {
   python3 - "$HERE/hooks.json" <<'PY'
 import json, sys

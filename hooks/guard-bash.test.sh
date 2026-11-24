@@ -51,5 +51,12 @@ expect none "bw login runs" "bw login"
 expect none "gpg --list-keys runs" "gpg --list-keys"
 expect none "security list-keychains runs" "security list-keychains"
 expect none "grep password runs" "grep password file"
+expect ask  "clipboard read on a new line asks" $'echo a\npbpaste'
+expect ask  "sudo pbpaste asks" "sudo pbpaste"
+expect ask  "env pbpaste asks" "env pbpaste"
+expect ask  "xargs pass show asks" "xargs pass show"
+expect ask  "prefix with flags asks" "sudo -n env pbpaste"
+expect none "sudo pbcopy runs" "sudo pbcopy"
+expect none "xargs pass ls runs" "xargs pass ls"
 
 exit $failures

@@ -60,7 +60,7 @@ class Redactor:
         if isinstance(value, list):
             return [self.walk(v) for v in value]
         if isinstance(value, dict):
-            return {k: self.walk(v) for k, v in value.items()}
+            return {self.walk(k): self.walk(v) for k, v in value.items()}
         return value
 
 
@@ -119,11 +119,14 @@ def fallback(tool, response, args=None):
 
 
 def main():
+    tool = None
     try:
         payload = json.load(sys.stdin)
         tool = payload.get("tool_name")
         response = payload.get("tool_response")
-    except (ValueError, AttributeError):
+    except Exception:
+        if isinstance(tool, str) and (tool in ("Read", "Bash") or tool.startswith("mcp__")):
+            emit(fallback(tool, None, None), GUIDANCE)
         return
     if not isinstance(tool, str) or not (
         tool in ("Read", "Bash") or tool.startswith("mcp__")

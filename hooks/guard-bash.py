@@ -14,8 +14,12 @@ import json
 import re
 import sys
 
-# Where a command word may start: the line's start, or after a pipe, ; & ( or `.
-CMD = r"(?:^|[|;&(`])\s*"
+# Where a command word may start: the line's start, or after a pipe, ; & ( ` or
+# a newline, optionally behind prefix words such as sudo or env.
+CMD = (
+    r"(?:^|[|;&(`\n])\s*"
+    r"(?:(?:sudo|env|command|time|nohup|xargs|exec)(?:[ \t]+-\S+)*[ \t]+)*"
+)
 
 # Priority order, most important first; the force gate sits above all of these.
 RULES = [
