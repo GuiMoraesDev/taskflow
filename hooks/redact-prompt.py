@@ -102,6 +102,12 @@ def main():
     )
     config = load_config(project_dir)
     if not config["enabled"]:
+        emit(
+            {
+                "systemMessage": NAME + ": disabled by .claude/workflow.json "
+                "in this repo - prompts are not scanned"
+            }
+        )
         return
     check(prompt, config)
 

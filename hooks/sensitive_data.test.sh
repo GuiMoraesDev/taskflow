@@ -276,7 +276,7 @@ hit('cpf 529.982.247-25', 'cpf', ['529.982.247-25'])
 done
 
 for via in "CLAUDE_PROJECT_DIR" "cwd"; do
-  case_ AC-8 "redact-prompt.py with enabled false prints nothing (project dir from $via)" "
+  case_ AC-8 "redact-prompt.py with enabled false passes with a warning only (project dir from $via)" "
 import subprocess
 d = cfg({'enabled': False})
 env = dict(os.environ); env.pop('CLAUDE_PROJECT_DIR', None)
@@ -285,7 +285,8 @@ if '$via' == 'cwd': payload['cwd'] = d
 else: env['CLAUDE_PROJECT_DIR'] = d
 r = subprocess.run([sys.executable, os.path.join(sys.argv[1], 'redact-prompt.py')],
                    input=json.dumps(payload), capture_output=True, text=True, env=env)
-assert r.returncode == 0 and r.stdout == '', 'stdout %r' % r.stdout
+assert r.returncode == 0, r.returncode
+assert json.loads(r.stdout) == {'systemMessage': 'taskflow sensitive data guard: disabled by .claude/workflow.json in this repo - prompts are not scanned'}, 'stdout %r' % r.stdout
 "
 done
 

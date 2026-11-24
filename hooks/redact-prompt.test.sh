@@ -91,4 +91,12 @@ check "AC-9 hooks.json registers the hook, failing closed" '
 assert d["onFailure"] == "block" and d["type"] == "command", d
 assert d["command"] == "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/redact-prompt.py\"", d'
 
+tmp=$(mktemp -d); mkdir -p "$tmp/.claude"
+printf '%s' '{"sensitiveData":{"enabled":false}}' > "$tmp/.claude/workflow.json"
+out=$(python3 -c 'import json,sys; print(json.dumps({"prompt":sys.argv[1]}))' "my cpf is $CPF" | CLAUDE_PROJECT_DIR="$tmp" python3 "$HOOK"); rc=$?
+rm -rf "$tmp"
+check "AC-8 disabled by config passes with a visible warning" 'assert d and "decision" not in d, out
+assert set(d) == {"systemMessage"}, d
+assert d["systemMessage"].startswith("taskflow sensitive data guard: disabled"), d'
+
 exit $failures
