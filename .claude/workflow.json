@@ -22,7 +22,7 @@
     "maxLines": 400,
     "maxTotalLines": 600,
     "codeExcludes": ["**/*.test.*", "**/*.test.sh", "README.md", "docs/**", "examples/**", "CLAUDE.md"],
-    "excludeFromCount": ["package-lock.json"],
+    "excludeFromCount": ["package-lock.json", "directory/**"],
     "branchPrefix": "",
     "titlePrefix": "",
     "labels": {

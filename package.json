@@ -8,7 +8,9 @@
     "version:check": "node scripts/check-version.js",
     "size:test": "bash scripts/pr-size.test.sh",
     "guard:test": "bash hooks/guard-signature.test.sh && bash hooks/guard-bash.test.sh",
-    "manifest:test": "bash scripts/plugin-manifest.test.sh"
+    "manifest:test": "bash scripts/plugin-manifest.test.sh",
+    "directory:build": "node scripts/build-directory.js",
+    "directory:test": "bash scripts/directory.test.sh"
   },
   "devDependencies": {
     "husky": "^9.1.7"
