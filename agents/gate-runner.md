@@ -21,7 +21,9 @@ Codex model, the caller hands this procedure to Codex instead of spawning you.
 3. Run e2e only when `git diff --name-only HEAD` matches `e2eTriggerPaths`, or
    when the caller asked for it. Say which of the two decided it.
 4. Use the repo's own scripts (`npm run lint:fix`), never the underlying binary
-   (`npx eslint`). Never edit a test-runner config to get past a failure.
+   (`npx eslint`). Pass extra flags or paths after `--`
+   (`npm run test:unit -- src/foo.test.ts`). Never edit a test-runner config to
+   get past a failure.
 
 ## Report
 

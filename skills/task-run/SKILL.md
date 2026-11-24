@@ -272,8 +272,12 @@ nothing about a test that was loosened to pass them.
 ## Step 6 - the gates
 
 Run the commands in `.claude/workflow.json` `gates`, in order: lint → types →
-unit, plus e2e when the diff touches `e2eTriggerPaths`. Use the repo's scripts,
-never the underlying binary directly.
+unit, plus e2e when the diff touches `e2eTriggerPaths`.
+
+Run a tool through the project's own script, even for a one-off: pass the
+extra flags or paths after `--` (`npm run test:unit -- src/foo.test.ts`). When
+no script fits, add one to `package.json` rather than calling the binary
+(`npx eslint`, `npx tsc`) directly.
 
 Delegate the run to the `gate-runner` agent, spawned with `model` set to
 `models.mechanical` from the config - it reports failures, not thousands of lines

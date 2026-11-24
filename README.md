@@ -108,7 +108,7 @@ Each hook runs on Bash commands.
 
 | Hook | Event | What it blocks or prints |
 | --- | --- | --- |
-| `guard-bash` | `PreToolUse` | Asks before `git commit --no-verify`, `git branch` delete or rename, `git add -A` or `git add .`, and `npx`-style runs of `eslint`, `tsc`, `vitest`, `playwright` or `jest`, printing why. Denies a git force flag unless the command's description says why force is needed |
+| `guard-bash` | `PreToolUse` | Asks before `git commit --no-verify` and `git branch -D`, printing why. Denies a git force flag unless the command's description says why force is needed, then asks with that reason |
 | `guard-signature` | `PreToolUse` | Denies `git commit`, `gh pr create`, `gh pr edit` and `gh api` calls carrying an AI `Co-Authored-By` trailer, an `anthropic.com` noreply address or a "Generated with Claude" line, unless `workflow.json` sets `aiSignature: true` (`false` by default) |
 | `version-bump` | `PreToolUse` | On `git commit`, bumps the patch version in `.claude-plugin/plugin.json` and stages it when it is not above the version on the remote default branch, then tells you so. On `git push`, denies the push if the version is not above the remote's. Does nothing in a repo without that manifest |
 | `progress-reminder` | `PostToolUse` | After a `git commit`, if a plan's `PROGRESS.md` still has a 🔄 row, prints a reminder to flip it to ✅ (or ⚠️ / ❌) and add a session-log entry |

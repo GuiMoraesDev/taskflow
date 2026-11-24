@@ -22,18 +22,9 @@ RULES = [
         "make the hook pass rather than bypass it.",
     ),
     (
-        r"git\s+branch\s+(-[dDM]\b|--delete\b|--move\b)",
-        "This deletes or renames a branch, which is the repo owner's call.",
-    ),
-    (
-        r"git\s+add\s+(-A\b|--all\b|\.(?:\s|$))",
-        "git add -A / git add . stages the whole working tree, which usually "
-        "holds unrelated local files. An explicit pathspec is safer.",
-    ),
-    (
-        r"(?:npx|pnpm\s+dlx|bunx|yarn\s+dlx)\s+(eslint|tsc|vitest|playwright|jest)\b",
-        "This runs a gate binary directly instead of the repo's gate script from "
-        ".claude/workflow.json - the script carries the flags the gates depend on.",
+        r"git\s+branch\s+(?:\S+\s+)*(-D\b|--delete\s+--force\b|--force\s+--delete\b)",
+        "This force-deletes a branch even when its commits are not merged, which "
+        "is the repo owner's call. git branch -d deletes only a merged branch.",
     ),
 ]
 
@@ -52,7 +43,9 @@ FORCE_UNEXPLAINED = (
     "A git force flag needs a reason. First look for a way without force - "
     "--force-with-lease, a stash, a new branch - and use it if it works. If "
     "force is really needed, run the command again with the Bash description "
-    "saying why force is necessary here, not just what the command does."
+    "saying why force is necessary here, not just what the command does. "
+    "The reason is what the owner weighs when asked to approve the command, and "
+    "having to write it is the moment to check that a safer way was tried first."
 )
 
 
