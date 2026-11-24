@@ -120,6 +120,18 @@ case_ AC-1 "env_secret *_SECRET" "
 v = 'x9Zq7Lm2Pw4Rt8Vb'
 hit('STRIPE_SECRET=' + v, 'env_secret', [v], keep=['STRIPE_SECRET='])
 "
+case_ AC-1 "bare value followed by words redacts only the value token" "
+for text, v, keep in [
+    ('password: hunter2 is my pw', 'hunter2', ' is my pw'),
+    ('export SECRET=s3cr3tvalue extra words', 's3cr3tvalue', ' extra words'),
+    ('password: hunter22, thanks', 'hunter22', ' thanks'),
+    ('AUTH: Bearer abcdefghijklmnop', 'abcdefghijklmnop', 'AUTH: Bearer '),
+    ('API_KEY=ab12', 'ab12', 'API_KEY='),
+    ('password: hunterabc', 'hunterabc', 'password: '),
+]:
+    out, counts = redact(text)
+    assert v not in out and keep in out and counts.get('env_secret') == 1, (text, out, counts)
+"
 case_ AC-1 "env_secret *_TOKEN in a multi-line .env" "
 v = 'x9Zq7Lm2Pw4Rt8Vb'
 hit('PORT=3000\nDEPLOY_TOKEN=' + v + '\nDEBUG=true\n', 'env_secret', [v], keep=['PORT=3000', 'DEPLOY_TOKEN=', 'DEBUG=true'])

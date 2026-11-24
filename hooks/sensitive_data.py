@@ -147,6 +147,7 @@ _NAME_SEGMENTS = frozenset(("PASS", "PWD", "AUTH"))
 _SEGMENT_SPLIT = re.compile(r"[_-]")
 # A bare value that reads as a variable: snake_case or camelCase.
 _REF_SHAPE = re.compile(r"_|[a-z][A-Z]")
+_BARE_TOKEN = re.compile(r"\S+")
 _SPACED_EQ = re.compile(r"[ \t]=[ \t]")
 _KEY_SUFFIX = re.compile(r"(?:_|[a-z0-9]K|apik)(?:ey|EY)$|_key$|(?i:apikey)$")
 # A bare value that is code, not data: a call, an index (checked inline), or a
@@ -182,12 +183,27 @@ def _env_secrets(text):
         value = m.group(g)
         if g == 4:
             value = value.rstrip(" \t\r;,")
-            # Prose is not a secret: a bare value is one token-shaped run,
-            # optionally followed by a `# comment`.
-            token = value.split(" ")[0].split("\t")[0]
-            tail = value[len(token) :].strip()
-            if len(token) < 6 or (tail and not tail.startswith("#")):
+            # Prose is not a secret: judge the first token of the bare value
+            # (the one after a Bearer/Basic scheme word). A token with a digit
+            # or symbol is a secret from 4 characters; an all-letters one only
+            # when it is the whole value (bar a `# comment`) and 6+ long.
+            toks = list(_BARE_TOKEN.finditer(value))
+            if not toks:
                 continue
+            i = 0
+            if toks[0].group().rstrip(",;.").lower() in ("bearer", "basic"):
+                i = 1
+                if len(toks) < 2:
+                    continue
+            tok = toks[i]
+            token = tok.group().rstrip(",;.")
+            rest = value[tok.end() :].strip()
+            if token.isalpha():
+                if len(token) < 6 or (rest and not rest.startswith("#")):
+                    continue
+            elif len(token) < 4:
+                continue
+            start += tok.start()
             value = token
             end = start + len(value)
             if "(" in value or "[" in value or _DOTTED.fullmatch(value):
