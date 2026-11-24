@@ -29,6 +29,17 @@
           }
         ]
       }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/redact-prompt.py\"",
+            "onFailure": "block"
+          }
+        ]
+      }
     ]
   }
 }
