@@ -8,7 +8,16 @@ failures=0
 PRELUDE=$(cat <<'PYEOF'
 import sys, time
 sys.path.insert(0, sys.argv[1])
-from sensitive_data import redact
+from sensitive_data import redact, load_config
+import io, json, os, tempfile
+
+def cfg(block, raw=None):
+    d = tempfile.mkdtemp()
+    os.makedirs(os.path.join(d, '.claude'))
+    body = raw if raw is not None else json.dumps({'projectsDir': 'docs', 'sensitiveData': block})
+    with open(os.path.join(d, '.claude', 'workflow.json'), 'w') as f:
+        f.write(body)
+    return d
 
 def hit(text, kind, raws, keep=(), n=1):
     out, counts = redact(text)
@@ -211,6 +220,80 @@ for t in ['token = get_token()', 'password = self.password', 'api_key = os.envir
           'password = secret_var', 'api_key=apiKeyFromEnv', 'token = cfg_token;',
           'AUTHOR=jane']:
     same(t)
+"
+
+# AC-8: the sensitiveData block in .claude/workflow.json shapes detection
+case_ AC-8 "enabled false is loaded" "
+c = load_config(cfg({'enabled': False}))
+assert c.get('enabled') is False, c
+"
+case_ AC-8 "defaults: enabled, contact off, no extras, no allowPaths" "
+c = load_config(cfg({}))
+assert c.get('enabled') is True and c.get('pii', {}).get('contact') is False, c
+assert c.get('extraPatterns') == [] and c.get('allowPaths') == [], c
+"
+case_ AC-8 "pii.contact true flags email and phone" "
+out, counts = redact('mail ana@corp.io or 415-555-0134', load_config(cfg({'pii': {'contact': True}})))
+assert '[email_1]' in out and '[phone_1]' in out, out
+"
+case_ AC-8 "pii.contact absent leaves email and phone" "
+same_text = 'mail ana@corp.io or 415-555-0134'
+out, counts = redact(same_text, load_config(cfg({})))
+assert out == same_text and not counts, out
+"
+case_ AC-8 "extraPatterns entry flagged as [name_N]" "
+c = load_config(cfg({'extraPatterns': [{'name': 'employee_id', 'pattern': r'EMP-\d{6}'}]}))
+out, counts = redact('id EMP-123456 and EMP-123456 then EMP-654321', c)
+assert '[employee_id_1]' in out and '[employee_id_2]' in out and 'EMP-' not in out, out
+assert counts.get('employee_id') == 2, counts
+"
+case_ AC-8 "allowPaths kept in loaded config" "
+c = load_config(cfg({'allowPaths': ['**/.env.example']}))
+assert c.get('allowPaths') == ['**/.env.example'], c
+"
+for bad in "missing-file" "no-block" "malformed" "block-not-object" "wrong-field-types"; do
+  case_ AC-8 "defaults on $bad" "
+d = {'missing-file': tempfile.mkdtemp(),
+     'no-block': cfg(None, json.dumps({'projectsDir': 'docs'})),
+     'malformed': cfg(None, '{not json'),
+     'block-not-object': cfg(None, json.dumps({'sensitiveData': [1, 2]})),
+     'wrong-field-types': cfg({'enabled': 'no', 'pii': 'x', 'extraPatterns': {'a': 1}, 'allowPaths': 'x'})}['$bad']
+c = load_config(d)
+assert c.get('enabled') is True and c.get('pii', {}).get('contact') is False, c
+assert c.get('extraPatterns') == [] and c.get('allowPaths') == [], c
+hit('cpf 529.982.247-25', 'cpf', ['529.982.247-25'])
+"
+done
+
+for via in "CLAUDE_PROJECT_DIR" "cwd"; do
+  case_ AC-8 "redact-prompt.py with enabled false prints nothing (project dir from $via)" "
+import subprocess
+d = cfg({'enabled': False})
+env = dict(os.environ); env.pop('CLAUDE_PROJECT_DIR', None)
+payload = {'prompt': 'my cpf is 529.982.247-25'}
+if '$via' == 'cwd': payload['cwd'] = d
+else: env['CLAUDE_PROJECT_DIR'] = d
+r = subprocess.run([sys.executable, os.path.join(sys.argv[1], 'redact-prompt.py')],
+                   input=json.dumps(payload), capture_output=True, text=True, env=env)
+assert r.returncode == 0 and r.stdout == '', 'stdout %r' % r.stdout
+"
+done
+
+# AC-20: a broken extraPatterns entry is skipped with a warning; the rest still fire
+case_ AC-20 "bad regex and bad name skipped, others fire" "
+err = io.StringIO(); sys.stderr, real = err, sys.stderr
+try:
+    c = load_config(cfg({'extraPatterns': [
+        {'name': 'broken', 'pattern': '(unclosed'},
+        {'name': 'Bad-Name', 'pattern': 'ZZZ'},
+        {'name': 'order_ref', 'pattern': r'ORD#\d{4}'},
+    ]}))
+    out, counts = redact('cpf 529.982.247-25 ref ORD#1234 ZZZ', c)
+finally:
+    sys.stderr = real
+w = err.getvalue()
+assert 'broken' in w and 'Bad-Name' in w, 'no warning: %r' % w
+assert '[cpf_1]' in out and '[order_ref_1]' in out and 'ZZZ' in out, out
 "
 
 # AC-9: ~1 MB adversarial input redacts in under 2 seconds

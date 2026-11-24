@@ -11,7 +11,10 @@ Every pattern is linear: runs are anchored by a lookbehind or a literal, and
 nothing nests an unbounded quantifier, so a 1 MB hostile input stays fast.
 """
 
+import json
+import os
 import re
+import sys
 
 # Highest priority first. When two matches overlap, the earlier type keeps the
 # text, so a token inside an env assignment becomes api_token, not env_secret.
@@ -352,10 +355,75 @@ def _wants_contact(config):
     return isinstance(pii, dict) and bool(pii.get("contact"))
 
 
+_EXTRA_NAME = re.compile(r"[a-z][a-z0-9_]*")
+
+
+def _warn(message):
+    sys.stderr.write("taskflow sensitive data guard: %s\n" % message)
+
+
+def _extra_patterns(entries):
+    # Compiled once here. A user pattern runs as written, so keeping it linear
+    # (no nested unbounded quantifiers) is the user's responsibility.
+    compiled = []
+    for entry in entries if isinstance(entries, list) else ():
+        name = entry.get("name") if isinstance(entry, dict) else None
+        pattern = entry.get("pattern") if isinstance(entry, dict) else None
+        if not isinstance(name, str) or not _EXTRA_NAME.fullmatch(name):
+            _warn("extraPatterns entry skipped, bad name: %r" % (name,))
+            continue
+        if not isinstance(pattern, str) or not pattern:
+            _warn("extraPatterns entry %r skipped, no pattern" % name)
+            continue
+        try:
+            compiled.append((name, re.compile(pattern)))
+        except (re.error, RecursionError, OverflowError) as e:
+            _warn("extraPatterns entry %r skipped, bad pattern: %s" % (name, e))
+    return compiled
+
+
+def load_config(project_dir):
+    """The sensitiveData block of <project_dir>/.claude/workflow.json over the
+    defaults. Anything missing, unreadable or of the wrong type is a default."""
+    block = {}
+    try:
+        path = os.path.join(project_dir or "", ".claude", "workflow.json")
+        with open(path, encoding="utf-8") as f:
+            data = json.load(f)
+        if isinstance(data, dict) and isinstance(data.get("sensitiveData"), dict):
+            block = data["sensitiveData"]
+    except (OSError, ValueError, TypeError):
+        pass
+    enabled = block.get("enabled")
+    pii = block.get("pii") if isinstance(block.get("pii"), dict) else {}
+    contact = pii.get("contact")
+    allow = block.get("allowPaths")
+    return {
+        "enabled": enabled if isinstance(enabled, bool) else True,
+        "pii": {"contact": contact if isinstance(contact, bool) else False},
+        "extraPatterns": _extra_patterns(block.get("extraPatterns")),
+        "allowPaths": [p for p in allow if isinstance(p, str)]
+        if isinstance(allow, list)
+        else [],
+    }
+
+
+def _detectors(config):
+    extras = config.get("extraPatterns") if isinstance(config, dict) else None
+    # An empty match would insert a placeholder over nothing; it is skipped.
+    extra = [
+        (name, None, _scan(rx, check=bool)) for name, rx in (extras or ())
+    ]
+    return DETECTORS + extra
+
+
 def redact(text, config=None):
+    if isinstance(config, dict) and config.get("enabled") is False:
+        return text, {}
     contact = _wants_contact(config)
     found = []
-    for priority, (kind, gate, find) in enumerate(DETECTORS):
+    # Extra patterns rank below every built-in type on overlap.
+    for priority, (kind, gate, find) in enumerate(_detectors(config)):
         if kind in CONTACT_TYPES and not contact:
             continue
         if gate and not any(g in text for g in gate):

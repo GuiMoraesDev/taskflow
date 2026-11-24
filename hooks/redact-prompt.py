@@ -17,12 +17,12 @@ import re
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from sensitive_data import redact  # noqa: E402
+from sensitive_data import load_config, redact  # noqa: E402
 
 NAME = "taskflow sensitive data guard"
 FLAG = "#allow-sensitive"
 RULE = "────────"
-PLACEHOLDER = re.compile(r"\[[a-z][a-z_]*_\d+\]")
+PLACEHOLDER = re.compile(r"\[[a-z][a-z0-9_]*_\d+\]")
 
 CONTEXT = (
     "Values in this prompt were redacted by the " + NAME + " and appear as "
@@ -77,7 +77,8 @@ def check(prompt, config=None):
 
 def main():
     try:
-        prompt = json.load(sys.stdin)["prompt"]
+        payload = json.load(sys.stdin)
+        prompt = payload["prompt"]
         if not isinstance(prompt, str):
             raise TypeError("prompt is not text")
     except (ValueError, KeyError, TypeError):
@@ -86,7 +87,14 @@ def main():
             "Nothing was checked; try again."
         )
         return
-    check(prompt, None)
+    cwd = payload.get("cwd")
+    project_dir = os.environ.get("CLAUDE_PROJECT_DIR") or (
+        cwd if isinstance(cwd, str) else ""
+    )
+    config = load_config(project_dir)
+    if not config["enabled"]:
+        return
+    check(prompt, config)
 
 
 if __name__ == "__main__":
