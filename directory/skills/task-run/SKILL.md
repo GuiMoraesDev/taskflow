@@ -1,0 +1,468 @@
+---
+name: task-run
+description: Apply exactly one task from TASKS.md through the full cycle - question and acceptance-criteria gate (one owner sitting per pull request, at its first task), the pull request's branch, mark in progress, tests written and watched red, implementation to green in a subagent on the task's model, a self-check of the tests the owner approved up front, review, gates, size check, commit, draft or ready pull request, session log - then carries on to the next frontier task, stopping only when the owner is needed. Use when the user says "do TASK-3", "next task", "continue the plan", or approves a task for implementation.
+---
+
+# task-run
+
+One task at a time. Batching several tasks into one review is the failure this
+whole cycle exists to prevent.
+
+**Don't stop until the owner is needed.** When a task is logged, take the next
+frontier task and run its cycle in the same turn. The owner sits once per pull
+request, up front, at its first task (step 0). After that, stop only at a hard
+stop - criteria still 📋, a new question, a test the sitting did not approve, a
+size over budget, a failing gate you cannot fix, an unresolved reviewer blocker,
+a 🙋 row, a merge - or when the frontier is empty. Say in a line which task you
+are starting; never end a turn on "should I start the next one?".
+
+The one exception is `pullRequests.parallel: true` in `.claude/workflow.json`:
+then one task per **independent** pull request may run at once - see
+[Parallel pull requests](#parallel-pull-requests). Still one task each, and
+still reviewed one at a time.
+
+The plan's `TASKS.md`, `QUESTIONS.md` and `PROGRESS.md` live under the plan dir
+the `plan-start` skill's **Where plans live** section locates - possibly an
+Obsidian vault outside the repo.
+
+## The cycle
+
+```
+0. The gate. At a pull request's first task, the sitting: its questions, then
+   every task's test table, in one message ──► approved? the rest runs through
+1. Work on the pull request's branch, never the default branch
+2. Mark the row 🔄 in PROGRESS.md
+3. Red: a subagent on the task's model writes the tests, nothing else
+   compare with the approved table ──► new or changed test? stop, ask on it
+   run them ──► each must fail, for its criterion's reason
+4. Green: the same subagent implements until they pass, the tests untouched
+5. Self-check: approved tests unchanged, the Test changes check ──► alert? stop
+6. Run the gates                ──► any fail? fix, re-run
+7. Stage, check the pull request's size ──► over budget? stop, raise the split
+8. Draft the commit message, commit
+9. Push. The first task opens the pull request as a draft; the last marks it ready
+   after the review ──► blocking? fix red to green, review once more
+10. Mark ✅ and append a session-log entry naming the hash and the pull request
+```
+
+The session that runs this skill orchestrates: it owns the gate, the owner's
+approvals, the commit and the pull request. The tests and the code are written
+by a subagent, so the task's model is a parameter of a spawn rather than a
+request for the owner to switch the session's model.
+
+The work is spec-driven: the pull request's acceptance criteria were agreed at
+planning, the tests are derived from them, and the implementation is derived
+from the tests. Each step answers to the one before it.
+
+The owner decides once per pull request, before any of its code exists: the
+sitting at step 0 settles its questions and approves every task's tests. The
+code itself is checked by the independent `pr-reviewer` at step 9 and by the
+inline pointers it leaves on the spots most worth the owner's eye.
+
+## Step 0 - the gate
+
+First, the pull request the task belongs to. Its acceptance criteria in
+`TASKS.md` must read `✅ agreed`. If they are still 📋 in discussion, **stop**:
+the task's tests have nothing to be derived from. Put the open criteria to the
+owner and discuss until they agree, as `plan-start` step 7 does, then mark them
+agreed and log it.
+
+**The sitting.** At the pull request's first task, put to the owner, in one
+message: first the open questions of every task in the pull request, each with
+its recommendation; then every task's test table, from the tests `TASKS.md`
+names for it:
+
+| Test | Covers | Why it matters |
+| ---- | ------ | -------------- |
+| `it("refuses the sixth failed login within a minute with 429")` | AC-1 | Pins the threshold |
+
+- **Why it matters** says what regression it would catch, in a phrase. A test
+  you cannot justify that way does not belong in the plan.
+- A **changed** test says what it asserted before and why that changes.
+- An agreed criterion with no test, or a test with no criterion, is a gap. Say
+  so. A task that declares No new test gives the reason.
+
+An answer that changes a test puts that row again. Log the approval with its
+provenance; then later tasks of the pull request pass this gate straight
+through, unless a question arose after the sitting - put that one alone.
+
+For each question, act on its state in `QUESTIONS.md` - the sitting is the only
+moment these questions are raised, and the reason they were not raised earlier.
+
+| State                              | Do                                                                                                                    |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Already answered                   | Proceed. Never re-ask - the owner may have answered it turns ago, unprompted. If the heading or status table still shows ⬜, flip it to ✅ first |
+| Unanswered                         | **Stop.** Put it to the owner with its recommendation, mark the question row and the task row 🚧, and wait           |
+| Answered, but you are still unsure | **Stop.** Mark 🚧 and say precisely what is still undetermined                                                          |
+
+**An unanswered question blocks its task.** Wait for the owner. The
+recommendation exists so their answer costs one word - that is its whole job.
+
+Every decision this ledger records is one a person actually made, and protecting
+that property is what the gate is for. A question the agent closes on its own
+reads as settled to every later reader, so the record ends up claiming an
+agreement that never happened.
+
+The last row matters as much as the middle one. An answer that is ambiguous, that
+assumes something the plan did not, or that opens a case nobody considered is not
+an answer yet. Resolving it by inference is how a plan quietly becomes a
+different plan. Ask again - the cost is one message.
+
+When you put a question to the owner, explain the recommendation rather than
+naming it:
+- why it wins, and why the alternatives lose;
+- what each option concretely looks like - the copy, the payload, the row;
+- what it costs;
+- how it is reversed.
+
+Bare option labels make the owner come back and ask what they mean.
+
+When the answer arrives, record it with its provenance and flip the question to
+✅ at once: its heading marker, the status table in `QUESTIONS.md` and its
+`PROGRESS.md` row. A partial answer goes to 🚧 in all three. Do this before doing
+anything else with the answer.
+
+When you put a ⚠️ question to the owner, lead with the consequence, not the
+options. "Answering B means any authenticated user can fetch another user's
+invoice by ID" is the sentence they need; the enumeration comes after it.
+
+Blocking stops the task, not the session. Every ⬜ task whose blockers are settled
+is on the **frontier** and may be taken instead - say which row you are taking and
+which blocked row you are stepping past, and leave the ledger's order as it is.
+Reordering hides the fact that something is stuck.
+
+### When the question is a knot
+
+Sometimes a blocked task is not waiting on one decision but on a tangle of them,
+where no single answer means anything on its own. Serialising a knot through the
+gate is the wrong shape: each answer arrives without the context of the others,
+and the owner ends up re-deciding the first one after hearing the third.
+
+Name it for what it is - a design problem rather than a decision - and recommend
+a design session before the plan continues - the grilling from `plan-start`
+step 3, run over just the knot. Then bring what it settles back as
+answered entries with their provenance, and re-plan the affected tasks if the
+shape changed.
+
+### When a decision should outlive the plan
+
+The plan folder is gitignored or outside the repo. A decision that meets all three of hard to
+reverse, surprising without context, and a genuine trade-off belongs in the
+repository, not in a file that dies with the project folder.
+
+`.claude/workflow.json` `decisions.adrDir` says where. Write it there as part of
+the task's commit, and note in the session log where it landed. When the repo has
+no such place, say so once when the decision is made so the owner can choose to
+keep it somewhere.
+
+## Step 1 - the branch
+
+Every task lands on its **pull request's branch**, the one named in its
+`TASKS.md` section - never on the default branch. Commits reach the default
+branch only through that pull request, reviewed and merged by the owner.
+
+- The pull request's first task creates the branch from its base: the default
+  branch, or the branch of the pull request it depends on when that one has not
+  merged yet, so the review shows only this pull request's diff.
+- Every later task checks out the existing branch and adds its commit on top.
+  Pull first when the branch is already pushed.
+
+The branch name is the one the plan gave, which already carries
+`pullRequests.branchPrefix`. A `{ticket}` the plan could not fill is an open
+question for this step, not a placeholder to push.
+
+When `pullRequests.stack` names a tool and the pull request sits on a stack,
+the tool opens the branch on top of the one below it - `gt create`,
+`git town append`, or the commands recorded for it - rather than
+`git checkout -b`, so the tool knows the chain it has to restack.
+
+One pull request, one branch, one commit per task.
+
+Before a pull request's first task, check each 👀 row in `PROGRESS.md` for
+owner comments or reviews `/review-feedback` has not logged yet - one
+`gh api` GET per pull request; the workflow's own "Look here:" pointers do not
+count. If any, name the pull request and offer `/review-feedback <pr>` first.
+It is an offer: if the owner declines, carry on.
+
+## Step 3 - red: the tests, in a subagent
+
+Spawn a `general-purpose` subagent with `model` set to the tier's value from
+`.claude/workflow.json` `models`. The task's declared model binds the runner; the
+spawn is how it is honoured, whatever model the orchestrating session is on. A
+task applied on the wrong model is a deviation for the session log even when the
+diff is fine.
+
+Its prompt is self-contained - the subagent sees none of this conversation:
+
+- the task's full entry from `TASKS.md`, the agreed acceptance criteria it
+  covers, and the answered questions it depends on, with their decisions;
+- the repo's `CLAUDE.md` rules that bind the change, its test conventions first;
+- for this step, the instruction to write **the tests only** - the ones the task
+  names, or better ones that prove the same criteria - and no production code;
+- the instruction to change only the task's `Files`, to run no git command that
+  writes (no add, commit, push or branch), and to report the files touched, each
+  test with the criterion it covers, any deviation from the plan, and anything it
+  could not settle;
+- the instruction to flag every **critical-logic site** it writes - the kinds
+  `grilling-code.md` lists, with path and line - and every business rule it had
+  to choose on its own: a default, a threshold, a fallback, an ordering. It
+  never settles a business rule silently.
+
+A tier mapped to a Codex model - any value that is not a Claude alias, such as
+`gpt-6-luna` - runs through Codex instead of a Claude model: spawn
+`codex:codex-rescue` with `--model <value>` leading its prompt and the same brief
+after it. That needs the Codex plugin installed and logged in; without it, stop
+and say so rather than falling back to a Claude model.
+
+🙋 rows are the repo owner's. Do not attempt them - report what is needed.
+
+**Compare with the approved table.** The owner approved these tests at the
+sitting. A test the table does not hold, or one that asserts something other
+than its approved row, **stops the run**: put that test alone to the owner, its
+row and why the task needs it, and wait. A test changed to accommodate the
+implementation, rather than because a criterion says so, is a ⚠️ alert - see
+step 5.
+
+**Run them, and read the failure.** Run only the new and changed tests, with the
+repo's unit script. Each must be red, and red for the criterion's reason - an
+assertion on the behaviour the criterion names. A failure from a missing import,
+a bad fixture, a syntax error or an unrelated assertion proves nothing: fix the
+test and run it again. A test that passes before the implementation exists
+proves nothing either - the behaviour is already there, or the test does not
+check it. Raise it with the owner; it is a finding, not a test.
+
+Record the red run in the session log - each test and the failure it gave, e.g.
+"nothing counts attempts yet: got 401" - and carry on without waiting.
+
+🔴 bug tasks also follow `bug-red-test`: the test is written against the bug's
+mechanism, not its symptom.
+
+**A task that declares No new test** skips the red run. Say the reason the plan
+gave, run the existing suite once before the change so step 6 has a baseline,
+and go to step 4.
+
+## Step 4 - green: the implementation
+
+Send the same subagent - its context carries over - the instruction to implement
+until the approved tests pass, **without editing them**. If it finds a test it
+cannot satisfy as written, it stops and reports why rather than changing the
+test: that is a conversation with the owner about the criterion, not an edit.
+
+Run the new tests again, then the rest of the suite. All green. Record the
+before and after for the log: which tests went from red to green.
+
+Scope is the task's `Files` list. Reaching further is a deviation, not a bonus:
+do the useful thing, then write down that you did.
+
+## Step 5 - the self-check
+
+No owner stop here. Confirm that no approved test changed between step 3 and
+now: compare the test files against the table the sitting approved, and treat
+any difference as an alert. Keep the critical-logic sites and business rules the
+subagent flagged for the pointers at step 9; a business rule the sitting did
+not settle is a new question - step 0 puts it.
+
+When the diff touches a test, run the **Test changes** check from
+`standards-review` before the gates. It asks whether each test change follows a
+behaviour change or was bent to pass. A ⚠️ alert stops the run: put it in front
+of the owner, with the coverage lost and the behaviour risk, and wait for their
+call. Do not answer an alert by rewriting the test again. Passing gates prove
+nothing about a test that was loosened to pass them.
+
+## Step 6 - the gates
+
+Run the commands in `.claude/workflow.json` `gates`, in order: lint → types →
+unit, plus e2e when the diff touches `e2eTriggerPaths`.
+
+Run a tool through the project's own script, even for a one-off: pass the
+extra flags or paths after `--` (`npm run test:unit -- src/foo.test.ts`). When
+no script fits, add one to `package.json` rather than calling the binary
+(`npx eslint`, `npx tsc`) directly.
+
+Delegate the run to the `gate-runner` agent, spawned with `model` set to
+`models.mechanical` from the config - it reports failures, not thousands of lines
+of passing output.
+
+When `models.mechanical` is a Codex model, no Claude agent can run on it. Spawn
+`codex:codex-rescue` with `--model <value>` instead, and paste the gate-runner's
+procedure and report format into its prompt along with the instruction to edit
+nothing.
+
+If lint fixed files, those changes go in the same commit.
+
+A task that touches behaviour also owes the docs checklist. Run `docs-sync`
+before calling the task done.
+
+## Step 7 - the size
+
+Stage the task's files with an explicit pathspec, then measure the pull
+request as GitHub will count it - everything on the branch since its base, plus
+what is staged - from the repo root:
+
+`<base>` is the merge base with the branch the pull request targets. Read
+`pullRequests` from `.claude/workflow.json` and count two numbers:
+
+```bash
+# code
+git diff --cached --numstat <base> -- . ':(glob,exclude)<each excludeFromCount>' ':(glob,exclude)<each codeExcludes>'
+# total
+git diff --cached --numstat <base> -- . ':(glob,exclude)<each excludeFromCount>'
+```
+
+Give one `':(glob,exclude)<pattern>'` per entry - the glob form of
+the `:(exclude)` pathspec, so `**` spans directories. Sum the added and deleted
+columns of every row; a `-` row is a binary file and counts 0. `codeExcludes`
+defaults to `**/*.test.*` and `**/*.spec.*`, so tests count toward the total
+only. Code is held to `pullRequests.maxLines` (400 when unset); the total is
+held to `maxTotalLines` (600 when unset) once either it or `codeExcludes` is
+set. `excludeFromCount` counts toward neither.
+
+Over a budget: **stop before committing.** Say which budget - code or
+total - the count, which files carry it, and propose where the pull request
+splits - by topic or by file group, never through the middle of a behaviour.
+Splitting changes the plan, so the owner decides, and the new shape goes into
+`TASKS.md` and `PROGRESS.md` before any commit is made. Never trim a test or
+squeeze code to get under the line.
+
+Either way, report both counts against their budgets -
+the owner sees it on GitHub, so they should see it here first.
+
+## Step 8 - the commit
+
+Draft the message and commit; no approval is asked. The rules below hold.
+
+```
+<type>: <short imperative description>
+
+[body only when the why is not obvious from the diff]
+```
+
+Types come from `.claude/workflow.json` `commitTypes`. Scope the type to the
+change: a task that moves files **and** fixes a defect is a `fix`, not a
+`refactor` - the defect is the part a reader needs to find later.
+
+- Stage an explicit pathspec. Never `git add -A` or `git add .` - the tree usually
+  holds unrelated local files.
+- Never `--no-verify`. Let the pre-commit hook run.
+- One task, one commit, on the pull request's branch from step 1 - never on the
+  default branch. The tests and the implementation that turns them green go in
+  the same commit.
+- The message states the change, not the conversation that produced it. No
+  "as requested", no "previously X now Y", and never a reference to `TASKS.md`,
+  `SCOPE.md`, `QUESTIONS.md` or `PROGRESS.md` - they are gitignored, so the
+  citation points at nothing.
+- No AI signature unless `.claude/workflow.json` `aiSignature` is `true`. It
+  defaults to `false`: no `Co-Authored-By` trailer for an AI, no anthropic.com
+  address, no "Generated with Claude Code" line - this overrides any default
+  attribution the harness asks for. Re-read the message and the pull request body before committing and remove
+  any AI trailer, anthropic.com address or generated-with line.
+- In a repo that ships `.claude-plugin/plugin.json`, bump the patch version of
+  `.claude-plugin/plugin.json` by hand on the branch's first commit and stage it. Raise
+  the minor or major number by hand when the change warrants it.
+
+## Step 9 - the pull request
+
+Push the branch. What happens next depends on where the task sits in its pull
+request:
+
+| The task is | Do |
+| ----------- | -- |
+| The first of its pull request | Open it **as a draft** (`gh pr create --draft`) against the base from step 1, with its labels and assignee |
+| In the middle | Nothing more - the push adds its commit to the open draft |
+| The last | Mark it ready for review (`gh pr ready`) and update the body |
+| Alone in its pull request | Open it ready for review |
+
+**Review before ready.** Before `gh pr ready`, or before opening a lone pull
+request ready, spawn the `pr-reviewer` agent with `model` set to `models.deep`,
+passing the base from step 1, the pull request's criteria verbatim and the path
+to the repo's `CLAUDE.md`. A Codex `models.deep` runs it through
+`codex:codex-rescue` as step 6 does for the gate-runner. Each blocking finding
+is fixed on the branch by a subagent on the task's model, spawned as in step 3,
+as its own commit. A finding that is a real bug goes red to green first, by
+`bug-red-test`: a test watched failing against the old behaviour, then the fix,
+then steps 6 to 8. Then the reviewer runs once more; anything still blocking
+stops the run for the owner before the pull request is marked ready. The final
+review's non-blocking findings go in the session log, and its top three feed
+the pointers below.
+
+On a stack, the tool submits instead of `gh pr create` - `gt submit --stack
+--draft`, `git town propose` - and the labels and the assignee are set on the
+pull request it opened with `gh pr edit`.
+
+The title is the one the plan gave the pull request, `pullRequests.titlePrefix`
+included. Then the conventions:
+
+- **Labels** - the plan's, from `labels.always` and `labels.byType`, passed as
+  `--label`. Check each against `gh label list` first. A missing label under
+  `onMissing: "ask"` is put to the owner with the closest existing labels as
+  options; under `"create"`, create it with `gh label create` and say so in the
+  report. Never drop a label silently.
+- **Assignee** - `--assignee @me` when `assignOwner` is `true`.
+
+The body follows `templates/PR-body.md` in this skill's folder: **Intent**,
+**Proven by** - one line per criterion to the test that proves it, or "No new
+test" and why - and **Where to look**, then the **Agreed behaviour** collapsed
+in `<details>`. Ten lines or fewer outside `<details>` when the pull request has
+three criteria or fewer. Write it in the register of the commit message: no
+plan-file references, no task IDs, no conversation, and no AI signature unless
+`aiSignature` is `true`. Tick each Proven by line as its task lands. When the
+last task lands, fill Where to look with the one to three spots most worth the
+reviewer's attention, and consolidate the behaviour the sitting agreed into the
+source of truth in `<details>`: one list, no duplicates, the system's behaviour
+as the pull request leaves it.
+
+When the last task marks the pull request ready, also post up to three inline
+review comments on the spots the owner should check most. Take them from the
+reviewer's top three non-blocking findings first, then from the critical-logic
+sites flagged during the task. Each comment is one sentence, e.g. "Look here:
+the 429 threshold is the business rule; agreed 5/minute.", and carries no AI
+signature. A pointer whose line is not in the diff goes into Where to look
+instead. A failed post never fails the step: report it and move on.
+`gh api repos/{owner}/{repo}/pulls/{n}/comments -f body=... -f commit_id=<head sha> -f path=... -F line=... -f side=RIGHT`
+
+Merging is the repo owner's call. When the last task of a pull request lands,
+the next pull request waits on that merge only if it depends on it; otherwise
+carry on with the frontier.
+
+## Parallel pull requests
+
+Only when `pullRequests.parallel` is `true`, and only across pull requests that
+are **independent**: no **Depends on** between them, not on the same stack, and
+no file in common. Two tasks that touch one file are not parallel, whatever the
+plan says - take them one after the other.
+
+- One worktree per pull request, on its branch:
+  `git worktree add ../<repo>-<branch> <branch>`. The subagent works there and
+  nowhere else, and its prompt names the path.
+- Spawn the red subagents together in one message, and later the green ones and
+  the `gate-runner`s. Each runs on its own task's model.
+- Every owner stop stays in this session and takes **one pull request at a
+  time**, named at the top: the sitting, a new question or test, a size over
+  budget, a reviewer blocker. A second pull request waits at its stop until the
+  first is through it - the owner never sits for two pull requests in one
+  message.
+- Commit and push from each worktree with `git -C <path>`. Remove a worktree only
+  after its task is logged, and only after asking the owner.
+
+Report each pull request's outcome on its own lines. A failure in one stops that
+one, not the others.
+
+## Step 10 - the log
+
+Flip the task row to ✅ once its commit is pushed, and move the pull request
+row: 📝 draft with its number after the first task, 👀 ready after the last, with
+the measured size in its summary. Append one session-log entry: the hash, the
+pull request and its size against the budget, what actually changed, the tests
+that went red to green, the task's agreed behaviour, the suite counts, and any
+**deviation**.
+
+Both directions of deviation count. A task that turned out unnecessary and a task
+that had to do more than it said are equally worth writing down - the plan is
+evidence of what was expected, the log is evidence of what was true.
+
+⚠️ partial and ❌ skipped are legitimate outcomes. Say what was left out and why;
+never mark ✅ on a partial.
+
+A question settled during the task gets its own line: the ID, the decision, and
+the owner's reasoning in a phrase. Every decision in the log is one a person
+actually made - that is the property this workflow is protecting.

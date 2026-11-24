@@ -48,6 +48,20 @@ Then, in the repo you want to use it on:
 
 > 💡 To install from a local checkout instead, pass its path to `/plugin marketplace add`.
 
+## Two variants 🧩
+
+The repo root is the full plugin, installed from the `taskflow-tools` marketplace: skills, agents, commands, hooks and scripts.
+
+`directory/` is a generated, Markdown-only variant for the Claude plugin directory. It has:
+
+- no hooks, so no signature guard, force-flag guard, version bump or progress reminder
+- no `pr-size.js`: `task-run` measures size with `git diff --numstat`
+- no diagram script
+
+The same rules are stated as instructions in the skills instead.
+
+`directory/` is generated. Edit the root sources and run `npm run directory:build`. `npm run check`, which the pre-commit hook runs, fails when `directory/` is stale.
+
 ## How a piece of work flows 🔁
 
 ```
@@ -177,3 +191,4 @@ Everything specific to your repo lives in one file you own: `.claude/workflow.js
 - Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
 - With the plugin installed while you work on it, its `version-bump` hook bumps the patch version in `plugin.json` on a branch's first commit and blocks a push that didn't bump it.
 - When a pull request merges into `main`, the [`Release`](.github/workflows/release.yml) workflow tags the merge commit `v<version>` and publishes a GitHub release.
+- `directory/` is built from the root sources with `npm run directory:build`; `npm run directory:test` checks it follows the directory policy and matches a fresh build.

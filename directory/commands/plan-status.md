@@ -1,0 +1,46 @@
+---
+description: Show the current plan's task table, open questions and last session-log entries
+argument-hint: "[project-name]"
+allowed-tools: Read, Glob
+---
+
+Find the active plan under the plan dir, located as the `plan-start` skill's
+**Where plans live** section says. With an argument, use `<plan dir>/$1/`. Without one, use the folder whose
+`PROGRESS.md` was modified most recently; if several are close, list them and ask.
+
+Read `PROGRESS.md` for state and `QUESTIONS.md` for the questions themselves.
+
+Report, and nothing else:
+
+1. The ledger as it stands, grouped under its pull request rows, questions in
+   their positions, with a count line:
+   `n done · n in progress · n pending · n blocked`, and one for the pull
+   requests: `n merged · n ready · n draft · n not opened · n in discussion`.
+   Give each opened pull request its number and its size against both budgets
+   (`N / 400 code · M / 600 total`), and flag any
+   over either.
+2. Any **unanswered** (⬜) or **partly answered** (🚧) question: its ID, its
+   mark, the task it blocks, and its recommendation with the deciding reason in
+   one line. Every one of them is holding its task, so say
+   which tasks are unreachable until they are answered. Flag the ⚠️ ones
+   separately - those are the ones whose consequences the owner has to weigh.
+3. The last three session-log entries, one line each.
+4. The **frontier**: every ⬜ task whose blockers are settled and whose pull
+   request's criteria are agreed, with the model each declares. A pull request
+   whose criteria are still 📋 is listed as owed by the owner. The ledger's order says which is preferred, so list that one first.
+   Do not start any of them.
+
+   When the frontier is empty and the plan is unfinished, say so plainly - every
+   remaining task is waiting on the owner - and list what they owe.
+
+This is a status report, not the question gate. Listing an open question here is
+not asking it: do not press the owner for an answer to a question whose task is
+not next, and do not apply any recommendation. If they answer one anyway, record
+it in `QUESTIONS.md` and flip it to ✅: its heading, the status table and its
+`PROGRESS.md` row.
+
+If a question's heading, its status-table row and its `PROGRESS.md` row
+disagree, flag it.
+
+If a row is 🔄 and the tree is clean with a commit since it was marked, flag it:
+the marker was probably never flipped to ✅.
