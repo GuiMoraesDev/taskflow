@@ -14,6 +14,19 @@ import json
 import re
 import sys
 
+# Where a command word may start: the line's start, or after a pipe, ; & ( ` or
+# a newline, optionally behind prefix words such as sudo or env.
+CMD = (
+    r"(?:^|[|;&(`\n])\s*"
+    r"(?:\w+=\S*[ \t]+)*"
+    r"(?:"
+    # sudo/doas: a short flag may take a value (-u root), but only a non-flag one
+    r"(?:sudo|doas)(?:[ \t]+(?:-[A-Za-z][ \t]+[^-\s]\S*|-\S+|\w+=\S*))*[ \t]+"
+    r"|(?:env|command|time|nohup|xargs|exec|nice|timeout|stdbuf)"
+    r"(?:[ \t]+(?:-\S+|\w+=\S*|\d+[smhd]?))*[ \t]+"
+    r")*"
+)
+
 # Priority order, most important first; the force gate sits above all of these.
 RULES = [
     (
@@ -25,6 +38,21 @@ RULES = [
         r"git\s+branch\s+(?:\S+\s+)*(-D\b|--delete\s+--force\b|--force\s+--delete\b)",
         "This force-deletes a branch even when its commits are not merged, which "
         "is the repo owner's call. git branch -d deletes only a merged branch.",
+    ),
+    (
+        CMD + r"(?:"
+        r"pbpaste|wl-paste"
+        r"|xclip\b[^|;&\n]*\s(?:-o|-out|--output)(?!\S)"
+        r"|xsel\b[^|;&\n]*\s(?:-[a-z]*o[a-z]*|--output)(?!\S)"
+        r"|security\s+(?:find-(?:generic|internet)-password|dump-keychain)"
+        r"|pass\s+(?:show|otp|(?!(?:ls|list|init|git|insert|add|edit|generate|rm|delete|remove|mv|rename|cp|copy|find|search|grep|help|version)(?![\w./@-]))[\w][\w./@-]*)"
+        r"|op\s+(?:read|item\s+get)"
+        r"|bw\s+get"
+        r"|gpg2?\b[^|;&\n]*\s(?:-d|--decrypt)(?!\S)"
+        r"|osascript\b[^|;&]*\bclipboard"
+        r")(?![\w-])",
+        "This reads the clipboard, keychain or a password manager, so a secret "
+        "would reach the model. Copy only what is needed, or run it yourself.",
     ),
 ]
 

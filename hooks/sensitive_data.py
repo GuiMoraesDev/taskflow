@@ -25,6 +25,18 @@ DUMMY = re.compile(
 )
 ENV_WORDS = ("_KEY", "_SECRET", "_TOKEN", "PASSWORD")
 
+# Read paths left unredacted unless the repo config sets its own list.
+DEFAULT_ALLOW_PATHS = ["**/.env.example", "**/*.sample"]
+
+# Shown to Claude whenever the guard replaced values with placeholders.
+GUIDANCE = (
+    "Sensitive values here were replaced with placeholders like [cpf_1] by the "
+    "taskflow sensitive data guard. Never ask the user for the values. "
+    "When a redacted value is needed to continue, say so, offer a step-by-step "
+    "guide for the user to do it themselves, and ask whether they prefer UI or "
+    "CLI guidance, defaulting to CLI if they do not say."
+)
+
 
 def _is_dummy(value):
     return len(value) < 4 or value.startswith("$") or bool(DUMMY.fullmatch(value))
@@ -427,7 +439,7 @@ def load_config(project_dir):
         "extraPatterns": _extra_patterns(block.get("extraPatterns")),
         "allowPaths": [p for p in allow if isinstance(p, str)]
         if isinstance(allow, list)
-        else [],
+        else list(DEFAULT_ALLOW_PATHS),
     }
 
 
