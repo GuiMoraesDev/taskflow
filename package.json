@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "prepare": "husky",
-    "check": "npm run version:check",
+    "check": "npm run version:check && npm run directory:test",
     "version:check": "node scripts/check-version.js",
     "size:test": "bash scripts/pr-size.test.sh",
     "guard:test": "bash hooks/guard-signature.test.sh && bash hooks/guard-bash.test.sh",
